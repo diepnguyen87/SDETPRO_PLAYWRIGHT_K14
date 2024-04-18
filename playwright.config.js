@@ -9,7 +9,7 @@ module.exports = defineConfig({
         },
     ],
     reporter: 'html',
-    // retries: process.env.CI ? 2 : 1,
+        // retries: process.env.CI ? 2 : 1,
     use: {
         actionTimeout: 5 * 1000,
         trace: 'on-first-retry',

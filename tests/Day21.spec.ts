@@ -40,7 +40,7 @@ test('Handling JS Prompt with event', async ({ page }) => {
     await page.waitForTimeout(2 * 1000)
 })
 
-test.only('Handling javascript without parameter', async ({ page }) => {
+test('Handling javascript without parameter', async ({ page }) => {
     await page.goto(floatingMenuURL)
 
     //scroll down
@@ -69,7 +69,7 @@ test('Handling javascript with parameter', async ({ page }) => {
     await page.waitForTimeout(2 * 1000)
 })
 
-test('Handling javascript and return value', async ({ page }) => {
+test.only('Handling javascript and return value', async ({ page }) => {
     await page.goto("https://www.foodandwine.com/")
     console.log(await getAdsParam(page, 'leaderboard-flex-1'));
 })
