@@ -2,7 +2,7 @@ import { Locator } from "@playwright/test";
 
 export default class SearchComponent {
 
-    public static searchBoxSel = "div.search-box"
+    public static selector = "div.search-box"
     private searchInputSel = "input#small-searchterms"
     private searchBtnSel = ".search-box-button"
 

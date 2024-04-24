@@ -1,6 +1,7 @@
 import { Page } from "@playwright/test";
-import SearchComponent from "../components/SearchComponent";
-import ProductItemComponent from "../components/ProductItemComponent";
+import PageBodyComponent from "../components/PageBodyComponent";
+import FooterComponent from "../components/global/footer/FooterComponent";
+import HeaderComponent from "../components/global/header/HeaderComponent";
 
 export default class HomePage {
 
@@ -8,12 +9,15 @@ export default class HomePage {
         this.page = page
     }
 
-    searchComp(): SearchComponent {
-        return new SearchComponent(this.page.locator(SearchComponent.searchBoxSel));
+    headerComp(): HeaderComponent {
+        return new HeaderComponent(this.page.locator(HeaderComponent.selector));
     }
 
-    async productItemComp(): Promise<ProductItemComponent[]> {
-        const productItemLocatorList = await this.page.locator(ProductItemComponent.selector).all();
-        return productItemLocatorList.map(productItemLocator => new ProductItemComponent(productItemLocator))
+    pageBodyComp(): PageBodyComponent {
+        return new PageBodyComponent(this.page.locator(PageBodyComponent.selector));
+    }
+
+    footerComp(): FooterComponent {
+        return new FooterComponent(this.page.locator(FooterComponent.selector))
     }
 }
