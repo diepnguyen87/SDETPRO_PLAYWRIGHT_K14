@@ -7,6 +7,7 @@ export default class FooterColumnComponent {
 
     constructor(private component: Locator) {
         this.component = component
+        this.component.scrollIntoViewIfNeeded()
     }
 
     title(): Locator {
