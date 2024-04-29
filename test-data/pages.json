@@ -1,0 +1,77 @@
+[
+    {
+        "pageName": "Home Page",
+        "slug": "/",
+        "className": "HomePage"
+    },
+    {
+        "pageName": "Login Page",
+        "slug": "/login",
+        "className": "LoginPage"
+    },
+    {
+        "pageName": "Register Page",
+        "slug": "/register",
+        "className": "RegisterPage"
+    },
+    {
+        "pageName": "Book Page",
+        "slug": "/books",
+        "className": "BookPage"
+    },
+    {
+        "pageName": "Computer Page",
+        "slug": "/computers",
+        "className": "ComputerPage"
+    },
+    {
+        "pageName": "Desktop Page",
+        "slug": "/desktops",
+        "className": "DesktopPage"
+    },
+    {
+        "pageName": "Notebook Page",
+        "slug": "/notebooks",
+        "className": "NotebookPage"
+    },
+    {
+        "pageName": "Accessory Page",
+        "slug": "/accessories",
+        "className": "AccessoryPage"
+    },
+    {
+        "pageName": "Electronic Page",
+        "slug": "/electronics",
+        "className": "ElectronicPage"
+    },
+    {
+        "pageName": "CameraPhoto Page",
+        "slug": "/camera-photo",
+        "className": "CameraPhotoPage"
+    },
+    {
+        "pageName": "Cellphone Page",
+        "slug": "/cell-phones",
+        "className": "CellPhonePage"
+    },
+    {
+        "pageName": "ApparelShoes Page",
+        "slug": "/apparel-shoes",
+        "className": "ApparelShoesPage"
+    },
+    {
+        "pageName": "DigitalDownload Page",
+        "slug": "/digital-downloads",
+        "className": "DigitalDownloadPage"
+    },
+    {
+        "pageName": "Jewelry Page",
+        "slug": "/jewelry",
+        "className": "JewelryPage"
+    },
+    {
+        "pageName": "GiftCard Page",
+        "slug": "/gift-cards",
+        "className": "GiftCardPage"
+    }
+]

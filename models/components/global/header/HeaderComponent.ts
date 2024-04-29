@@ -1,5 +1,5 @@
 import { Locator } from "@playwright/test";
-import SearchComponent from "./SearchComponent";
+import SearchComponent from "./SearchComponent.js";
 
 export default class HeaderComponent {
 

@@ -1,8 +1,7 @@
 import { Page } from "@playwright/test";
-import BasePage from "./BasePage.js";
+import BasePage from "./BasePage";
 
-export default class HomePage extends BasePage{
-
+export default class ComputerPage extends BasePage {
     constructor(page: Page) {
         super(page)
     }

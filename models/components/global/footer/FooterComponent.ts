@@ -1,8 +1,8 @@
 import { Locator } from "@playwright/test";
-import CustomerServiceColumnComponent from "./CustomerServiceColumnComponent";
-import FollowUsColumnComponent from "./FollowUsColumnComponent";
-import InformationColumnComponent from "./InformationColumnComponent";
-import MyAccountColumnComponent from "./MyAccountColumnComponent";
+import CustomerServiceColumnComponent from "./CustomerServiceColumnComponent.js";
+import FollowUsColumnComponent from "./FollowUsColumnComponent.js";
+import InformationColumnComponent from "./InformationColumnComponent.js";
+import MyAccountColumnComponent from "./MyAccountColumnComponent.js";
 
 export default class FooterComponent {
     public static selector: string = ".footer"

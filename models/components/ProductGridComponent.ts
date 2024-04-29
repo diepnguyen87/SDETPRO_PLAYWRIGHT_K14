@@ -1,5 +1,5 @@
 import { Locator } from "@playwright/test";
-import ProductItemComponent from "./ProductItemComponent";
+import ProductItemComponent from "./ProductItemComponent.js";
 
 export default class ProductGridComponent {
 

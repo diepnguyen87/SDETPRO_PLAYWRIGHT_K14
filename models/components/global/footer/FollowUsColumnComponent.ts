@@ -1,5 +1,5 @@
 import { Locator } from "@playwright/test";
-import FooterColumnComponent from "./FooterColumnComponent";
+import FooterColumnComponent from "./FooterColumnComponent.js";
 
 export default class FollowUsColumnComponent extends FooterColumnComponent {
     public static selector: string = ".column.follow-us"
