@@ -1,8 +1,8 @@
 import { Locator, Page } from "@playwright/test";
-import ComputerEssentialComponent from "../components/computer/ComputerEssentialComponent";
-import BasePage from "./BasePage";
+import ComputerEssentialComponent from "../components/computer/ComputerEssentialComponent.js";
+import BasePage from "./BasePage.js";
 
-type ComputerComponentConstructor<T extends ComputerEssentialComponent> = new (component: Locator) => T
+export type ComputerComponentConstructor<T extends ComputerEssentialComponent> = new (component: Locator) => T
 export default class ComputerDetailPage extends BasePage{
 
     constructor(page: Page) {

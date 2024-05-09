@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
-import { scrollDownByPercentage } from '../utils/PageHelper'
-import { getAdsParam } from '../utils/GoogleAdHelper'
+import { scrollDownByPercentage } from '../utils/PageHelper.js'
+import { getAdsParam } from '../utils/GoogleAdHelper.js'
 
 const jsAlertURL = "https://the-internet.herokuapp.com/javascript_alerts"
 const floatingMenuURL = "https://the-internet.herokuapp.com/floating_menu"

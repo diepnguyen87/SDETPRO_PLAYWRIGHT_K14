@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-test('Handle dropdown', async ({ page }) => {
+test.only('Handle dropdown', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/dropdown")
     const dropdownElem = await page.locator("select#dropdown")
     await dropdownElem.selectOption({ value: "2" })
@@ -34,7 +34,7 @@ test('Hover to elements', async ({ page }) => {
     }
 })
 
-test.only('Handle dynamic controls', async ({ page }) => {
+test('Handle dynamic controls', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/dynamic_controls")
     const checkboxComp = await page.locator("form#checkbox-example")
     const inputComp = await page.locator("form#input-example")

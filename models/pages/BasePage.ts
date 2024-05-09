@@ -1,8 +1,8 @@
 import { Page } from "@playwright/test";
-import PageBodyComponent from "../components/PageBodyComponent";
-import FooterComponent from "../components/global/footer/FooterComponent";
-import HeaderComponent from "../components/global/header/HeaderComponent";
-import TopMenuComponent from "../components/global/header/TopMenuComponent";
+import PageBodyComponent from "../components/PageBodyComponent.js";
+import FooterComponent from "../components/global/footer/FooterComponent.js";
+import HeaderComponent from "../components/global/header/HeaderComponent.js";
+import TopMenuComponent from "../components/global/header/TopMenuComponent.js";
 
 export default class BasePage {
 
