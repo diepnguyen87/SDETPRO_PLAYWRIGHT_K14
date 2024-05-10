@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 import PageBodyComponent from "../components/PageBodyComponent.js";
+import NotificationComponent from "../components/global/NotificationComponent.js";
 import FooterComponent from "../components/global/footer/FooterComponent.js";
 import HeaderComponent from "../components/global/header/HeaderComponent.js";
 import TopMenuComponent from "../components/global/header/TopMenuComponent.js";
@@ -10,8 +11,12 @@ export default class BasePage {
         this.page = page
     }
 
+    notificationComp(): NotificationComponent {
+        return new NotificationComponent(this.page.locator(NotificationComponent.selectorValue))
+    }
+
     headerComp(): HeaderComponent {
-        return new HeaderComponent(this.page.locator(HeaderComponent.selector));
+        return new HeaderComponent(this.page.locator(HeaderComponent.selectorValue));
     }
 
     topMenuComp(): TopMenuComponent {

@@ -9,12 +9,12 @@ export default class CheapComputerComponent extends ComputerEssentialComponent {
         super(component)
     }
 
-    public async selectProcessor(processorType: string): Promise<void> {
-        await this.selectOption(processorType);
+    public async selectProcessor(processorType: string): Promise<string> {
+        return await this.selectOption(processorType);
     }
 
-    public async selectRAM(ramType: string): Promise<void> {
-        await this.selectOption(ramType);
+    public async selectRAM(ramType: string): Promise<string> {
+        return await this.selectOption(ramType);
     }
 
 }

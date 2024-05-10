@@ -3,7 +3,8 @@ import ComputerEssentialComponent from "../components/computer/ComputerEssential
 import BasePage from "./BasePage.js";
 
 export type ComputerComponentConstructor<T extends ComputerEssentialComponent> = new (component: Locator) => T
-export default class ComputerDetailPage extends BasePage{
+export default class ComputerDetailPage extends BasePage {
+
 
     constructor(page: Page) {
         super(page)

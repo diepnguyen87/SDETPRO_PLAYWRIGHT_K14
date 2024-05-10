@@ -1,6 +1,6 @@
 import { Locator } from "@playwright/test";
-import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 import { selector } from "../SelectorDecortor.js";
+import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 
 @selector(".product-essential")
 export default class StandardComputerComponent extends ComputerEssentialComponent {
@@ -9,20 +9,21 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
         super(component)
     }
 
-    public async selectProcessor(processorType: string): Promise<void> {
+    public async selectProcessor(processorType: string): Promise<string> {
         const dropdownLocator = this.component.locator("//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select");
-        this.selectOptionInDropdownByText(dropdownLocator, processorType);
+        return this.selectOptionInDropdownByText(dropdownLocator, processorType);
     }
 
-    public async selectRAM(ramType: string): Promise<void> {
+    public async selectRAM(ramType: string): Promise<string> {
         const dropdownLocator = this.component.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
-        this.selectOptionInDropdownByText(dropdownLocator, ramType);
+        return this.selectOptionInDropdownByText(dropdownLocator, ramType);
     }
 
-    private async selectOptionInDropdownByText(selectDropdown: Locator, expectedPartialOptionText: string) {
+    private async selectOptionInDropdownByText(selectDropdown: Locator, expectedPartialOptionText: string): Promise<string> {
         const allOptionsLocator: Locator[] = await selectDropdown.locator("option").all();
+        let optionText = '';
         for (const option of allOptionsLocator) {
-            let optionText = await option.textContent() ?? ''
+            optionText = await option.textContent() ?? ''
             optionText = optionText.trim().replace(/\s+/g, ' ')
 
             if (optionText.startsWith(expectedPartialOptionText)) {
@@ -30,18 +31,25 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
                 break;
             }
         }
+        return optionText;
     }
 
-    private async selectOptionInDropdownByIndex(selectDropdown: Locator, expectedPartialOptionText: string) {
+    private async selectOptionInDropdownByIndex(selectDropdown: Locator, expectedPartialOptionText: string): Promise<string> {
         const allOptionsLocator: Locator[] = await selectDropdown.locator("option").all();
-        let optionIndex = 0;
+        let optionIndex = undefined;
+        let optionText = '';
         for (const option of allOptionsLocator) {
-            const optionText = await option.textContent() ?? ''
+            optionText = await option.textContent() ?? ''
             if (optionText.startsWith(expectedPartialOptionText)) {
                 optionIndex = allOptionsLocator.indexOf(option)
                 selectDropdown.selectOption({ index: optionIndex });
                 break;
             }
         }
+        if (optionIndex === undefined) {
+            throw new Error(`No option matches with ${expectedPartialOptionText}`);
+
+        }
+        return optionText;
     }
 }

@@ -1,8 +1,6 @@
-import { Locator, test } from "@playwright/test";
-import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
-import CheapComputerComponent from "../../models/components/computer/CheapComputerComponent.js";
-import { Urls } from "../../url/Urls.js";
+import { test } from "@playwright/test";
 import StandardComputerComponent from "../../models/components/computer/StandardComputerComponent.js";
+import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
 
 test('Test Standard Component', async ({ page }) => {
     await page.goto("https://demowebshop.tricentis.com/build-your-own-computer")
