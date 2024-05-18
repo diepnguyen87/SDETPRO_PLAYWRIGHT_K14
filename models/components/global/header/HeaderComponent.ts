@@ -5,13 +5,17 @@ import { selector } from "../../SelectorDecortor.js";
 @selector(".header")
 export default class HeaderComponent {
 
-    // public static selector:string = ".header"
+    private shoppingCartLinkSel: string = ".header-links .ico-cart"
 
-    constructor(private component: Locator){
+    constructor(private component: Locator) {
         this.component = component;
     }
 
     searchComp(): SearchComponent {
         return new SearchComponent(this.component.locator(SearchComponent.selector));
+    }
+
+    public async navigateToShoppingCartLink(): Promise<void> {
+        await this.component.locator(this.shoppingCartLinkSel).click()
     }
 }

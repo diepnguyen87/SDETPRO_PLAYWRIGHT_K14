@@ -1,6 +1,6 @@
 import { Locator } from "@playwright/test";
-import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 import { selector } from "../SelectorDecortor.js";
+import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 
 @selector(".product-essential")
 export default class CheapComputerComponent extends ComputerEssentialComponent {
@@ -9,12 +9,19 @@ export default class CheapComputerComponent extends ComputerEssentialComponent {
         super(component)
     }
 
-    public async selectProcessor(processorType: string): Promise<string> {
-        return await this.selectOption(processorType);
+    public async selectProcessorByIndex(index: number): Promise<string> {
+        return await this.selectOptionByIndex("Processor", index);
     }
 
-    public async selectRAM(ramType: string): Promise<string> {
-        return await this.selectOption(ramType);
+    public async selectRAMByIndex(index: number): Promise<string> {
+        return await this.selectOptionByIndex("RAM", index);
     }
 
+    public async selectProcessorByName(processorType: string): Promise<string> {
+        return await this.selectOptionByName(processorType)
+    }
+
+    public async selectRAMByName(ramType: string): Promise<string> {
+        return await this.selectOptionByName(ramType)
+    }
 }

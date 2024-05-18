@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import BasePage from "../models/pages/BasePage.js";
 import PageModel from "../test-data/model/Page.js";
 import { parseJsonStringToObject, readJsonFile } from "../utils/DataObjectBuilder.js";
+import HeaderComponent from "../models/components/global/header/HeaderComponent.js";
 
 type PageConstructor<T extends BasePage> = new (page: Page) => T
 
@@ -28,6 +29,19 @@ export default class BaseFlow {
         }
     }
 
+
+    public async getClassNameBySlug(slug: string): Promise<string> {
+        await this.getPageList()
+        console.log(typeof BaseFlow.pageList);
+
+        for (const pageObj of BaseFlow.pageList) {
+            if (pageObj["slug"] === slug) {
+                return pageObj["className"];
+            }
+        }
+        throw new Error(`The slug ${slug} does not map with any class name`)
+    }
+
     private async getPageList() {
         if (BaseFlow.pageList.length === 0) {
             let jsonString = await readJsonFile("D:/HongDiep/SDETPRO_PLAYWRIGHT_K14/test-data/pages.json")
@@ -38,15 +52,7 @@ export default class BaseFlow {
         }
     }
 
-    public async getClassNameBySlug(slug: string): Promise<string> {
-        await this.getPageList()
-        console.log(typeof BaseFlow.pageList);
-        
-        for (const pageObj of BaseFlow.pageList) {
-            if (pageObj["slug"] === slug) {
-                return pageObj["className"];
-            }
-        }
-        throw new Error(`The slug ${slug} does not map with any class name`)
+    public async navigateToShoppingCartPage(): Promise<void> {
+        await new HeaderComponent(this.page.locator(HeaderComponent.selectorValue)).navigateToShoppingCartLink()
     }
 }

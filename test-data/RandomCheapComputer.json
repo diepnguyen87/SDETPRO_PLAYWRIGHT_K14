@@ -1,0 +1,21 @@
+{
+    "processor": [
+        "Slow",
+        "Medium",
+        "Fast"
+    ],
+    "RAM": [
+        "8 GB",
+        "2 GB",
+        "4 GB"
+    ],
+    "HDD": [
+        "320 GB",
+        "400 GB"
+    ],
+    "software": [
+        "Image Viever",
+        "Office Suite",
+        "Other Office Suite"
+    ]
+}

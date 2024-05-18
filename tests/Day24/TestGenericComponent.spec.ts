@@ -9,6 +9,6 @@ test('Test generic component', async ({ page }) => {
     let cheapComputerComp = computerDetailPage.computerComponent(CheapComputerComponent)
 
     //await standardComputerComp.selectProcessor("enter processor type here")
-    await cheapComputerComp.selectProcessor("Fast")
+    await cheapComputerComp.selectProcessorByIndex("Fast")
     await page.waitForTimeout(2 * 1000)
 })
