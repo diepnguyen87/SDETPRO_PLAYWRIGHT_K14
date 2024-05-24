@@ -1,5 +1,5 @@
 import { Locator } from "@playwright/test";
-import { selector } from "../SelectorDecortor.js";
+import { selector } from "../SelectorDecorator.js";
 
 @selector(".cart-item-row")
 export default class CartItemRowComponent {

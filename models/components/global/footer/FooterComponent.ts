@@ -3,9 +3,10 @@ import CustomerServiceColumnComponent from "./CustomerServiceColumnComponent.js"
 import FollowUsColumnComponent from "./FollowUsColumnComponent.js";
 import InformationColumnComponent from "./InformationColumnComponent.js";
 import MyAccountColumnComponent from "./MyAccountColumnComponent.js";
+import { selector } from "../../SelectorDecorator.js";
 
+@selector(".footer")
 export default class FooterComponent {
-    public static selector: string = ".footer"
 
     constructor(private component: Locator) {
         this.component = component

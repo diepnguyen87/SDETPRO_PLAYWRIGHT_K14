@@ -20,14 +20,14 @@ export default class BasePage {
     }
 
     topMenuComp(): TopMenuComponent {
-        return new TopMenuComponent(this.page.locator(TopMenuComponent.selector))
+        return new TopMenuComponent(this.page.locator(TopMenuComponent.selectorValue))
     }
 
     pageBodyComp(): PageBodyComponent {
-        return new PageBodyComponent(this.page.locator(PageBodyComponent.selector));
+        return new PageBodyComponent(this.page.locator(PageBodyComponent.selectorValue));
     }
 
     footerComp(): FooterComponent {
-        return new FooterComponent(this.page.locator(FooterComponent.selector))
+        return new FooterComponent(this.page.locator(FooterComponent.selectorValue))
     }
 }

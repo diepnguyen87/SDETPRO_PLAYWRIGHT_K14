@@ -59,7 +59,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     }
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
-        const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//input)[${index}]`
+        const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//input)[${index + 1}]`
         const optionElem = this.component.locator(optionSel)
         const optionText = await optionElem.textContent() ?? '';
         await optionElem.click();

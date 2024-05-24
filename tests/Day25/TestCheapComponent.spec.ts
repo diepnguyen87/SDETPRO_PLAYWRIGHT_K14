@@ -8,5 +8,11 @@ test('Test Cheap Component', async ({ page }) => {
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList)
     await orderTestFlow.buildComputerDetailListAndAddToCart()
     await orderTestFlow.navigateToShoppingCartPage()
-    await orderTestFlow.showShoppingCart()
+    await orderTestFlow.verifyShoppingCart()
+    await orderTestFlow.selectTOSandCheckout()
+    await orderTestFlow.inputBillingAddress()
+    await orderTestFlow.inputShippingAddress()
+    await orderTestFlow.selectShippingMethod()
+    
+    await page.waitForTimeout(2 * 1000)
 });

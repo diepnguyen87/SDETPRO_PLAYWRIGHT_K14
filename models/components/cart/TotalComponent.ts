@@ -1,5 +1,5 @@
 import { Locator } from "@playwright/test";
-import { selector } from "../SelectorDecortor.js";
+import { selector } from "../SelectorDecorator.js";
 
 @selector(".totals")
 export default class TotalComponent {
@@ -7,6 +7,8 @@ export default class TotalComponent {
     private tableRowSel = ".cart-total tr"
     private rowLabel = ".cart-total-left span"
     private rowValue = ".cart-total-right .product-price"
+    private termOfServiceSel = "#termsofservice"
+    private checkoutBtnSel = "#checkout"
 
     constructor(private component: Locator) {
         this.component = component
@@ -21,5 +23,13 @@ export default class TotalComponent {
             priceCategories[catLabel] = catPrice
         }
         return priceCategories
+    }
+
+    public async selectTermOfService(): Promise<void> {
+        await this.component.locator(this.termOfServiceSel).click()
+    }
+
+    public async clickOnCheckoutBtn(): Promise<void> {
+        await this.component.locator(this.checkoutBtnSel).click()
     }
 }

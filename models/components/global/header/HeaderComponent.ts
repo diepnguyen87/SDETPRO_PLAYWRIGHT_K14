@@ -1,6 +1,6 @@
 import { Locator } from "@playwright/test";
 import SearchComponent from "./SearchComponent.js";
-import { selector } from "../../SelectorDecortor.js";
+import { selector } from "../../SelectorDecorator.js";
 
 @selector(".header")
 export default class HeaderComponent {

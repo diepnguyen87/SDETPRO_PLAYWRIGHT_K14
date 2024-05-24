@@ -1,7 +1,8 @@
 import { Locator } from "@playwright/test";
+import { selector } from "../../SelectorDecorator.js";
 
+@selector(".top-menu")
 export default class TopMenuComponent {
-    public static selector: string = ".top-menu"
 
     constructor(private component: Locator) {
         this.component = component

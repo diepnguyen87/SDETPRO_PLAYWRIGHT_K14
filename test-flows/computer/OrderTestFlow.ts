@@ -1,14 +1,21 @@
 import { Page } from "@playwright/test";
 import CartItemRowComponent from "../../models/components/cart/CartItemRowComponent.js";
+import BillingAddressComponent from "../../models/components/checkout/BillingAddressComponent.js";
+import ShippingAddressComponent from "../../models/components/checkout/ShippingAddressComponent.js";
+import ShippingMethodComponent from "../../models/components/checkout/ShippingMethodComponent.js";
 import ComputerEssentialComponent from "../../models/components/computer/ComputerEssentialComponent.js";
+import CheckoutAsGuestPage from "../../models/pages/CheckoutAsGuestPage.js";
+import CheckoutPage from "../../models/pages/CheckoutPage.js";
 import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/pages/ComputerDetailPage.js";
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
+import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" assert { type: "json" };
+import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" assert { type: "json" };
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
 
 export default class OrderTestFlow extends BaseFlow {
-
     private totalPrice: number = 0;
+    private shippingPrice: number = 0;
 
     constructor(page: Page,
         private readonly computerComponentClass: ComputerComponentConstructor<ComputerEssentialComponent>,
@@ -44,7 +51,7 @@ export default class OrderTestFlow extends BaseFlow {
         }
         const selectedSoftwareText = await computerComponent.selectSoftwareByName(computerData.software);
 
-        this.totalPrice = await this.calculateTotalPrice(selectedProcessorText,
+        this.totalPrice += await this.calculateTotalPrice(selectedProcessorText,
             selectedRAMText,
             selectedHDDText,
             selectedOSText,
@@ -77,7 +84,7 @@ export default class OrderTestFlow extends BaseFlow {
         const selectedOSText = await this.selectRandomOS(computerComponent)
         const selectedSoftwareText = await this.selectRandomSoftware(computerComponent)
 
-        this.totalPrice = await this.calculateTotalPrice(selectedProcessorText,
+        this.totalPrice += await this.calculateTotalPrice(selectedProcessorText,
             selectedRAMText,
             selectedHDDText,
             selectedOSText,
@@ -93,7 +100,7 @@ export default class OrderTestFlow extends BaseFlow {
         await this.page.waitForTimeout(1 * 1000)
     }
 
-    public async showShoppingCart(): Promise<void> {
+    public async verifyShoppingCart(): Promise<void> {
         const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page)
         const cartItemRowCompList: CartItemRowComponent[] = await shoppingCartPage.cartItemRowCompList()
         for (const cartItemRowComp of cartItemRowCompList) {
@@ -106,41 +113,87 @@ export default class OrderTestFlow extends BaseFlow {
         console.log(await shoppingCartPage.totalComp().priceCategories());
     }
 
-    private generateRandomIndex(maxIndex: number) {
-        return Math.floor(Math.random() * maxIndex) + 1
+    public async selectTOSandCheckout() {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page)
+        await shoppingCartPage.totalComp().selectTermOfService()
+        await shoppingCartPage.totalComp().clickOnCheckoutBtn()
+
+        const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page)
+        await checkoutAsGuestPage.clickOnCheckoutAsGuestBtn();
+    }
+
+    public async inputBillingAddress(): Promise<void> {
+        const {
+            firstName, lastName, email, company, country, stateProvince, city, address1, zipPostalCode, phoneNumber
+        } = BillingAddressData
+
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const billingAddressComp: BillingAddressComponent = checkoutPage.billingAddressComp()
+        await billingAddressComp.inputFirstName(firstName)
+        await billingAddressComp.inputLastName(lastName)
+        await billingAddressComp.inputEmail(email)
+        await billingAddressComp.inputCompany(company)
+        await billingAddressComp.selectCountry(country)
+        await billingAddressComp.selectStateProvince(stateProvince)
+        await billingAddressComp.inputCity(city)
+        await billingAddressComp.inputAddress1(address1)
+        await billingAddressComp.inputZipPostalCode(zipPostalCode)
+        await billingAddressComp.inputPhoneNumber(phoneNumber)
+        await billingAddressComp.clickOnContinueBtn()
+    }
+
+    public async inputShippingAddress(): Promise<void> {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const shippingAddressComp: ShippingAddressComponent = checkoutPage.shippingAddressComp()
+        await shippingAddressComp.clickOnContinueBtn()
+    }
+
+    public async selectShippingMethod(): Promise<void> {
+        const { shippingMethod } = shippingMethodData
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const shippingMethodComp: ShippingMethodComponent = checkoutPage.shippingMethodComp()
+        const shippingPriceText = await shippingMethodComp.selectMethod(this.generateRandomIndex(shippingMethod.length))
+        
+        const matches = shippingPriceText.match(/(\d+)/g)
+        this.shippingPrice = matches ? Number(matches[0]) : 0
+        await shippingMethodComp.clickOnContinueBtn()
+    }
+
+    private generateRandomIndex(size: number) {
+        return Math.floor(Math.random() * size)
     }
 
     private async selectRandomProcessor(computerComponent: ComputerEssentialComponent): Promise<string | undefined> {
         if (this.computerData.processor) {
-            let randomProcessorIndex = this.generateRandomIndex(this.computerData.processor.length - 1)
+            let randomProcessorIndex = this.generateRandomIndex(this.computerData.processor.length)
             return await computerComponent.selectProcessorByIndex(randomProcessorIndex);
         }
     }
 
     private async selectRandomRAM(computerComponent: ComputerEssentialComponent): Promise<string | undefined> {
         if (this.computerData.RAM) {
-            let randomRAMIndex = this.generateRandomIndex(this.computerData.RAM.length - 1)
+            let randomRAMIndex = this.generateRandomIndex(this.computerData.RAM.length)
             return await computerComponent.selectRAMByIndex(randomRAMIndex);
         }
     }
 
     private async selectRandomHDD(computerComponent: ComputerEssentialComponent): Promise<string | undefined> {
         if (this.computerData.HDD) {
-            let randomHDDIndex = this.generateRandomIndex(this.computerData.HDD.length - 1)
+            let randomHDDIndex = this.generateRandomIndex(this.computerData.HDD.length)
             return await computerComponent.selectHDDByIndex(randomHDDIndex);
         }
     }
 
     private async selectRandomOS(computerComponent: ComputerEssentialComponent): Promise<string | undefined> {
         if (this.computerData.OS) {
-            let randomOSIndex = this.generateRandomIndex(this.computerData.OS.length - 1)
+            let randomOSIndex = this.generateRandomIndex(this.computerData.OS.length)
             return await computerComponent.selectOSByIndex(randomOSIndex);
         }
     }
 
     private async selectRandomSoftware(computerComponent: ComputerEssentialComponent): Promise<string | undefined> {
         if (this.computerData.software) {
-            let randomSoftwareIndex = this.generateRandomIndex(this.computerData.software.length - 1)
+            let randomSoftwareIndex = this.generateRandomIndex(this.computerData.software.length)
             return await computerComponent.selectSoftwareByIndex(randomSoftwareIndex);
         }
     }
