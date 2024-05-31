@@ -10,7 +10,8 @@ export default class CheckoutComponent {
 
     public async clickOnContinueBtn(): Promise<void> {
         const continueBtn = this.component.locator(this.continueBtnSel)
+        continueBtn.scrollIntoViewIfNeeded()
         await continueBtn.click()
-        continueBtn.waitFor({state: "hidden"})
+        await continueBtn.waitFor({state: "hidden"})
     }
 }

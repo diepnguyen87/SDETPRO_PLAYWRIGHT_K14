@@ -1,6 +1,10 @@
 import { Page } from "@playwright/test";
+import paymentMethods from "../../constant/PaymentMethod.js";
 import CartItemRowComponent from "../../models/components/cart/CartItemRowComponent.js";
+import TotalComponent from "../../models/components/cart/TotalComponent.js";
 import BillingAddressComponent from "../../models/components/checkout/BillingAddressComponent.js";
+import PaymentInformationComponent from "../../models/components/checkout/PaymentInformationComponent.js";
+import PaymentMethodComponent from "../../models/components/checkout/PaymentMethodComponent.js";
 import ShippingAddressComponent from "../../models/components/checkout/ShippingAddressComponent.js";
 import ShippingMethodComponent from "../../models/components/checkout/ShippingMethodComponent.js";
 import ComputerEssentialComponent from "../../models/components/computer/ComputerEssentialComponent.js";
@@ -10,8 +14,10 @@ import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/p
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
 import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" assert { type: "json" };
 import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" assert { type: "json" };
+import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
+import ConfirmOrderComponent from "../../models/components/checkout/ConfirmOrderComponent.js";
 
 export default class OrderTestFlow extends BaseFlow {
     private totalPrice: number = 0;
@@ -110,7 +116,7 @@ export default class OrderTestFlow extends BaseFlow {
             console.log(`unitPrice: ${unitPrice}, quantity: ${quantity},  subTotal: ${subTotal}`);
         }
 
-        console.log(await shoppingCartPage.totalComp().priceCategories());
+        console.log("Shopping Cart Price: " + await shoppingCartPage.totalComp().priceCategories());
     }
 
     public async selectTOSandCheckout() {
@@ -153,10 +159,53 @@ export default class OrderTestFlow extends BaseFlow {
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
         const shippingMethodComp: ShippingMethodComponent = checkoutPage.shippingMethodComp()
         const shippingPriceText = await shippingMethodComp.selectMethod(this.generateRandomIndex(shippingMethod.length))
-        
+
         const matches = shippingPriceText.match(/(\d+)/g)
         this.shippingPrice = matches ? Number(matches[0]) : 0
         await shippingMethodComp.clickOnContinueBtn()
+    }
+
+    public async selectPaymentMethod(paymentMethod: string): Promise<void> {
+        const { cash, check, creditCard, purchaseOrder } = paymentMethods
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const paymentMethodComp: PaymentMethodComponent = checkoutPage.paymentMethodComp()
+        switch (paymentMethod) {
+            case cash:
+                await paymentMethodComp.selectCashOnDelivery()
+                break;
+            case check:
+                await paymentMethodComp.selectCheckMoneyOrder()
+                break;
+            case creditCard:
+                await paymentMethodComp.selectCreditCard()
+                break;
+            case purchaseOrder:
+                await paymentMethodComp.selectPurchaseOrder()
+        }
+        await paymentMethodComp.clickOnContinueBtn()
+    }
+
+    public async inputPaymentInfo(creditCard: CreditCard) {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const paymentInformationComp: PaymentInformationComponent = checkoutPage.paymentInformationComp()
+        await paymentInformationComp.selectCreditCardType(cardType[creditCard.type as CreditCardType])
+        await paymentInformationComp.inputCardHolderName(creditCard.fullName)
+        await paymentInformationComp.inputCardNumber(creditCard.cardNumber)
+        let expiredDate = new Date(creditCard.date)
+        await paymentInformationComp.selectExpireMonth(expiredDate.getMonth())
+        await paymentInformationComp.selectExpireYear(expiredDate.getFullYear())
+        await paymentInformationComp.inputCardCode(creditCard.cvv)
+
+        await paymentInformationComp.clickOnContinueBtn()
+    }
+
+    public async confirmOrder() {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const confirmOrderComp: ConfirmOrderComponent = await checkoutPage.confirmOrderComp()
+        const priceCategoryList = await confirmOrderComp.totalComp().priceCategories()
+        console.log("Checkout price: " + priceCategoryList);
+
+        await confirmOrderComp.clickOnConfirmBtn()
     }
 
     private generateRandomIndex(size: number) {

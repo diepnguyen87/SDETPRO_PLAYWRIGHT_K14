@@ -35,6 +35,4 @@ export default class CheckoutPage {
     public confirmOrderComp(): ConfirmOrderComponent {
         return new ConfirmOrderComponent(this.page.locator(ConfirmOrderComponent.selectorValue))
     }
-
-
 }

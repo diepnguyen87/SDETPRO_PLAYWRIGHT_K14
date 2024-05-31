@@ -1,11 +1,11 @@
 import { Locator } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
 
-@selector(".totals")
+@selector(".order-summary-content .totals")
 export default class TotalComponent {
 
     private tableRowSel = ".cart-total tr"
-    private rowLabel = ".cart-total-left span"
+    private rowLabel = ".cart-total-left span.nobr"
     private rowValue = ".cart-total-right .product-price"
     private termOfServiceSel = "#termsofservice"
     private checkoutBtnSel = "#checkout"
@@ -14,7 +14,7 @@ export default class TotalComponent {
         this.component = component
     }
 
-    public async priceCategories(): Promise<any> {
+    public async priceCategories(): Promise<string> {
         let priceCategories: any = {}
         const tableRowElemList: Locator[] = await this.component.locator(this.tableRowSel).all()
         for (const tableRowElem of tableRowElemList) {
@@ -22,7 +22,7 @@ export default class TotalComponent {
             const catPrice = await tableRowElem.locator(this.rowValue).innerText()
             priceCategories[catLabel] = catPrice
         }
-        return priceCategories
+        return JSON.stringify(priceCategories)
     }
 
     public async selectTermOfService(): Promise<void> {
