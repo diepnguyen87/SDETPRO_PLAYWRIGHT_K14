@@ -19,6 +19,7 @@ test.only('Test Standard Component', async ({ page }) => {
     await orderTestFlow.selectPaymentMethod(paymentMethods.creditCard)
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('Visa'))
     await orderTestFlow.confirmOrder()
+    await orderTestFlow.checkoutCompleted()
     
     await page.waitForTimeout(2 * 1000)
 });

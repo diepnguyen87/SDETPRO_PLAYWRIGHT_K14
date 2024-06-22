@@ -7,5 +7,6 @@ export default class ShippingAddressComponent extends CheckoutComponent {
 
     constructor(component: Locator) {
         super(component)
+        this.component.scrollIntoViewIfNeeded()
     }
 }

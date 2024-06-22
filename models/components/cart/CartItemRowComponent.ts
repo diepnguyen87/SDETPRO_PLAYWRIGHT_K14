@@ -12,7 +12,7 @@ export default class CartItemRowComponent {
         this.component = component
     }
 
-    public async getProductUnitPrice(): Promise<Number> {
+    public async getProductUnitPrice(): Promise<number> {
         return Number(await this.component.locator(this.productUnitPriceSel).textContent())
     }
 

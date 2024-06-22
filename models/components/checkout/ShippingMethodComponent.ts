@@ -7,6 +7,7 @@ export default class ShippingMethodComponent extends CheckoutComponent {
 
     constructor(component: Locator) {
         super(component)
+        component.scrollIntoViewIfNeeded()
     }
 
     public async selectMethod(optionIndex: number): Promise<string> {

@@ -8,7 +8,10 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
     ],
-    reporter: 'html',
+    reporter:  [
+        ['html'],
+        ['allure-playwright']
+    ],
         // retries: process.env.CI ? 2 : 1,
     use: {
         actionTimeout: 5 * 1000,

@@ -18,6 +18,7 @@ test('Test Random Cheap Component', async ({ page }) => {
     await orderTestFlow.selectPaymentMethod(paymentMethods.creditCard)
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('Discover'))
     await orderTestFlow.confirmOrder()
+    await orderTestFlow.checkoutCompleted()
     
     await page.waitForTimeout(2 * 1000)
 });

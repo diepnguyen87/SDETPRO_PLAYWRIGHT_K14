@@ -10,6 +10,7 @@ export default class ConfirmOrderComponent extends CheckoutComponent {
 
     constructor(component: Locator) {
         super(component)
+        this.component.scrollIntoViewIfNeeded()
     }
 
     public async clickOnConfirmBtn(): Promise<void> {

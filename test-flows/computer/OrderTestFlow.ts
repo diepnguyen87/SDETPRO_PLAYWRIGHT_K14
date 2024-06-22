@@ -1,8 +1,9 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 import paymentMethods from "../../constant/PaymentMethod.js";
 import CartItemRowComponent from "../../models/components/cart/CartItemRowComponent.js";
-import TotalComponent from "../../models/components/cart/TotalComponent.js";
 import BillingAddressComponent from "../../models/components/checkout/BillingAddressComponent.js";
+import CompletedComponent from "../../models/components/checkout/CompletedComponent.js";
+import ConfirmOrderComponent from "../../models/components/checkout/ConfirmOrderComponent.js";
 import PaymentInformationComponent from "../../models/components/checkout/PaymentInformationComponent.js";
 import PaymentMethodComponent from "../../models/components/checkout/PaymentMethodComponent.js";
 import ShippingAddressComponent from "../../models/components/checkout/ShippingAddressComponent.js";
@@ -17,11 +18,11 @@ import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
-import ConfirmOrderComponent from "../../models/components/checkout/ConfirmOrderComponent.js";
 
 export default class OrderTestFlow extends BaseFlow {
-    private totalPrice: number = 0;
+    private rawTotalPrice: number = 0;
     private shippingPrice: number = 0;
+    private additionalFee: number = 0;
 
     constructor(page: Page,
         private readonly computerComponentClass: ComputerComponentConstructor<ComputerEssentialComponent>,
@@ -57,7 +58,7 @@ export default class OrderTestFlow extends BaseFlow {
         }
         const selectedSoftwareText = await computerComponent.selectSoftwareByName(computerData.software);
 
-        this.totalPrice += await this.calculateTotalPrice(selectedProcessorText,
+        this.rawTotalPrice += await this.calculateTotalRawPrice(selectedProcessorText,
             selectedRAMText,
             selectedHDDText,
             selectedOSText,
@@ -90,7 +91,7 @@ export default class OrderTestFlow extends BaseFlow {
         const selectedOSText = await this.selectRandomOS(computerComponent)
         const selectedSoftwareText = await this.selectRandomSoftware(computerComponent)
 
-        this.totalPrice += await this.calculateTotalPrice(selectedProcessorText,
+        this.rawTotalPrice += await this.calculateTotalRawPrice(selectedProcessorText,
             selectedRAMText,
             selectedHDDText,
             selectedOSText,
@@ -111,12 +112,18 @@ export default class OrderTestFlow extends BaseFlow {
         const cartItemRowCompList: CartItemRowComponent[] = await shoppingCartPage.cartItemRowCompList()
         for (const cartItemRowComp of cartItemRowCompList) {
             const unitPrice = await cartItemRowComp.getProductUnitPrice()
-            const quantity = await cartItemRowComp.qualityInput().getAttribute('value');
-            const subTotal = await cartItemRowComp.getProductSubTotal();
-            console.log(`unitPrice: ${unitPrice}, quantity: ${quantity},  subTotal: ${subTotal}`);
+            const unitQuantity = Number(await cartItemRowComp.qualityInput().getAttribute('value'));
+            const unitTotal = await cartItemRowComp.getProductSubTotal();
+            expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
 
-        console.log("Shopping Cart Price: " + await shoppingCartPage.totalComp().priceCategories());
+        let priceCategories: any = await shoppingCartPage.totalComp().priceCategories()
+        let subTotal = priceCategories["Sub-Total:"]
+        let shipping = priceCategories["Shipping:"]
+        let tax = priceCategories["Tax:"]
+        let total = priceCategories["Total:"]
+        expect(subTotal + shipping + tax).toEqual(total)
+        expect(subTotal).toEqual(this.rawTotalPrice)
     }
 
     public async selectTOSandCheckout() {
@@ -135,6 +142,7 @@ export default class OrderTestFlow extends BaseFlow {
 
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
         const billingAddressComp: BillingAddressComponent = checkoutPage.billingAddressComp()
+        await billingAddressComp.selectNewAdressIfExist()
         await billingAddressComp.inputFirstName(firstName)
         await billingAddressComp.inputLastName(lastName)
         await billingAddressComp.inputEmail(email)
@@ -171,16 +179,16 @@ export default class OrderTestFlow extends BaseFlow {
         const paymentMethodComp: PaymentMethodComponent = checkoutPage.paymentMethodComp()
         switch (paymentMethod) {
             case cash:
-                await paymentMethodComp.selectCashOnDelivery()
+                this.additionalFee = await paymentMethodComp.selectCashOnDelivery()
                 break;
             case check:
-                await paymentMethodComp.selectCheckMoneyOrder()
+                this.additionalFee = await paymentMethodComp.selectCheckMoneyOrder()
                 break;
             case creditCard:
-                await paymentMethodComp.selectCreditCard()
+                this.additionalFee = await paymentMethodComp.selectCreditCard()
                 break;
             case purchaseOrder:
-                await paymentMethodComp.selectPurchaseOrder()
+                this.additionalFee = await paymentMethodComp.selectPurchaseOrder()
         }
         await paymentMethodComp.clickOnContinueBtn()
     }
@@ -203,9 +211,31 @@ export default class OrderTestFlow extends BaseFlow {
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
         const confirmOrderComp: ConfirmOrderComponent = await checkoutPage.confirmOrderComp()
         const priceCategoryList = await confirmOrderComp.totalComp().priceCategories()
-        console.log("Checkout price: " + priceCategoryList);
+        let subTotal = priceCategoryList["Sub-Total:"]
+        let shipping = priceCategoryList["Shipping:"]
+        let paymentMethodAdditionalFee = priceCategoryList["Payment method additional fee:"]
+        let tax = priceCategoryList["Tax:"]
+        let finalPrice = priceCategoryList["Total:"]
 
+        expect(subTotal).toEqual(this.rawTotalPrice)
+        expect(shipping).toEqual(this.shippingPrice)
+        if (paymentMethodAdditionalFee) {
+            expect(paymentMethodAdditionalFee).toEqual(this.additionalFee)
+            expect(subTotal + shipping + paymentMethodAdditionalFee + tax).toEqual(finalPrice)
+        } else {
+            expect(subTotal + shipping + tax).toEqual(finalPrice)
+        }
+        this.page.waitForTimeout(3 * 1000)
         await confirmOrderComp.clickOnConfirmBtn()
+    }
+
+    public async checkoutCompleted() {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const completedComp: CompletedComponent = await checkoutPage.orderCompletedComp()
+        let orderNumber = await completedComp.getOrderNumber()
+        expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")
+        expect(await completedComp.oderDetailLink().innerText()).toEqual("Click here for order details.")
+        expect(await completedComp.oderDetailLink().getAttribute("href")).toEqual(`/orderdetails/${orderNumber}`)
     }
 
     private generateRandomIndex(size: number) {
@@ -247,7 +277,7 @@ export default class OrderTestFlow extends BaseFlow {
         }
     }
 
-    private async calculateTotalPrice(selectedProcessorText: string | undefined,
+    private async calculateTotalRawPrice(selectedProcessorText: string | undefined,
         selectedRAMText: string | undefined,
         selectedHDDText: string | undefined,
         selectedOSText: string | undefined,

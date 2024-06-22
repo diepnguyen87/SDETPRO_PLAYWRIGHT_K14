@@ -5,6 +5,7 @@ import CheckoutComponent from "./CheckoutComponent.js";
 @selector("#opc-billing")
 export default class BillingAddressComponent extends CheckoutComponent {
 
+    private buildingAddressDropdownSel = "#billing-address-select"
     private firstNameInputSel = "#BillingNewAddress_FirstName"
     private lastNameInputSel = "#BillingNewAddress_LastName"
     private emailInputSel = "#BillingNewAddress_Email"
@@ -18,6 +19,14 @@ export default class BillingAddressComponent extends CheckoutComponent {
 
     constructor(component: Locator) {
         super(component)
+        this.component.scrollIntoViewIfNeeded()
+    }
+
+    public async selectNewAdressIfExist(): Promise<void> {
+        let buildingAddressDropdownElem: Locator = await this.component.locator(this.buildingAddressDropdownSel);
+        if(await buildingAddressDropdownElem.count() > 0){
+            await buildingAddressDropdownElem.selectOption({label: "New Address"})
+        }
     }
 
     public async inputFirstName(firstName: string): Promise<void> {

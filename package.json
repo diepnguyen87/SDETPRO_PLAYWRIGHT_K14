@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@playwright/test": "1.42.1",
+    "allure-commandline": "^2.29.0",
+    "allure-playwright": "^3.0.0-beta.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

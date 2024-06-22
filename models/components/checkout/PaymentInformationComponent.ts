@@ -14,6 +14,7 @@ export default class PaymentInformationComponent extends CheckoutComponent {
 
     constructor(component: Locator) {
         super(component)
+        this.component.scrollIntoViewIfNeeded()
     }
 
     public async selectCreditCardType(creditCardType: string): Promise<void> {
@@ -29,7 +30,7 @@ export default class PaymentInformationComponent extends CheckoutComponent {
     }
 
     public async selectExpireMonth(expireMonth: number): Promise<void> {
-        await this.component.locator(this.expireMonthSel).selectOption({ value: `${expireMonth}` })
+        await this.component.locator(this.expireMonthSel).selectOption({ value: `${expireMonth}`})
     }
 
     public async selectExpireYear(expireYear: number): Promise<void> {

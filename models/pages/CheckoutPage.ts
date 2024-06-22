@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 import BillingAddressComponent from "../components/checkout/BillingAddressComponent.js";
+import CompletedComponent from "../components/checkout/CompletedComponent.js";
 import ConfirmOrderComponent from "../components/checkout/ConfirmOrderComponent.js";
 import PaymentInformationComponent from "../components/checkout/PaymentInformationComponent.js";
 import PaymentMethodComponent from "../components/checkout/PaymentMethodComponent.js";
@@ -34,5 +35,9 @@ export default class CheckoutPage {
 
     public confirmOrderComp(): ConfirmOrderComponent {
         return new ConfirmOrderComponent(this.page.locator(ConfirmOrderComponent.selectorValue))
+    }
+
+    public orderCompletedComp(): CompletedComponent {
+        return new CompletedComponent(this.page.locator(CompletedComponent.selectorValue))
     }
 }

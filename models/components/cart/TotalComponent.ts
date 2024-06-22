@@ -14,15 +14,15 @@ export default class TotalComponent {
         this.component = component
     }
 
-    public async priceCategories(): Promise<string> {
+    public async priceCategories(): Promise<any> {
         let priceCategories: any = {}
         const tableRowElemList: Locator[] = await this.component.locator(this.tableRowSel).all()
         for (const tableRowElem of tableRowElemList) {
             const catLabel = await tableRowElem.locator(this.rowLabel).innerText()
-            const catPrice = await tableRowElem.locator(this.rowValue).innerText()
+            const catPrice = Number(await tableRowElem.locator(this.rowValue).innerText())
             priceCategories[catLabel] = catPrice
         }
-        return JSON.stringify(priceCategories)
+        return priceCategories
     }
 
     public async selectTermOfService(): Promise<void> {
