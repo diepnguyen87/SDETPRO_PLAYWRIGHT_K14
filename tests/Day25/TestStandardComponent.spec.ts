@@ -4,9 +4,10 @@ import StandardComputerComponent from "../../models/components/computer/Standard
 import standardComputerDataList from "../../test-data/StandardComputer.json" assert { type: "json" };
 import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
+import TAG from "../../constant/Tag.js";
 
-test.only('Test Standard Component', async ({ page }) => {
-    await page.goto("https://demowebshop.tricentis.com/build-your-own-computer")
+test(`${TAG.smoke} | Test Standard Component`, async ({ page }) => {
+    await page.goto("/build-your-own-computer")
 
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList)
     await orderTestFlow.buildComputerDetailListAndAddToCart();

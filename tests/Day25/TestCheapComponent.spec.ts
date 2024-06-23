@@ -5,9 +5,10 @@ import cheapComputerDataList from "../../test-data/CheapComputer.json" assert { 
 import paymentMethods from "../../constant/PaymentMethod.js";
 import { cardType } from "../../type/DataType.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
+import TAG from "../../constant/Tag.js";
 
-test('Test Cheap Component', async ({ page }) => {
-    await page.goto("https://demowebshop.tricentis.com/build-your-cheap-own-computer")
+test(`${TAG.smoke} | Test Cheap Component`, async ({ page }) => {
+    await page.goto("/build-your-cheap-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList)
     await orderTestFlow.buildComputerDetailListAndAddToCart()
     await orderTestFlow.navigateToShoppingCartPage()

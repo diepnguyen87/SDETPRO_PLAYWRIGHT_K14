@@ -104,7 +104,7 @@ export default class OrderTestFlow extends BaseFlow {
         if (contentMsg !== "The product has been added to your shopping cart") {
             throw new Error("Add to cart failed");
         }
-        await this.page.waitForTimeout(1 * 1000)
+        await this.page.waitForTimeout(2 * 1000)
     }
 
     public async verifyShoppingCart(): Promise<void> {
@@ -168,7 +168,7 @@ export default class OrderTestFlow extends BaseFlow {
         const shippingMethodComp: ShippingMethodComponent = checkoutPage.shippingMethodComp()
         const shippingPriceText = await shippingMethodComp.selectMethod(this.generateRandomIndex(shippingMethod.length))
 
-        const matches = shippingPriceText.match(/(\d+)/g)
+        const matches = shippingPriceText.match(/(\d+\.\d{2})/g)
         this.shippingPrice = matches ? Number(matches[0]) : 0
         await shippingMethodComp.clickOnContinueBtn()
     }
