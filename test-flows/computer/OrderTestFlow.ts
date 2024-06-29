@@ -200,7 +200,7 @@ export default class OrderTestFlow extends BaseFlow {
         await paymentInformationComp.inputCardHolderName(creditCard.fullName)
         await paymentInformationComp.inputCardNumber(creditCard.cardNumber)
         let expiredDate = new Date(creditCard.date)
-        await paymentInformationComp.selectExpireMonth(expiredDate.getMonth())
+        await paymentInformationComp.selectExpireMonth(expiredDate.getMonth() + 1)
         await paymentInformationComp.selectExpireYear(expiredDate.getFullYear())
         await paymentInformationComp.inputCardCode(creditCard.cvv)
 

@@ -30,7 +30,7 @@ export default class PaymentInformationComponent extends CheckoutComponent {
     }
 
     public async selectExpireMonth(expireMonth: number): Promise<void> {
-        await this.component.locator(this.expireMonthSel).selectOption({ value: `${expireMonth}`}, {timeout: 10 * 1000 })
+        await this.component.locator(this.expireMonthSel).selectOption({ value: `${expireMonth}`})
     }
 
     public async selectExpireYear(expireYear: number): Promise<void> {
