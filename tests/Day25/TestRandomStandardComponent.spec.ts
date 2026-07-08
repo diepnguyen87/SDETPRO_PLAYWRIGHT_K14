@@ -6,7 +6,7 @@ import paymentMethods from "../../constant/PaymentMethod.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
 import TAG from "../../constant/Tag.js";
 
-test(`${TAG.smoke} | Test Random Standard Component`, async ({ page }) => {
+test(`${TAG} | Test Random Standard Component`, async ({ page }) => {
     await page.goto("/build-your-own-computer")
 
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, randomStandardComputerData, undefined)

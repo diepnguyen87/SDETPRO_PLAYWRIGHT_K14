@@ -6,7 +6,7 @@ import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
 import TAG from "../../constant/Tag.js";
 
-test(`${TAG.smoke} | Test Standard Component`, async ({ page }) => {
+test(`${TAG} | Test Standard Component`, async ({ page }) => {
     await page.goto("/build-your-own-computer")
 
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList)

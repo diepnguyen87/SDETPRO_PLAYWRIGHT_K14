@@ -6,7 +6,7 @@ import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
 import TAG from "../../constant/Tag.js";
 
-test(`${TAG.smoke} | Test Random Cheap Component`, async ({ page }) => {
+test(`${TAG} | Test Random Cheap Component`, async ({ page }) => {
     await page.goto("/build-your-cheap-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, randomCheapComputerData, undefined)
     await orderTestFlow.buildRandomComputerDetailListAndAddToCart(3)
@@ -15,7 +15,7 @@ test(`${TAG.smoke} | Test Random Cheap Component`, async ({ page }) => {
     await orderTestFlow.selectTOSandCheckout()
     await orderTestFlow.inputBillingAddress()
     await orderTestFlow.inputShippingAddress()
-    await orderTestFlow.selectShippingMethod()
+    await orderTestFlow.selectShippingMethod() 
     await orderTestFlow.selectPaymentMethod(paymentMethods.creditCard)
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('Discover'))
     await orderTestFlow.confirmOrder()
