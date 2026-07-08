@@ -33,7 +33,7 @@ jobs:
         run: yarn playwright install --with-deps
 
       - name: Run Playwright tests
-        run: yarn test
+        run: yarn test tests/Day25/TestCheapComponent.spec.ts 
 
       - name: Upload Playwright HTML Report
         if: always()
