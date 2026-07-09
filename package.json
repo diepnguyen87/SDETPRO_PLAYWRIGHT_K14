@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "playwright test tests/Day25/TestCheapComponent.spec.ts ",
+    "test": "playwright test",
+    "test:cheap": "playwright test tests/Day25/TestCheapComponent.spec.ts",
     "ui": "playwright test --ui"
   },
   "dependencies": {
