@@ -18,6 +18,7 @@ import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
+import FooterComponent from "../../models/components/global/footer/FooterComponent.js";
 
 export default class OrderTestFlow extends BaseFlow {
     private rawTotalPrice: number = 0;
@@ -71,6 +72,8 @@ export default class OrderTestFlow extends BaseFlow {
         if (contentMsg !== "The product has been added to your shopping cart") {
             throw new Error("Add to cart failed");
         }
+        //unselect software checkbox
+        await computerComponent.selectSoftwareByName(computerData.software);
         await this.page.waitForTimeout(1 * 1000)
     }
 
@@ -116,6 +119,8 @@ export default class OrderTestFlow extends BaseFlow {
             const unitTotal = await cartItemRowComp.getProductSubTotal();
             expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
+        const footerComponent:FooterComponent = shoppingCartPage.footerComp();
+        await footerComponent.scrollToFooter();
 
         let priceCategories: any = await shoppingCartPage.totalComp().priceCategories()
         let subTotal = priceCategories["Sub-Total:"]

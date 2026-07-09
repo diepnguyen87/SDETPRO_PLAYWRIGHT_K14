@@ -30,7 +30,7 @@ jobs:
         run: yarn playwright install --with-deps
 
       - name: Run Playwright tests
-        run: yarn ${{ inputs.command }}
+        run: yarn ${{ inputs.command }} --project=${{ matrix.browser }}
 
       - name: Upload Playwright HTML Report
         if: always()

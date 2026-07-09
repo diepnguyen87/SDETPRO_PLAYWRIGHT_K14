@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+      {
+        "name": "Debug Playwright Firefox",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
+        "args": [
+          "test",
+          "tests/Day25/TestCheapComponent.spec.ts",
+          "--project=firefox",
+          "--headed",
+           "--workers=1"
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "skipFiles": ["<node_internals>/**"]
+      }
+    ]
+  }

@@ -12,6 +12,10 @@ export default class FooterComponent {
         this.component = component
     }
 
+    public async scrollToFooter(){
+        await this.component.scrollIntoViewIfNeeded();
+    }
+
     public informationColumnComp(): InformationColumnComponent {
         return new InformationColumnComponent(this.component.locator(InformationColumnComponent.selector))
     }
