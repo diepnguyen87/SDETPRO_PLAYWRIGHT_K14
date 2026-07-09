@@ -7,6 +7,7 @@
   "scripts": {
     "test": "playwright test tests/Day25",
     "test:cheap": "playwright test tests/Day25/TestCheapComponent.spec.ts",
+    "test:smoke": "playwright test tests/Day25/TestStandardComponent.spec.ts",
     "ui": "playwright test --ui"
   },
   "dependencies": {
