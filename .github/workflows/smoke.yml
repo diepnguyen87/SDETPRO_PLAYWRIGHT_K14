@@ -9,9 +9,20 @@ on:
     branches:
       - day-31
 
+strategy:
+  matrix:
+    browser:
+      - chromium
+      - firefox
+      - webkit
+
 jobs:
   smoke:
     name: Playwright Smoke Test
     uses: ./.github/workflows/reusable-playwright.yml
     with:
       command: test:smoke
+
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
