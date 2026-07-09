@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "playwright test --headed",
+    "test": "playwright test",
     "ui": "playwright test --ui"
   },
   "dependencies": {
