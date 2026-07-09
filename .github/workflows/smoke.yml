@@ -9,13 +9,6 @@ on:
     branches:
       - day-31
 
-strategy:
-  matrix:
-    browser:
-      - chromium
-      - firefox
-      - webkit
-
 jobs:
   smoke:
     name: Playwright Smoke Test
