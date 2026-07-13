@@ -13,6 +13,7 @@ jobs:
   smoke:
     name: Playwright Smoke Test - ${{ matrix.browser }}
     strategy:
+      fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
 
