@@ -120,7 +120,7 @@ export default class OrderTestFlow extends BaseFlow {
             expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
         const footerComponent:FooterComponent = shoppingCartPage.footerComp();
-        await footerComponent.scrollToFooter();
+        //await footerComponent.scrollToFooter();
 
         let priceCategories: any = await shoppingCartPage.totalComp().priceCategories()
         let subTotal = priceCategories["Sub-Total:"]
