@@ -6,6 +6,9 @@ on:
         command:
           required: true
           type: string
+        browser:
+          required: true
+          type: string
 
 jobs:
   playwright:
@@ -30,7 +33,7 @@ jobs:
         run: yarn playwright install --with-deps
 
       - name: Run Playwright tests
-        run: yarn ${{ inputs.command }} --project=${{ matrix.browser }}
+        run: yarn ${{ inputs.command }} --project=${{  inputs.browser }}
 
       - name: Upload Playwright HTML Report
         if: always()

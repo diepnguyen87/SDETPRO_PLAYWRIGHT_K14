@@ -11,11 +11,12 @@ on:
 
 jobs:
   smoke:
-    name: Playwright Smoke Test
-    uses: ./.github/workflows/reusable-playwright.yml
-    with:
-      command: test:smoke
-
+    name: Playwright Smoke Test - ${{ matrix.browser }}
     strategy:
       matrix:
         browser: [chromium, firefox, webkit]
+
+    uses: ./.github/workflows/reusable-playwright.yml
+    with:
+      command: test:smoke
+      browser: ${{ matrix.browser }}
