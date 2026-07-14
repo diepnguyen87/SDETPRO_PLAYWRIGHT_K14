@@ -68,12 +68,16 @@ export default class OrderTestFlow extends BaseFlow {
         )
 
         await computerComponent.clickOnAddToCartBtn()
-        const contentMsg = await computerDetailPage.notificationComp().getContentMessage()
-        if (contentMsg !== "The product has been added to your shopping cart") {
-            throw new Error("Add to cart failed");
-        }
+        // const contentMsg = await computerDetailPage.notificationComp().getContentMessage()
+        // if (contentMsg !== "The product has been added to your shopping cart") {
+        //     throw new Error("Add to cart failed");
+        // }
+        await expect(
+            await computerDetailPage.notificationComp().getContentMessage()
+          ).toEqual("The product has been added to your shopping cart");
+
         //unselect software checkbox
-        await computerComponent.selectSoftwareByName(computerData.software);
+        await computerComponent.unselectSoftwareByName(computerData.software);
         await this.page.waitForTimeout(1 * 1000)
     }
 

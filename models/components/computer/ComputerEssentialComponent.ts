@@ -48,6 +48,10 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
         return await this.selectOptionByName(softwareType)
     }
 
+    public async unselectSoftwareByName(softwareType: string): Promise<void> {
+        await this.unselectOptionByName(softwareType)
+    }
+
     protected async selectOptionByName(type: string): Promise<string> {
         const optionSel = `//label[contains(text(), "${type}")]`
         const optionList: Locator[] = await this.component.locator(optionSel).all()
@@ -56,6 +60,16 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
         const optionText = await optionElem.textContent() ?? '';
         await optionElem.click();
         return optionText;
+    }
+
+    protected async unselectOptionByName(type: string): Promise<void> {
+        const optionSel = `//label[contains(text(), "${type}")]`
+        const optionList: Locator[] = await this.component.locator(optionSel).all()
+        const FIRST_OPTION_INDEX = 0;
+        const optionElem = optionList[FIRST_OPTION_INDEX];
+        if (await optionElem.isChecked()) {
+            await optionElem.uncheck()
+        }
     }
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
