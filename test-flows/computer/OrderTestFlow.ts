@@ -47,6 +47,7 @@ export default class OrderTestFlow extends BaseFlow {
 
     private async buildComputerDetailAndAddToCart(computerData: any) {
         const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page);
+        const beforeCardQty = await computerDetailPage.headerComp().getCartQty();
         const computerComponent: ComputerEssentialComponent = computerDetailPage.computerComponent(this.computerComponentClass);
         await computerComponent.unselectDefaultCheckbox();
 
@@ -74,7 +75,11 @@ export default class OrderTestFlow extends BaseFlow {
         // }
         await expect(
             await computerDetailPage.notificationComp().getContentMessage()
-          ).toEqual("The product has been added to your shopping cart");
+        ).toEqual("The product has been added to your shopping cart");
+
+        await expect.poll(async () => {
+            return await computerDetailPage.headerComp().getCartQty();
+        }).toBe(beforeCardQty + 1);
 
         //unselect software checkbox
         await computerComponent.unselectSoftwareByName(computerData.software);
@@ -123,7 +128,7 @@ export default class OrderTestFlow extends BaseFlow {
             const unitTotal = await cartItemRowComp.getProductSubTotal();
             expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
-        const footerComponent:FooterComponent = shoppingCartPage.footerComp();
+        const footerComponent: FooterComponent = shoppingCartPage.footerComp();
         await footerComponent.scrollToFooter();
 
         let priceCategories: any = await shoppingCartPage.totalComp().priceCategories()

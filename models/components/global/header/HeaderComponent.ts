@@ -6,6 +6,7 @@ import { selector } from "../../SelectorDecorator.js";
 export default class HeaderComponent {
 
     private shoppingCartLinkSel: string = ".header-links .ico-cart"
+    private cartQtySel: string = ".ico-cart .cart-qty"
 
     constructor(private component: Locator) {
         this.component = component;
@@ -17,5 +18,10 @@ export default class HeaderComponent {
 
     public async navigateToShoppingCartLink(): Promise<void> {
         await this.component.locator(this.shoppingCartLinkSel).click()
+    }
+
+    public async getCartQty(): Promise<number> {
+        const cartQtytext = await this.component.locator(this.cartQtySel).textContent();
+        return Number(cartQtytext?.match(/\d+/)?.[0]);
     }
 }
