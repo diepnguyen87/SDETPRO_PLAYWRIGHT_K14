@@ -82,8 +82,9 @@ export default class OrderTestFlow extends BaseFlow {
         }).toBe(beforeCardQty + 1);
 
         //unselect software checkbox
-        await computerComponent.unselectSoftwareByName(computerData.software);
+       
         await this.page.waitForTimeout(1 * 1000)
+        await computerComponent.unselectSoftwareByName(computerData.software);
     }
 
     public async buildRandomComputerDetailListAndAddToCart(pcBuilds: number) {
