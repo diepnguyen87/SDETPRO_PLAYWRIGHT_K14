@@ -30,7 +30,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: yarn playwright install --with-deps
+        run: yarn playwright install --with-deps ${{ inputs.browser }}
 
       - name: Run Playwright tests
         run: yarn ${{ inputs.command }} --project=${{  inputs.browser }}
