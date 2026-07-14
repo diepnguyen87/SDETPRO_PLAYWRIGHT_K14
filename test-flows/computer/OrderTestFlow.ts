@@ -84,7 +84,7 @@ export default class OrderTestFlow extends BaseFlow {
         //unselect software checkbox
        
         await this.page.waitForTimeout(1 * 1000)
-        await computerComponent.unselectSoftwareByName(computerData.software);
+        // await computerComponent.unselectSoftwareByName(computerData.software);
     }
 
     public async buildRandomComputerDetailListAndAddToCart(pcBuilds: number) {
