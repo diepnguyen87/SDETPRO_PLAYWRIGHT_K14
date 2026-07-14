@@ -68,7 +68,17 @@ export default class OrderTestFlow extends BaseFlow {
             computerComponent
         )
 
-        await computerComponent.clickOnAddToCartBtn()
+        const addToCartResponse = this.page.waitForResponse(response =>
+            response.url().includes('/addproducttocart/details/') &&
+            response.request().method() === 'POST' &&
+            response.ok()
+        );
+
+        await computerComponent.clickOnAddToCartBtn();
+
+        const response = await addToCartResponse;
+        expect(response.ok()).toBeTruthy();
+
         // const contentMsg = await computerDetailPage.notificationComp().getContentMessage()
         // if (contentMsg !== "The product has been added to your shopping cart") {
         //     throw new Error("Add to cart failed");
@@ -81,10 +91,9 @@ export default class OrderTestFlow extends BaseFlow {
             return await computerDetailPage.headerComp().getCartQty();
         }).toBe(beforeCardQty + 1);
 
-        //unselect software checkbox
-       
+        // unselect software checkbox
+        await computerComponent.unselectSoftwareByName(computerData.software);
         await this.page.waitForTimeout(1 * 1000)
-        // await computerComponent.unselectSoftwareByName(computerData.software);
     }
 
     public async buildRandomComputerDetailListAndAddToCart(pcBuilds: number) {
