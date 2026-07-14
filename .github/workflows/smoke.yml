@@ -11,7 +11,7 @@ on:
 
 jobs:
   smoke:
-    name: Playwright Smoke Test - ${{ matrix.browser }}
+    name: Smoke Test - ${{ matrix.browser }}
     strategy:
       fail-fast: false
       matrix:
@@ -21,3 +21,6 @@ jobs:
     with:
       command: test:smoke
       browser: ${{ matrix.browser }}
+
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

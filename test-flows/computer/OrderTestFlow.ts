@@ -79,12 +79,9 @@ export default class OrderTestFlow extends BaseFlow {
         const response = await addToCartResponse;
         expect(response.ok()).toBeTruthy();
 
-        // const contentMsg = await computerDetailPage.notificationComp().getContentMessage()
-        // if (contentMsg !== "The product has been added to your shopping cart") {
-        //     throw new Error("Add to cart failed");
-        // }
         await expect(
-            await computerDetailPage.notificationComp().getContentMessage()
+            await computerDetailPage.notificationComp().getContentMessage(),
+            "Add to cart failed"
         ).toEqual("The product has been added to your shopping cart");
 
         await expect.poll(async () => {

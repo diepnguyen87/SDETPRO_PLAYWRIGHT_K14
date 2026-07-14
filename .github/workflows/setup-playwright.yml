@@ -1,4 +1,4 @@
-name: Reusable Playwright Workflow
+name: Setup Playwright Workflow
 
 on:
   workflow_call:
@@ -9,10 +9,13 @@ on:
         browser:
           required: true
           type: string
+        secrets:
+          SLACK_WEBHOOK_URL:
+          required: true
 
 jobs:
   playwright:
-    name: Playwright Test
+    name: Setup Playwright
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -42,3 +45,19 @@ jobs:
           name: ${{ inputs.browser }}-report
           path: playwright-report
           retention-days: 7
+          
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: |
+              ${{ job.status == 'success' && '✅' || '❌' }} Playwright test: ${{ job.status }}
+              Repository: ${{ github.repository }}
+              Branch: ${{ github.ref_name }}
+              Test suite: ${{ inputs.command }}
+              Browser: ${{ inputs.browser }}
+              Triggered by: ${{ github.actor }}
+              Run details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
