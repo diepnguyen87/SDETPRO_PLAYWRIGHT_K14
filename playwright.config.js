@@ -4,6 +4,7 @@ export default defineConfig({
     testDir: "./tests",
     testMatch: '**/*.spec.ts',
     timeout: 5 * 60 * 1000,
+    workers: 3,
     projects: [
         {
             name: 'chromium',

@@ -17,8 +17,9 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
 
-    uses: ./.github/workflows/setup-playwright.yml
+    uses: ./.github/workflows/reusable-workflow.yml
     with:
+      suite: Smoke
       command: test:smoke
       browser: ${{ matrix.browser }}
 

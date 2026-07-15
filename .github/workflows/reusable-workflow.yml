@@ -1,4 +1,4 @@
-name: Setup Playwright Workflow
+name: Reusable Workflow
 
 on:
   workflow_call:
@@ -8,6 +8,8 @@ on:
           type: string
         browser:
           required: true
+          type: string
+        suite:
           type: string
     secrets:
         SLACK_WEBHOOK_URL:
@@ -23,17 +25,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Playwright environment
+        uses: ./.github/actions/setup-playwright
         with:
-          node-version: 24
-          cache: yarn
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: yarn playwright install --with-deps ${{ inputs.browser }}
+          browser: ${{ inputs.browser }}
+          node-version: "24"
 
       - name: Run Playwright tests
         run: yarn ${{ inputs.command }} --project=${{  inputs.browser }}
@@ -42,7 +38,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.browser }}-report
+          name: ${{ inputs.suite }}-${{ inputs.browser }}-report
           path: playwright-report
           retention-days: 7
 

@@ -1,0 +1,30 @@
+name: Setup Playwright
+description: Setup Node.js, install Yarn dependencies, and install a Playwright browser
+
+inputs:
+  browser:
+    description: Playwright browser to install
+    required: true
+
+  node-version:
+    description: Node.js version
+    required: false
+    default: "24"
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: yarn
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --frozen-lockfile
+
+    - name: Install Playwright browser
+      shell: bash
+      run: yarn playwright install --with-deps ${{ inputs.browser }}
