@@ -6,7 +6,13 @@ on:
 jobs:
   android:
     name: Android Regression Test
-
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - mobile-chrome
+          - mobile-safari
+          
     runs-on:
       - self-hosted
       - macOS
