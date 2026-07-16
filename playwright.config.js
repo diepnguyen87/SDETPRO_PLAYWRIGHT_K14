@@ -7,17 +7,29 @@ export default defineConfig({
     workers: 3,
     projects: [
         {
-            name: 'chromium',
+            name: 'Desktop Chromium',
             use: { ...devices['Desktop Chrome'] },
         },
         {
-            name: 'firefox',
+            name: 'Desktop Firefox',
             use: { ...devices['Desktop Firefox'] },
         },
         {
-            name: 'webkit',
+            name: 'Desktop Webkit',
             use: { ...devices['Desktop Safari'] },
-        }
+        },
+        {
+            name: 'Mobile Safari',
+            use: {
+              ...devices['iPhone 14'],
+            },
+          },
+          {
+            name: 'Mobile Chrome',
+            use: {
+              ...devices['Pixel 6'],
+            },
+          },
     ],
     reporter: [
         ['html'],
