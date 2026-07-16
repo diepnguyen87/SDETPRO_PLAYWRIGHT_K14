@@ -1,0 +1,29 @@
+name: Self-hosted Regression CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on:
+      - self-hosted
+      - macOS
+      - ARM64
+      - mobile
+
+    steps:
+      - name: Show runner information
+        run: |
+          echo "Runner name: $RUNNER_NAME"
+          echo "Runner OS: $RUNNER_OS"
+          echo "Runner architecture: $RUNNER_ARCH"
+          sw_vers
+          uname -m
+
+      - name: Check installed tools
+        run: |
+          node --version || true
+          yarn --version || true
+          java -version || true
+          adb version || true
+          xcodebuild -version || true
