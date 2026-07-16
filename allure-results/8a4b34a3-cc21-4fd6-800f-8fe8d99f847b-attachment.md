@@ -1,0 +1,276 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Tricentis Demo Web Shop" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Tricentis Demo Web Shop" [ref=e7]
+      - list [ref=e10]:
+        - listitem [ref=e11]:
+          - link "Register" [ref=e12] [cursor=pointer]:
+            - /url: /register
+        - listitem [ref=e13]:
+          - link "Log in" [ref=e14] [cursor=pointer]:
+            - /url: /login
+        - listitem [ref=e15]:
+          - link "Shopping cart (0)" [ref=e16] [cursor=pointer]:
+            - /url: /cart
+            - generic [ref=e17]: Shopping cart
+            - generic [ref=e18]: (0)
+        - listitem [ref=e19]:
+          - link "Wishlist (0)" [ref=e20] [cursor=pointer]:
+            - /url: /wishlist
+            - generic [ref=e21]: Wishlist
+            - generic [ref=e22]: (0)
+      - generic [ref=e24]:
+        - status [ref=e25]
+        - textbox [ref=e26]: Search store
+        - button "Search" [ref=e27] [cursor=pointer]
+    - list [ref=e29]:
+      - listitem [ref=e30]:
+        - link "Books" [ref=e31] [cursor=pointer]:
+          - /url: /books
+      - listitem [ref=e32]:
+        - link "Computers" [ref=e33] [cursor=pointer]:
+          - /url: /computers
+      - listitem [ref=e34]:
+        - link "Electronics" [ref=e35] [cursor=pointer]:
+          - /url: /electronics
+      - listitem [ref=e36]:
+        - link "Apparel & Shoes" [ref=e37] [cursor=pointer]:
+          - /url: /apparel-shoes
+      - listitem [ref=e38]:
+        - link "Digital downloads" [ref=e39] [cursor=pointer]:
+          - /url: /digital-downloads
+      - listitem [ref=e40]:
+        - link "Jewelry" [ref=e41] [cursor=pointer]:
+          - /url: /jewelry
+      - listitem [ref=e42]:
+        - link "Gift Cards" [ref=e43] [cursor=pointer]:
+          - /url: /gift-cards
+    - generic:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - strong [ref=e47]: Categories
+          - list [ref=e49]:
+            - listitem [ref=e50]:
+              - link "Books" [ref=e51] [cursor=pointer]:
+                - /url: /books
+            - listitem [ref=e52]:
+              - link "Computers" [ref=e53] [cursor=pointer]:
+                - /url: /computers
+            - listitem [ref=e54]:
+              - link "Electronics" [ref=e55] [cursor=pointer]:
+                - /url: /electronics
+            - listitem [ref=e56]:
+              - link "Apparel & Shoes" [ref=e57] [cursor=pointer]:
+                - /url: /apparel-shoes
+            - listitem [ref=e58]:
+              - link "Digital downloads" [ref=e59] [cursor=pointer]:
+                - /url: /digital-downloads
+            - listitem [ref=e60]:
+              - link "Jewelry" [ref=e61] [cursor=pointer]:
+                - /url: /jewelry
+            - listitem [ref=e62]:
+              - link "Gift Cards" [ref=e63] [cursor=pointer]:
+                - /url: /gift-cards
+        - generic [ref=e64]:
+          - strong [ref=e66]: Manufacturers
+          - list [ref=e68]:
+            - listitem [ref=e69]:
+              - link "Tricentis" [ref=e70] [cursor=pointer]:
+                - /url: /tricentis
+        - generic [ref=e71]:
+          - strong [ref=e73]: Newsletter
+          - generic [ref=e75]:
+            - text: "Sign up for our newsletter:"
+            - textbox [ref=e77]
+            - button "Subscribe" [ref=e79] [cursor=pointer]
+      - generic [ref=e80]:
+        - list [ref=e82]:
+          - listitem [ref=e83]:
+            - link "Home" [ref=e84] [cursor=pointer]:
+              - /url: /
+            - text: /
+          - listitem [ref=e85]:
+            - strong [ref=e86]: Jewelry
+        - generic [ref=e87]:
+          - heading "Jewelry" [level=1] [ref=e89]
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - text: View as
+                - combobox [ref=e93]:
+                  - option "Grid" [selected]
+                  - option "List"
+              - generic [ref=e94]:
+                - text: Sort by
+                - combobox [ref=e95]:
+                  - option "Position" [selected]
+                  - 'option "Name: A to Z"'
+                  - 'option "Name: Z to A"'
+                  - 'option "Price: Low to High"'
+                  - 'option "Price: High to Low"'
+                  - option "Created on"
+              - generic [ref=e96]:
+                - text: Display
+                - combobox [ref=e97]:
+                  - option "4"
+                  - option "8" [selected]
+                  - option "12"
+                - text: per page
+            - generic [ref=e99]:
+              - strong [ref=e101]: Filter by price
+              - list [ref=e103]:
+                - listitem [ref=e104]:
+                  - link "0.00 - 500.00" [ref=e105] [cursor=pointer]:
+                    - /url: https://demowebshop.tricentis.com/jewelry?price=0-500
+                - listitem [ref=e106]:
+                  - link "500.00 - 700.00" [ref=e107] [cursor=pointer]:
+                    - /url: https://demowebshop.tricentis.com/jewelry?price=500-700
+                - listitem [ref=e108]:
+                  - link "700.00 - 3000.00" [ref=e109] [cursor=pointer]:
+                    - /url: https://demowebshop.tricentis.com/jewelry?price=700-3000
+            - generic [ref=e110]:
+              - generic [ref=e112]:
+                - link "Picture of Create Your Own Jewelry" [ref=e114] [cursor=pointer]:
+                  - /url: /create-it-yourself-jewelry
+                  - img "Picture of Create Your Own Jewelry" [ref=e115]
+                - generic [ref=e116]:
+                  - heading "Create Your Own Jewelry" [level=2] [ref=e117]:
+                    - link "Create Your Own Jewelry" [ref=e118] [cursor=pointer]:
+                      - /url: /create-it-yourself-jewelry
+                  - generic "296 review(s)" [ref=e119]
+                  - generic [ref=e122]:
+                    - generic [ref=e124]: "100.00"
+                    - button "Add to cart" [ref=e126] [cursor=pointer]
+              - generic [ref=e128]:
+                - link "Picture of Black & White Diamond Heart" [ref=e130] [cursor=pointer]:
+                  - /url: /black-white-diamond-heart
+                  - img "Picture of Black & White Diamond Heart" [ref=e131]
+                - generic [ref=e132]:
+                  - heading "Black & White Diamond Heart" [level=2] [ref=e133]:
+                    - link "Black & White Diamond Heart" [ref=e134] [cursor=pointer]:
+                      - /url: /black-white-diamond-heart
+                  - generic "637 review(s)" [ref=e135]
+                  - generic [ref=e138]:
+                    - generic [ref=e140]: "130.00"
+                    - button "Add to cart" [ref=e142] [cursor=pointer]
+              - generic [ref=e144]:
+                - link "Picture of Diamond Pave Earrings" [ref=e146] [cursor=pointer]:
+                  - /url: /diamond-pave-earrings
+                  - img "Picture of Diamond Pave Earrings" [ref=e147]
+                - generic [ref=e148]:
+                  - heading "Diamond Pave Earrings" [level=2] [ref=e149]:
+                    - link "Diamond Pave Earrings" [ref=e150] [cursor=pointer]:
+                      - /url: /diamond-pave-earrings
+                  - generic "228 review(s)" [ref=e151]
+                  - generic [ref=e156]: From 350.00
+              - generic [ref=e158]:
+                - link "Picture of Diamond Tennis Bracelet" [ref=e160] [cursor=pointer]:
+                  - /url: /diamond-tennis-bracelet
+                  - img "Picture of Diamond Tennis Bracelet" [ref=e161]
+                - generic [ref=e162]:
+                  - heading "Diamond Tennis Bracelet" [level=2] [ref=e163]:
+                    - link "Diamond Tennis Bracelet" [ref=e164] [cursor=pointer]:
+                      - /url: /diamond-tennis-bracelet
+                  - generic "319 review(s)" [ref=e165]
+                  - generic [ref=e170]: "360.00"
+              - generic [ref=e172]:
+                - link "Picture of Vintage Style Three Stone Diamond Engagement Ring" [ref=e174] [cursor=pointer]:
+                  - /url: /vintage-style-three-stone-diamond-engagement-ring
+                  - img "Picture of Vintage Style Three Stone Diamond Engagement Ring" [ref=e175]
+                - generic [ref=e176]:
+                  - heading "Vintage Style Three Stone Diamond Engagement Ring" [level=2] [ref=e177]:
+                    - link "Vintage Style Three Stone Diamond Engagement Ring" [ref=e178] [cursor=pointer]:
+                      - /url: /vintage-style-three-stone-diamond-engagement-ring
+                  - generic "338 review(s)" [ref=e179]
+                  - generic [ref=e184]: "2100.00"
+  - generic [ref=e185]:
+    - generic [ref=e186]:
+      - generic [ref=e187]:
+        - heading "Information" [level=3] [ref=e188]
+        - list [ref=e189]:
+          - listitem [ref=e190]:
+            - link "Sitemap" [ref=e191] [cursor=pointer]:
+              - /url: /sitemap
+          - listitem [ref=e192]:
+            - link "Shipping & Returns" [ref=e193] [cursor=pointer]:
+              - /url: /shipping-returns
+          - listitem [ref=e194]:
+            - link "Privacy Notice" [ref=e195] [cursor=pointer]:
+              - /url: /privacy-policy
+          - listitem [ref=e196]:
+            - link "Conditions of Use" [ref=e197] [cursor=pointer]:
+              - /url: /conditions-of-use
+          - listitem [ref=e198]:
+            - link "About us" [ref=e199] [cursor=pointer]:
+              - /url: /about-us
+          - listitem [ref=e200]:
+            - link "Contact us" [ref=e201] [cursor=pointer]:
+              - /url: /contactus
+      - generic [ref=e202]:
+        - heading "Customer service" [level=3] [ref=e203]
+        - list [ref=e204]:
+          - listitem [ref=e205]:
+            - link "Search" [ref=e206] [cursor=pointer]:
+              - /url: /search
+          - listitem [ref=e207]:
+            - link "News" [ref=e208] [cursor=pointer]:
+              - /url: /news
+          - listitem [ref=e209]:
+            - link "Blog" [ref=e210] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e211]:
+            - link "Recently viewed products" [ref=e212] [cursor=pointer]:
+              - /url: /recentlyviewedproducts
+          - listitem [ref=e213]:
+            - link "Compare products list" [ref=e214] [cursor=pointer]:
+              - /url: /compareproducts
+          - listitem [ref=e215]:
+            - link "New products" [ref=e216] [cursor=pointer]:
+              - /url: /newproducts
+      - generic [ref=e217]:
+        - heading "My account" [level=3] [ref=e218]
+        - list [ref=e219]:
+          - listitem [ref=e220]:
+            - link "My account" [ref=e221] [cursor=pointer]:
+              - /url: /customer/info
+          - listitem [ref=e222]:
+            - link "Orders" [ref=e223] [cursor=pointer]:
+              - /url: /customer/orders
+          - listitem [ref=e224]:
+            - link "Addresses" [ref=e225] [cursor=pointer]:
+              - /url: /customer/addresses
+          - listitem [ref=e226]:
+            - link "Shopping cart" [ref=e227] [cursor=pointer]:
+              - /url: /cart
+          - listitem [ref=e228]:
+            - link "Wishlist" [ref=e229] [cursor=pointer]:
+              - /url: /wishlist
+      - generic [ref=e230]:
+        - heading "Follow us" [level=3] [ref=e231]
+        - list [ref=e232]:
+          - listitem [ref=e233]:
+            - link "Facebook" [ref=e234] [cursor=pointer]:
+              - /url: http://www.facebook.com/nopCommerce
+          - listitem [ref=e235]:
+            - link "Twitter" [ref=e236] [cursor=pointer]:
+              - /url: https://twitter.com/nopCommerce
+          - listitem [ref=e237]:
+            - link "RSS" [ref=e238] [cursor=pointer]:
+              - /url: /news/rss/1
+          - listitem [ref=e239]:
+            - link "YouTube" [ref=e240] [cursor=pointer]:
+              - /url: http://www.youtube.com/user/nopCommerce
+          - listitem [ref=e241]:
+            - link "Google+" [ref=e242] [cursor=pointer]:
+              - /url: https://plus.google.com/+nopcommerce
+    - generic [ref=e243]:
+      - text: Powered by
+      - link "nopCommerce" [ref=e244] [cursor=pointer]:
+        - /url: http://www.nopcommerce.com/
+    - generic [ref=e245]: Copyright © 2026 Tricentis Demo Web Shop. All rights reserved.
+```

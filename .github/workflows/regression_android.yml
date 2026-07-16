@@ -1,0 +1,131 @@
+name: Android CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android Regression Test
+
+    runs-on:
+      - self-hosted
+      - macOS
+      - ARM64
+      - appium
+
+    timeout-minutes: 60
+
+    env:
+      APPIUM_PORT: 4723
+      APPIUM_SERVER_URL: http://127.0.0.1:4723
+      ANDROID_SYSTEM_PORT: 8201
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Check Java and Maven
+        run: |
+          java -version
+          mvn -version
+
+      - name: Check Android environment
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          adb version
+
+      - name: Check connected Android devices
+        run: |
+          adb start-server
+          adb devices -l
+
+          DEVICE_COUNT=$(adb devices | awk 'NR > 1 && $2 == "device" {count++} END {print count+0}')
+
+          if [ "$DEVICE_COUNT" -eq 0 ]; then
+            echo "No online Android device or emulator was found."
+            exit 1
+          fi
+
+          echo "Found $DEVICE_COUNT online Android device(s)."
+
+      - name: Check Appium and UiAutomator2
+        run: |
+          appium --version
+          appium driver list --installed
+
+          if ! appium driver list --installed | grep -qi "uiautomator2"; then
+            echo "UiAutomator2 driver is not installed."
+            exit 1
+          fi
+
+      - name: Stop old Appium process
+        run: |
+          lsof -ti tcp:${APPIUM_PORT} | xargs kill -9 2>/dev/null || true
+
+      - name: Start Appium server
+        run: |
+          nohup appium \
+            --address 127.0.0.1 \
+            --port ${APPIUM_PORT} \
+            --log appium-android.log \
+            > appium-console.log 2>&1 &
+
+          echo $! > appium.pid
+
+      - name: Wait for Appium server
+        run: |
+          for attempt in {1..30}; do
+            if curl --silent --fail \
+              "${APPIUM_SERVER_URL}/status" > /dev/null; then
+              echo "Appium server is ready."
+              exit 0
+            fi
+
+            echo "Waiting for Appium server... attempt ${attempt}/30"
+            sleep 2
+          done
+
+          echo "Appium server did not become ready."
+          cat appium-console.log || true
+          exit 1
+
+      - name: Run Android regression tests
+        env:
+          PLATFORM: ANDROID
+          SYSTEM_PORT: ${{ env.ANDROID_SYSTEM_PORT }}
+        run: |
+          mvn clean verify \
+            -Dplatform=ANDROID \
+            -Dappium.server.url=${APPIUM_SERVER_URL} \
+            -DsystemPort=${ANDROID_SYSTEM_PORT}
+
+      - name: Upload Serenity report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-serenity-report
+          path: target/site/serenity
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload Appium logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-appium-logs
+          path: |
+            appium-android.log
+            appium-console.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop Appium server
+        if: always()
+        run: |
+          if [ -f appium.pid ]; then
+            kill "$(cat appium.pid)" 2>/dev/null || true
+            rm -f appium.pid
+          fi
+
+          lsof -ti tcp:${APPIUM_PORT} | xargs kill -9 2>/dev/null || true

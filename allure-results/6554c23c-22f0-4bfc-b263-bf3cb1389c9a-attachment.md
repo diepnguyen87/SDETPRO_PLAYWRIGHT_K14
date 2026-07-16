@@ -1,0 +1,559 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Tricentis Demo Web Shop" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Tricentis Demo Web Shop" [ref=e7]
+      - generic [ref=e8]:
+        - list [ref=e10]:
+          - listitem [ref=e11]:
+            - link "Register" [ref=e12] [cursor=pointer]:
+              - /url: /register
+          - listitem [ref=e13]:
+            - link "Log in" [ref=e14] [cursor=pointer]:
+              - /url: /login
+          - listitem [ref=e15]:
+            - link "Shopping cart (3)" [ref=e16] [cursor=pointer]:
+              - /url: /cart
+              - generic [ref=e17]: Shopping cart
+              - generic [ref=e18]: (3)
+          - listitem [ref=e19]:
+            - link "Wishlist (0)" [ref=e20] [cursor=pointer]:
+              - /url: /wishlist
+              - generic [ref=e21]: Wishlist
+              - generic [ref=e22]: (0)
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - text: There are
+            - link "3 item(s)" [ref=e26] [cursor=pointer]:
+              - /url: /cart
+            - text: in your cart.
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - link "Picture of Build your own cheap computer" [ref=e30] [cursor=pointer]:
+                - /url: /build-your-cheap-own-computer
+                - img "Picture of Build your own cheap computer" [ref=e31]
+              - generic [ref=e32]:
+                - link "Build your own cheap computer" [ref=e34] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e35]:
+                  - text: "Processor: Fast [+100.00]"
+                  - text: "RAM: 4 GB [+20.00]"
+                  - text: "HDD: 400 GB [+100.00]"
+                  - text: "Software: Office Suite [+100.00]"
+                  - text: "Software: Other Office Suite [+40.00]"
+                - generic [ref=e36]: "Unit price: 1160.00"
+                - generic [ref=e37]: "Quantity: 1"
+            - generic [ref=e38]:
+              - link "Picture of Build your own cheap computer" [ref=e40] [cursor=pointer]:
+                - /url: /build-your-cheap-own-computer
+                - img "Picture of Build your own cheap computer" [ref=e41]
+              - generic [ref=e42]:
+                - link "Build your own cheap computer" [ref=e44] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e45]:
+                  - text: "Processor: Medium [+15.00]"
+                  - text: "RAM: 2 GB"
+                  - text: "HDD: 400 GB [+100.00]"
+                  - text: "Software: Office Suite [+100.00]"
+                - generic [ref=e46]: "Unit price: 1015.00"
+                - generic [ref=e47]: "Quantity: 1"
+            - generic [ref=e48]:
+              - link "Picture of Build your own cheap computer" [ref=e50] [cursor=pointer]:
+                - /url: /build-your-cheap-own-computer
+                - img "Picture of Build your own cheap computer" [ref=e51]
+              - generic [ref=e52]:
+                - link "Build your own cheap computer" [ref=e54] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e55]:
+                  - text: "Processor: Slow"
+                  - text: "RAM: 8 GB [+60.00]"
+                  - text: "HDD: 320 GB"
+                  - text: "Software: Image Viever [+5.00]"
+                - generic [ref=e56]: "Unit price: 865.00"
+                - generic [ref=e57]: "Quantity: 1"
+          - generic [ref=e58]:
+            - text: "Sub-Total:"
+            - strong [ref=e59]: "3040.00"
+          - button "Go to cart" [ref=e61] [cursor=pointer]
+      - generic [ref=e63]:
+        - status [ref=e64]
+        - textbox [ref=e65]: Search store
+        - button "Search" [ref=e66] [cursor=pointer]
+    - list [ref=e68]:
+      - listitem [ref=e69]:
+        - link "Books" [ref=e70] [cursor=pointer]:
+          - /url: /books
+      - listitem [ref=e71]:
+        - link "Computers" [ref=e72] [cursor=pointer]:
+          - /url: /computers
+      - listitem [ref=e73]:
+        - link "Electronics" [ref=e74] [cursor=pointer]:
+          - /url: /electronics
+      - listitem [ref=e75]:
+        - link "Apparel & Shoes" [ref=e76] [cursor=pointer]:
+          - /url: /apparel-shoes
+      - listitem [ref=e77]:
+        - link "Digital downloads" [ref=e78] [cursor=pointer]:
+          - /url: /digital-downloads
+      - listitem [ref=e79]:
+        - link "Jewelry" [ref=e80] [cursor=pointer]:
+          - /url: /jewelry
+      - listitem [ref=e81]:
+        - link "Gift Cards" [ref=e82] [cursor=pointer]:
+          - /url: /gift-cards
+    - generic [ref=e84]:
+      - heading "Shopping cart" [level=1] [ref=e86]
+      - generic [ref=e89]:
+        - table [ref=e90]:
+          - rowgroup [ref=e98]:
+            - row "Remove Product(s) Price Qty. Total" [ref=e99]:
+              - columnheader "Remove" [ref=e100]
+              - columnheader [ref=e101]
+              - columnheader "Product(s)" [ref=e102]
+              - columnheader "Price" [ref=e103]
+              - columnheader "Qty." [ref=e104]
+              - columnheader "Total" [ref=e105]
+          - rowgroup [ref=e106]:
+            - 'row "Picture of Build your own cheap computer Build your own cheap computer Processor: Slow RAM: 8 GB [+60.00] HDD: 320 GB Software: Image Viever [+5.00] Edit 865.00 1 865.00" [ref=e107]':
+              - cell [ref=e108]:
+                - checkbox [ref=e109]
+              - cell "Picture of Build your own cheap computer" [ref=e110]:
+                - img "Picture of Build your own cheap computer" [ref=e111]
+              - 'cell "Build your own cheap computer Processor: Slow RAM: 8 GB [+60.00] HDD: 320 GB Software: Image Viever [+5.00] Edit" [ref=e112]':
+                - link "Build your own cheap computer" [ref=e113] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e114]:
+                  - text: "Processor: Slow"
+                  - text: "RAM: 8 GB [+60.00]"
+                  - text: "HDD: 320 GB"
+                  - text: "Software: Image Viever [+5.00]"
+                - link "Edit" [ref=e116] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer?updatecartitemid=6877290
+              - cell "865.00" [ref=e117]
+              - cell "1" [ref=e118]:
+                - textbox [ref=e119]: "1"
+              - cell "865.00" [ref=e120]
+            - 'row "Picture of Build your own cheap computer Build your own cheap computer Processor: Medium [+15.00] RAM: 2 GB HDD: 400 GB [+100.00] Software: Office Suite [+100.00] Edit 1015.00 1 1015.00" [ref=e121]':
+              - cell [ref=e122]:
+                - checkbox [ref=e123]
+              - cell "Picture of Build your own cheap computer" [ref=e124]:
+                - img "Picture of Build your own cheap computer" [ref=e125]
+              - 'cell "Build your own cheap computer Processor: Medium [+15.00] RAM: 2 GB HDD: 400 GB [+100.00] Software: Office Suite [+100.00] Edit" [ref=e126]':
+                - link "Build your own cheap computer" [ref=e127] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e128]:
+                  - text: "Processor: Medium [+15.00]"
+                  - text: "RAM: 2 GB"
+                  - text: "HDD: 400 GB [+100.00]"
+                  - text: "Software: Office Suite [+100.00]"
+                - link "Edit" [ref=e130] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer?updatecartitemid=6877291
+              - cell "1015.00" [ref=e131]
+              - cell "1" [ref=e132]:
+                - textbox [ref=e133]: "1"
+              - cell "1015.00" [ref=e134]
+            - 'row "Picture of Build your own cheap computer Build your own cheap computer Processor: Fast [+100.00] RAM: 4 GB [+20.00] HDD: 400 GB [+100.00] Software: Office Suite [+100.00] Software: Other Office Suite [+40.00] Edit 1160.00 1 1160.00" [ref=e135]':
+              - cell [ref=e136]:
+                - checkbox [ref=e137]
+              - cell "Picture of Build your own cheap computer" [ref=e138]:
+                - img "Picture of Build your own cheap computer" [ref=e139]
+              - 'cell "Build your own cheap computer Processor: Fast [+100.00] RAM: 4 GB [+20.00] HDD: 400 GB [+100.00] Software: Office Suite [+100.00] Software: Other Office Suite [+40.00] Edit" [ref=e140]':
+                - link "Build your own cheap computer" [ref=e141] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer
+                - generic [ref=e142]:
+                  - text: "Processor: Fast [+100.00]"
+                  - text: "RAM: 4 GB [+20.00]"
+                  - text: "HDD: 400 GB [+100.00]"
+                  - text: "Software: Office Suite [+100.00]"
+                  - text: "Software: Other Office Suite [+40.00]"
+                - link "Edit" [ref=e144] [cursor=pointer]:
+                  - /url: /build-your-cheap-own-computer?updatecartitemid=6877292
+              - cell "1160.00" [ref=e145]
+              - cell "1" [ref=e146]:
+                - textbox [ref=e147]: "1"
+              - cell "1160.00" [ref=e148]
+        - generic [ref=e150]:
+          - button "Update shopping cart" [ref=e151] [cursor=pointer]
+          - button "Continue shopping" [ref=e152] [cursor=pointer]
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - strong [ref=e158]: Discount Code
+                - generic [ref=e159]: Enter your coupon here
+                - generic [ref=e160]:
+                  - textbox [ref=e161]
+                  - button "Apply coupon" [ref=e162] [cursor=pointer]
+              - generic [ref=e163]:
+                - strong [ref=e165]: Gift Cards
+                - generic [ref=e166]: Enter gift card code
+                - generic [ref=e167]:
+                  - textbox [ref=e168]
+                  - button "Add gift card" [ref=e169] [cursor=pointer]
+            - generic [ref=e171]:
+              - strong [ref=e173]: Estimate shipping
+              - generic [ref=e174]: Enter your destination to get a shipping estimate
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - generic [ref=e177]: "Country:"
+                  - combobox "Country:" [ref=e178]:
+                    - option "Select country" [selected]
+                    - option "United States"
+                    - option "Canada"
+                    - option "Afghanistan"
+                    - option "Albania"
+                    - option "Algeria"
+                    - option "American Samoa"
+                    - option "Andorra"
+                    - option "Angola"
+                    - option "Anguilla"
+                    - option "Antarctica"
+                    - option "Antigua and Barbuda"
+                    - option "Argentina"
+                    - option "Armenia"
+                    - option "Aruba"
+                    - option "Australia"
+                    - option "Austria"
+                    - option "Azerbaijan"
+                    - option "Bahamas"
+                    - option "Bahrain"
+                    - option "Bangladesh"
+                    - option "Barbados"
+                    - option "Belarus"
+                    - option "Belgium"
+                    - option "Belize"
+                    - option "Benin"
+                    - option "Bermuda"
+                    - option "Bhutan"
+                    - option "Bolivia"
+                    - option "Bosnia and Herzegowina"
+                    - option "Botswana"
+                    - option "Bouvet Island"
+                    - option "Brazil"
+                    - option "British Indian Ocean Territory"
+                    - option "Brunei Darussalam"
+                    - option "Bulgaria"
+                    - option "Burkina Faso"
+                    - option "Burundi"
+                    - option "Cambodia"
+                    - option "Cameroon"
+                    - option "Cape Verde"
+                    - option "Cayman Islands"
+                    - option "Central African Republic"
+                    - option "Chad"
+                    - option "Chile"
+                    - option "China"
+                    - option "Christmas Island"
+                    - option "Cocos (Keeling) Islands"
+                    - option "Colombia"
+                    - option "Comoros"
+                    - option "Congo"
+                    - option "Cook Islands"
+                    - option "Costa Rica"
+                    - option "Cote D'Ivoire"
+                    - option "Croatia"
+                    - option "Cuba"
+                    - option "Cyprus"
+                    - option "Czech Republic"
+                    - option "Denmark"
+                    - option "Djibouti"
+                    - option "Dominica"
+                    - option "Dominican Republic"
+                    - option "Ecuador"
+                    - option "Egypt"
+                    - option "El Salvador"
+                    - option "Equatorial Guinea"
+                    - option "Eritrea"
+                    - option "Estonia"
+                    - option "Ethiopia"
+                    - option "Falkland Islands (Malvinas)"
+                    - option "Faroe Islands"
+                    - option "Fiji"
+                    - option "Finland"
+                    - option "France"
+                    - option "French Guiana"
+                    - option "French Polynesia"
+                    - option "French Southern Territories"
+                    - option "Gabon"
+                    - option "Gambia"
+                    - option "Georgia"
+                    - option "Germany"
+                    - option "Ghana"
+                    - option "Gibraltar"
+                    - option "Greece"
+                    - option "Greenland"
+                    - option "Grenada"
+                    - option "Guadeloupe"
+                    - option "Guam"
+                    - option "Guatemala"
+                    - option "Guinea"
+                    - option "Guinea-bissau"
+                    - option "Guyana"
+                    - option "Haiti"
+                    - option "Heard and Mc Donald Islands"
+                    - option "Honduras"
+                    - option "Hong Kong"
+                    - option "Hungary"
+                    - option "Iceland"
+                    - option "India"
+                    - option "Indonesia"
+                    - option "Iran (Islamic Republic of)"
+                    - option "Iraq"
+                    - option "Ireland"
+                    - option "Israel"
+                    - option "Italy"
+                    - option "Jamaica"
+                    - option "Japan"
+                    - option "Jordan"
+                    - option "Kazakhstan"
+                    - option "Kenya"
+                    - option "Kiribati"
+                    - option "Korea"
+                    - option "Korea, Democratic People's Republic of"
+                    - option "Kuwait"
+                    - option "Kyrgyzstan"
+                    - option "Lao People's Democratic Republic"
+                    - option "Latvia"
+                    - option "Lebanon"
+                    - option "Lesotho"
+                    - option "Liberia"
+                    - option "Libyan Arab Jamahiriya"
+                    - option "Liechtenstein"
+                    - option "Lithuania"
+                    - option "Luxembourg"
+                    - option "Macau"
+                    - option "Macedonia"
+                    - option "Madagascar"
+                    - option "Malawi"
+                    - option "Malaysia"
+                    - option "Maldives"
+                    - option "Mali"
+                    - option "Malta"
+                    - option "Marshall Islands"
+                    - option "Martinique"
+                    - option "Mauritania"
+                    - option "Mauritius"
+                    - option "Mayotte"
+                    - option "Mexico"
+                    - option "Micronesia"
+                    - option "Moldova"
+                    - option "Monaco"
+                    - option "Mongolia"
+                    - option "Montenegro"
+                    - option "Montserrat"
+                    - option "Morocco"
+                    - option "Mozambique"
+                    - option "Myanmar"
+                    - option "Namibia"
+                    - option "Nauru"
+                    - option "Nepal"
+                    - option "Netherlands"
+                    - option "Netherlands Antilles"
+                    - option "New Caledonia"
+                    - option "New Zealand"
+                    - option "Nicaragua"
+                    - option "Niger"
+                    - option "Nigeria"
+                    - option "Niue"
+                    - option "Norfolk Island"
+                    - option "Northern Mariana Islands"
+                    - option "Norway"
+                    - option "Oman"
+                    - option "Pakistan"
+                    - option "Palau"
+                    - option "Panama"
+                    - option "Papua New Guinea"
+                    - option "Paraguay"
+                    - option "Peru"
+                    - option "Philippines"
+                    - option "Pitcairn"
+                    - option "Poland"
+                    - option "Portugal"
+                    - option "Puerto Rico"
+                    - option "Qatar"
+                    - option "Reunion"
+                    - option "Romania"
+                    - option "Russia"
+                    - option "Rwanda"
+                    - option "Saint Kitts and Nevis"
+                    - option "Saint Lucia"
+                    - option "Saint Vincent and the Grenadines"
+                    - option "Samoa"
+                    - option "San Marino"
+                    - option "Sao Tome and Principe"
+                    - option "Saudi Arabia"
+                    - option "Senegal"
+                    - option "Serbia"
+                    - option "Seychelles"
+                    - option "Sierra Leone"
+                    - option "Singapore"
+                    - option "Slovakia (Slovak Republic)"
+                    - option "Slovenia"
+                    - option "Solomon Islands"
+                    - option "Somalia"
+                    - option "South Africa"
+                    - option "South Georgia & South Sandwich Islands"
+                    - option "Spain"
+                    - option "Sri Lanka"
+                    - option "St. Helena"
+                    - option "St. Pierre and Miquelon"
+                    - option "Sudan"
+                    - option "Suriname"
+                    - option "Svalbard and Jan Mayen Islands"
+                    - option "Swaziland"
+                    - option "Sweden"
+                    - option "Switzerland"
+                    - option "Syrian Arab Republic"
+                    - option "Taiwan"
+                    - option "Tajikistan"
+                    - option "Tanzania"
+                    - option "Thailand"
+                    - option "Togo"
+                    - option "Tokelau"
+                    - option "Tonga"
+                    - option "Trinidad and Tobago"
+                    - option "Tunisia"
+                    - option "Turkey"
+                    - option "Turkmenistan"
+                    - option "Turks and Caicos Islands"
+                    - option "Tuvalu"
+                    - option "Uganda"
+                    - option "Ukraine"
+                    - option "United Arab Emirates"
+                    - option "United Kingdom"
+                    - option "United States minor outlying islands"
+                    - option "Uruguay"
+                    - option "Uzbekistan"
+                    - option "Vanuatu"
+                    - option "Vatican City State (Holy See)"
+                    - option "Venezuela"
+                    - option "Viet Nam"
+                    - option "Virgin Islands (British)"
+                    - option "Virgin Islands (U.S.)"
+                    - option "Wallis and Futuna Islands"
+                    - option "Western Sahara"
+                    - option "Yemen"
+                    - option "Zambia"
+                    - option "Zimbabwe"
+                  - text: "*"
+                - generic [ref=e179]:
+                  - generic [ref=e180]: "State / province:"
+                  - combobox "State / province:" [ref=e181]:
+                    - option "Other (Non US)" [selected]
+                - generic [ref=e182]:
+                  - generic [ref=e183]: "Zip / postal code:"
+                  - textbox "Zip / postal code:" [ref=e184]
+                - button "Estimate shipping" [ref=e186] [cursor=pointer]
+          - generic [ref=e187]:
+            - table [ref=e189]:
+              - rowgroup [ref=e190]:
+                - 'row "Sub-Total: 3040.00" [ref=e191]':
+                  - cell "Sub-Total:" [ref=e192]
+                  - cell "3040.00" [ref=e193]:
+                    - generic [ref=e194]: "3040.00"
+                - 'row "Shipping: 0.00" [ref=e195]':
+                  - cell "Shipping:" [ref=e196]
+                  - cell "0.00" [ref=e197]:
+                    - generic [ref=e198]: "0.00"
+                - 'row "Tax: 0.00" [ref=e199]':
+                  - cell "Tax:" [ref=e200]
+                  - cell "0.00" [ref=e201]:
+                    - generic [ref=e202]: "0.00"
+                - 'row "Total: 3040.00" [ref=e203]':
+                  - cell "Total:" [ref=e204]
+                  - cell "3040.00" [ref=e205]:
+                    - strong [ref=e208]: "3040.00"
+            - generic [ref=e209]:
+              - checkbox [ref=e210]
+              - text: I agree with the terms of service and I adhere to them unconditionally (read)
+            - button "Checkout" [ref=e212] [cursor=pointer]
+  - generic [ref=e214]:
+    - generic [ref=e215]:
+      - generic [ref=e216]:
+        - heading "Information" [level=3] [ref=e217]
+        - list [ref=e218]:
+          - listitem [ref=e219]:
+            - link "Sitemap" [ref=e220] [cursor=pointer]:
+              - /url: /sitemap
+          - listitem [ref=e221]:
+            - link "Shipping & Returns" [ref=e222] [cursor=pointer]:
+              - /url: /shipping-returns
+          - listitem [ref=e223]:
+            - link "Privacy Notice" [ref=e224] [cursor=pointer]:
+              - /url: /privacy-policy
+          - listitem [ref=e225]:
+            - link "Conditions of Use" [ref=e226] [cursor=pointer]:
+              - /url: /conditions-of-use
+          - listitem [ref=e227]:
+            - link "About us" [ref=e228] [cursor=pointer]:
+              - /url: /about-us
+          - listitem [ref=e229]:
+            - link "Contact us" [ref=e230] [cursor=pointer]:
+              - /url: /contactus
+      - generic [ref=e231]:
+        - heading "Customer service" [level=3] [ref=e232]
+        - list [ref=e233]:
+          - listitem [ref=e234]:
+            - link "Search" [ref=e235] [cursor=pointer]:
+              - /url: /search
+          - listitem [ref=e236]:
+            - link "News" [ref=e237] [cursor=pointer]:
+              - /url: /news
+          - listitem [ref=e238]:
+            - link "Blog" [ref=e239] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e240]:
+            - link "Recently viewed products" [ref=e241] [cursor=pointer]:
+              - /url: /recentlyviewedproducts
+          - listitem [ref=e242]:
+            - link "Compare products list" [ref=e243] [cursor=pointer]:
+              - /url: /compareproducts
+          - listitem [ref=e244]:
+            - link "New products" [ref=e245] [cursor=pointer]:
+              - /url: /newproducts
+      - generic [ref=e246]:
+        - heading "My account" [level=3] [ref=e247]
+        - list [ref=e248]:
+          - listitem [ref=e249]:
+            - link "My account" [ref=e250] [cursor=pointer]:
+              - /url: /customer/info
+          - listitem [ref=e251]:
+            - link "Orders" [ref=e252] [cursor=pointer]:
+              - /url: /customer/orders
+          - listitem [ref=e253]:
+            - link "Addresses" [ref=e254] [cursor=pointer]:
+              - /url: /customer/addresses
+          - listitem [ref=e255]:
+            - link "Shopping cart" [ref=e256] [cursor=pointer]:
+              - /url: /cart
+          - listitem [ref=e257]:
+            - link "Wishlist" [ref=e258] [cursor=pointer]:
+              - /url: /wishlist
+      - generic [ref=e259]:
+        - heading "Follow us" [level=3] [ref=e260]
+        - list [ref=e261]:
+          - listitem [ref=e262]:
+            - link "Facebook" [ref=e263] [cursor=pointer]:
+              - /url: http://www.facebook.com/nopCommerce
+          - listitem [ref=e264]:
+            - link "Twitter" [ref=e265] [cursor=pointer]:
+              - /url: https://twitter.com/nopCommerce
+          - listitem [ref=e266]:
+            - link "RSS" [ref=e267] [cursor=pointer]:
+              - /url: /news/rss/1
+          - listitem [ref=e268]:
+            - link "YouTube" [ref=e269] [cursor=pointer]:
+              - /url: http://www.youtube.com/user/nopCommerce
+          - listitem [ref=e270]:
+            - link "Google+" [ref=e271] [cursor=pointer]:
+              - /url: https://plus.google.com/+nopcommerce
+    - generic [ref=e272]:
+      - text: Powered by
+      - link "nopCommerce" [ref=e273] [cursor=pointer]:
+        - /url: http://www.nopcommerce.com/
+    - generic [ref=e274]: Copyright © 2026 Tricentis Demo Web Shop. All rights reserved.
+```
