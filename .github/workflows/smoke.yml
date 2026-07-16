@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox, webkit]
+        browser: ['Desktop Chromium', 'Desktop Firefox', 'Desktop Webkit', 'Mobile Safari', 'Mobile Chrome']
 
     uses: ./.github/workflows/reusable-workflow.yml
     with:
