@@ -3,11 +3,11 @@ name: Playwright Tests
 on:
   push:
     branches:
-      - day-31
+      - day-30
 
   pull_request:
     branches:
-      - day-31
+      - day-30
 
   workflow_dispatch:
 
