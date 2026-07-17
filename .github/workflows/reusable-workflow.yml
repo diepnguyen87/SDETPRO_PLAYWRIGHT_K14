@@ -32,7 +32,7 @@ jobs:
           node-version: "24"
 
       - name: Run Playwright tests
-        run: yarn ${{ inputs.command }} --project=${{  inputs.browser }}
+        run: yarn ${{ inputs.command }} --project="${{  inputs.browser }}"
 
       - name: Upload Playwright HTML Report
         if: always()

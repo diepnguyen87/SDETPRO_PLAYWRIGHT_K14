@@ -1,4 +1,4 @@
-name: Playwright Smoke CI
+name: Smoke CI
 
 on:
   push:
@@ -15,7 +15,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ['Desktop Chromium', 'Desktop Firefox', 'Desktop Webkit', 'Mobile Safari', 'Mobile Chrome']
+        browser:
+        - Desktop Chromium
+        - Desktop Firefox
+        - Desktop WebKit
+        - Mobile Safari
+        - Mobile Chrome
 
     uses: ./.github/workflows/reusable-workflow.yml
     with:
