@@ -1,6 +1,10 @@
-name: Mobile Web Self-hosted CI
+name: Smoke Self-hosted CI
 
 on:
+ push:
+    branches:
+      - day-31
+
   workflow_dispatch:
 
 jobs:
