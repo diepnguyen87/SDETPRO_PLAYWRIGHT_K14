@@ -1,4 +1,4 @@
-name: Self-hosted Regression CI
+name: Regression Self-hosted CI
 
 on:
   workflow_dispatch:
