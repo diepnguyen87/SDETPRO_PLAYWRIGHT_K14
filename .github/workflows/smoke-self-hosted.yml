@@ -1,4 +1,4 @@
-name: Smoke Self-hosted CI
+name: Smoke Self-Hosted CI
 
 on:
   workflow_dispatch:
