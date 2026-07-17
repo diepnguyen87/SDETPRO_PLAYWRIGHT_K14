@@ -1,7 +1,7 @@
 name: Smoke Self-hosted CI
 
 on:
- push:
+  push:
     branches:
       - day-31
 
