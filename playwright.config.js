@@ -38,7 +38,6 @@ export default defineConfig({
     retries: process.env.CI ? 1 : 0,
     use: {
         baseURL: 'https://demowebshop.tricentis.com',
-        viewport: { width: 1920, height: 1080 },
         actionTimeout: 5 * 1000,
         trace: 'on-first-retry',
         video: 'on-first-retry',

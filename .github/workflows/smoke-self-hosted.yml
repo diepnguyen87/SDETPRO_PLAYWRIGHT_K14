@@ -1,0 +1,29 @@
+name: Mobile Web Self-hosted CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mobile-web:
+    name: Mobile Web - ${{ matrix.config.project }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - project: mobile-chrome
+            engine: chromium
+
+          - project: mobile-safari
+            engine: webkit
+
+    uses: ./.github/workflows/reusable-workflow.yml
+
+    with:
+      command: test:smoke
+      browser: ${{ matrix.config.project }}
+      engine: ${{ matrix.config.engine }}
+      runner: mobile
+
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
