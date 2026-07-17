@@ -11,10 +11,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - project: mobile-chrome
+          - project: Mobile Chrome
             engine: chromium
 
-          - project: mobile-safari
+          - project: Mobile Safari
             engine: webkit
 
     uses: ./.github/workflows/reusable-workflow.yml
