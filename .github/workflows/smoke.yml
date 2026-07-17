@@ -11,22 +11,32 @@ on:
 
 jobs:
   smoke:
-    name: Smoke Test - ${{ matrix.browser }}
+    name: Smoke Test - ${{ matrix.project }}
     strategy:
       fail-fast: false
       matrix:
-        browser:
-        - Desktop Chromium
-        - Desktop Firefox
-        - Desktop WebKit
-        - Mobile Safari
-        - Mobile Chrome
+         include:
+          - project: Desktop Chromium
+            engine: chromium
+
+          - project: Desktop Firefox
+            engine: firefox
+
+          - project: Desktop WebKit
+            engine: webkit
+
+          - project: Mobile Safari
+            engine: webkit
+
+          - project: Mobile Chrome
+            engine: chromium
 
     uses: ./.github/workflows/reusable-workflow.yml
     with:
       suite: Smoke
       command: test:smoke
-      browser: ${{ matrix.browser }}
+      browser: ${{ matrix.project }}
+      engine: ${{ matrix.engine }}
 
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

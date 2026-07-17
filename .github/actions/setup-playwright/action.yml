@@ -2,7 +2,7 @@ name: Setup Playwright
 description: Setup Node.js, install Yarn dependencies, and install a Playwright browser
 
 inputs:
-  browser:
+  engine:
     description: Playwright browser to install
     required: true
 
@@ -27,4 +27,4 @@ runs:
 
     - name: Install Playwright browser
       shell: bash
-      run: yarn playwright install --with-deps ${{ inputs.browser }}
+      run: yarn playwright install --with-deps ${{ inputs.engine }}
