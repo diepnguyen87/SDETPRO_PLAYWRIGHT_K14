@@ -1,0 +1,42 @@
+name: Smoke CI
+
+on:
+  push:
+    branches:
+      - day-31
+
+  pull_request:
+    branches:
+      - day-31
+
+jobs:
+  smoke:
+    name: Smoke Test - ${{ matrix.project }}
+    strategy:
+      fail-fast: false
+      matrix:
+         include:
+          - project: Desktop Chromium
+            engine: chromium
+
+          - project: Desktop Firefox
+            engine: firefox
+
+          - project: Desktop WebKit
+            engine: webkit
+
+          - project: Mobile Safari
+            engine: webkit
+
+          - project: Mobile Chrome
+            engine: chromium
+
+    uses: ./.github/workflows/reusable-workflow.yml
+    with:
+      suite: Smoke
+      command: test:smoke
+      browser: ${{ matrix.project }}
+      engine: ${{ matrix.engine }}
+
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

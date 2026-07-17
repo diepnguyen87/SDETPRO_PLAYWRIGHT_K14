@@ -1,0 +1,45 @@
+name: Sample Test CI
+
+on:
+  push:
+    branches:
+      - day-30
+
+  pull_request:
+    branches:
+      - day-30
+
+  workflow_dispatch:
+
+jobs:
+  playwright:
+    name: Playwright Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: yarn playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: yarn test 
+
+      - name: Upload Playwright HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7

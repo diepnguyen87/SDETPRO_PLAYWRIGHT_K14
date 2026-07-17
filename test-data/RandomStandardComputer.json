@@ -1,0 +1,25 @@
+{
+    "processor": [
+        "2.5 GHz Intel",
+        "2.2 GHz Intel"
+    ],
+    "RAM": [
+        "2 GB",
+        "4GB",
+        "8GB"
+    ],
+    "HDD": [
+        "320 GB",
+        "400 GB"
+    ],
+    "OS": [
+        "Ubuntu",
+        "Windows 7",
+        "Windows 10"
+    ],
+    "software": [
+        "Microsoft Office",
+        "Acrobat Reader",
+        "Total Commander"
+    ]
+}
