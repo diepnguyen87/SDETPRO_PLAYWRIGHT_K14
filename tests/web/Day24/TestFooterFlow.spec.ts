@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
-import pages from '../../test-data/pages.json' assert { type: "json" };
-import FooterTestFlow from '../../test-flows/global/FooterTestFlow.js'
-import { Urls } from '../../url/Urls.js'
+import pages from '../../../test-data/pages.json' assert { type: "json" };
+import FooterTestFlow from '../../../test-flows/global/FooterTestFlow.js'
+import { Urls } from '../../../url/Urls.js'
 
 pages.forEach(pageObj => {
     test.only(`Test Footer Flow on ${pageObj.pageName}`, async ({ page }) => {

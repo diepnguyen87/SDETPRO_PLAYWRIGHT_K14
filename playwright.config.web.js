@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-    testDir: "./tests",
+    testDir: "./tests/web",
     testMatch: '**/*.spec.ts',
     timeout: 5 * 60 * 1000,
     workers: 3,
@@ -29,7 +29,7 @@ export default defineConfig({
             use: {
               ...devices['Pixel 6'],
             },
-          },
+          }
     ],
     reporter: [
         ['html'],

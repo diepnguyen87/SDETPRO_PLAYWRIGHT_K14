@@ -1,4 +1,4 @@
-name: Sample Test CI
+name: Sample Github-Hosted Test CI
 
 on:
   push:

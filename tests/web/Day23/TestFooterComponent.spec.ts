@@ -1,10 +1,10 @@
 import { test } from '@playwright/test'
-import HomePage from '../../models/pages/HomePage.js';
-import FooterComponent from '../../models/components/global/footer/FooterComponent.js';
-import InformationColumnComponent from '../../models/components/global/footer/InformationColumnComponent.js';
-import CustomerServiceColumnComponent from '../../models/components/global/footer/CustomerServiceColumnComponent.js';
-import MyAccountColumnComponent from '../../models/components/global/footer/MyAccountColumnComponent.js';
-import FollowUsColumnComponent from '../../models/components/global/footer/FollowUsColumnComponent.js';
+import HomePage from '../../../models/pages/HomePage.js';
+import FooterComponent from '../../../models/components/global/footer/FooterComponent.js';
+import InformationColumnComponent from '../../../models/components/global/footer/InformationColumnComponent.js';
+import CustomerServiceColumnComponent from '../../../models/components/global/footer/CustomerServiceColumnComponent.js';
+import MyAccountColumnComponent from '../../../models/components/global/footer/MyAccountColumnComponent.js';
+import FollowUsColumnComponent from '../../../models/components/global/footer/FollowUsColumnComponent.js';
 // import CustomerServiceColumnComponent from '../../models/components/global/footer/CustomerServiceColumnComponent'
 // import FollowUsColumnComponent from '../../models/components/global/footer/FollowUsColumnComponent'
 // import FooterComponent from '../../models/components/global/footer/FooterComponent'

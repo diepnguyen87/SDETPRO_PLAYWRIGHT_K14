@@ -1,5 +1,5 @@
 import { test } from '@playwright/test'
-import LoginPageMethod2 from '../../models/pages/LoginPageMethod2'
+import LoginPageMethod2 from '../../../models/pages/LoginPageMethod2.js'
 
 test('Traditional POM - Introducing Element/Locator', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/login")

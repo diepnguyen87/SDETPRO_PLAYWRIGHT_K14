@@ -1,5 +1,5 @@
 import { test } from '@playwright/test'
-import FooterTestFlow from '../../test-flows/global/FooterTestFlow.js'
+import FooterTestFlow from '../../../test-flows/global/FooterTestFlow.js'
 
 test('Test Footer Flow', async ({ page }) => {
     await page.goto("https://demowebshop.tricentis.com/")

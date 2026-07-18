@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
-import ComputerDetailPage from '../../models/pages/ComputerDetailPage.js'
-import StandardComputerComponent from '../../models/components/computer/StandardComputerComponent.js'
-import CheapComputerComponent from '../../models/components/computer/CheapComputerComponent.js'
+import ComputerDetailPage from '../../../models/pages/ComputerDetailPage.js'
+import StandardComputerComponent from '../../../models/components/computer/StandardComputerComponent.js'
+import CheapComputerComponent from '../../../models/components/computer/CheapComputerComponent.js'
 
 test('Test generic component', async ({ page }) => {
     let computerDetailPage: ComputerDetailPage = new ComputerDetailPage(page)

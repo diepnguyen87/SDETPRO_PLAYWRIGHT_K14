@@ -11,7 +11,7 @@ on:
 
 jobs:
   smoke:
-    name: Smoke Test - ${{ matrix.project }}
+    name: Desktop Mobile Web - ${{ matrix.project }}
     strategy:
       fail-fast: false
       matrix:

@@ -1,0 +1,63 @@
+name: Real Android Web CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  android-real:
+    name: Chrome on Real Android
+
+    runs-on:
+      - self-hosted
+      - macOS
+      - ARM64
+      - mobile
+
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check Android device
+        run: |
+          adb start-server
+          adb devices -l
+
+          DEVICE_COUNT=$(adb devices | awk 'NR > 1 && $2 == "device" {count++} END {print count+0}')
+
+          if [ "$DEVICE_COUNT" -eq 0 ]; then
+            echo "No authenticated Android device was found."
+            exit 1
+          fi
+
+          echo "Found $DEVICE_COUNT Android device(s)."
+
+      - name: Run web test on real Android Chrome
+        run: yarn test:real-android
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reald-android-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-android-test-results
+          path: test-results
+          if-no-files-found: ignore
+          retention-days: 7

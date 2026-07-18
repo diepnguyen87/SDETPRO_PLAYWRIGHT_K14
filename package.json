@@ -5,9 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "playwright test tests/Day25",
-    "test:cheap": "playwright test tests/Day25/TestCheapComponent.spec.ts",
-    "test:smoke": "playwright test tests/Day25/TestStandardComponent.spec.ts",
+    "test": "playwright test tests/web/Day25",
+    "test:cheap": "playwright test tests/web/Day25/TestCheapComponent.spec.ts",
+    "test:smoke": "playwright test tests/web/Day25/TestStandardComponent.spec.ts --config=playwright.config.web.js",
+    "test:real-android": "playwright test tests/real-android/TestStandardComponent.spec.ts --config=playwright.config.android.js",
     "ui": "playwright test --ui"
   },
   "dependencies": {

@@ -1,10 +1,10 @@
 import { test } from "@playwright/test";
-import paymentMethods from "../../constant/PaymentMethod.js";
-import StandardComputerComponent from "../../models/components/computer/StandardComputerComponent.js";
-import standardComputerDataList from "../../test-data/StandardComputer.json" assert { type: "json" };
-import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
-import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
-import TAG from "../../constant/Tag.js";
+import paymentMethods from "../../../constant/PaymentMethod.js";
+import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
+import standardComputerDataList from "../../../test-data/StandardComputer.json" assert { type: "json" };
+import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
+import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
+import TAG from "../../../constant/Tag.js";
 
 test(`${TAG} | Test Standard Component`, async ({ page }) => {
     await page.goto("/build-your-own-computer")

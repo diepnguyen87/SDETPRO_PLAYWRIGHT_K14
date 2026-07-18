@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
-import ProductItemComponent from '../../models/components/ProductItemComponent'
-import HomePage from '../../models/pages/HomePage'
+import ProductItemComponent from '../../../models/components/ProductItemComponent.js'
+import HomePage from '../../../models/pages/HomePage.js'
 
 test('Advance POM - Component in page', async ({ page }) => {
     await page.goto("https://demowebshop.tricentis.com/")

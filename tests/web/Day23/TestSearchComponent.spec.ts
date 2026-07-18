@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
-import HeaderComponent from '../../models/components/global/header/HeaderComponent'
-import SearchComponent from '../../models/components/global/header/SearchComponent'
-import HomePage from '../../models/pages/HomePage'
+import HeaderComponent from '../../../models/components/global/header/HeaderComponent.js'
+import SearchComponent from '../../../models/components/global/header/SearchComponent.js'
+import HomePage from '../../../models/pages/HomePage.js'
 
 test('Advance POM - Component in Parent component', async ({ page }) => {
     await page.goto("https://demowebshop.tricentis.com/")

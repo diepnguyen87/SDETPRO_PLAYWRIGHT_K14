@@ -1,8 +1,8 @@
 import { test } from '@playwright/test'
-import PageBodyComponent from '../../models/components/PageBodyComponent'
-import ProductItemComponent from '../../models/components/ProductItemComponent'
-import HomePage from '../../models/pages/HomePage'
-import ProductGridComponent from '../../models/components/ProductGridComponent'
+import PageBodyComponent from '../../../models/components/PageBodyComponent.js'
+import ProductItemComponent from '../../../models/components/ProductItemComponent.js'
+import HomePage from '../../../models/pages/HomePage.js'
+import ProductGridComponent from '../../../models/components/ProductGridComponent.js'
 
 test('Advance POM - List components in parent component', async ({ page }) => {
     await page.goto("https://demowebshop.tricentis.com/")
