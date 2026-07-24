@@ -1,9 +1,0 @@
-# Page snapshot
-
-```yaml
-- generic [ref=e2]:
-  - main:
-    - generic:
-      - heading [level=2]
-      - paragraph
-```

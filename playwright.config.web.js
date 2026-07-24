@@ -4,7 +4,7 @@ export default defineConfig({
     testDir: "./tests/web",
     testMatch: '**/*.spec.ts',
     timeout: 5 * 60 * 1000,
-    workers: 3,
+    workers: 5,
     projects: [
         {
             name: 'Desktop Chromium',
@@ -39,8 +39,8 @@ export default defineConfig({
     use: {
         baseURL: 'https://demowebshop.tricentis.com',
         actionTimeout: 5 * 1000,
-        trace: 'on-first-retry',
-        video: 'on-first-retry',
+        trace: 'retain-on-failure',
+        video: 'retain-on-failure',
         screenshot: 'only-on-failure'
     }
 })

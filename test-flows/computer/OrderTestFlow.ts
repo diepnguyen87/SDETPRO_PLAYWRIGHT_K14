@@ -246,7 +246,7 @@ export default class OrderTestFlow extends BaseFlow {
         } else {
             expect(subTotal + shipping + tax).toEqual(finalPrice)
         }
-        this.page.waitForTimeout(3 * 1000)
+        await this.page.waitForTimeout(3 * 1000)
         await confirmOrderComp.clickOnConfirmBtn()
     }
 

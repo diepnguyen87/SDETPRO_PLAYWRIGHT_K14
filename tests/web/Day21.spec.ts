@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
-import { scrollDownByPercentage } from '../utils/PageHelper.js'
-import { getAdsParam } from '../utils/GoogleAdHelper.js'
+import { scrollDownByPercentage } from '../../utils/PageHelper.js'
+import { getAdsParam } from '../../utils/GoogleAdHelper.js'
 
 const jsAlertURL = "https://the-internet.herokuapp.com/javascript_alerts"
 const floatingMenuURL = "https://the-internet.herokuapp.com/floating_menu"
@@ -9,6 +9,7 @@ test('Handling JS Alert automatically', async ({ page }) => {
     await page.goto(jsAlertURL)
     await page.locator('button[onclick="jsAlert()"]').click()
     await page.waitForTimeout(2 * 1000)
+    scrollDownByPercentage
 })
 
 
