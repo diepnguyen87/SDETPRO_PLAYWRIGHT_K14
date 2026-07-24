@@ -17,14 +17,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         
       - name: Pull Image
-        run: docker pull 181221/playwright-framework:1.0
+        run: docker pull 181221/playwright-framework:1.1
       
       - name: Run Playwright Tests
         run: |
           docker run --rm \
           -v $(pwd)/playwright-report:/app/playwright-report \
           -v $(pwd)/allure-results:/app/allure-results \
-          181221/playwright-framework:1.0 \
+          181221/playwright-framework:1.1 \
           yarn test:smoke
 
       - name: Upload Allure Results
