@@ -31,7 +31,7 @@ jobs:
           - project: Mobile Chrome
             engine: chromium
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.0
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.1
     with:
       suite: Smoke
       command: test:smoke
