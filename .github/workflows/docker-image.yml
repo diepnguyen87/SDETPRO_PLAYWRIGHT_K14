@@ -34,7 +34,6 @@ jobs:
           images: 181221/playwright-framework
           tags: |
             type=raw,value=latest
-            type=sha
             type=ref,event=tag
 
       - name: Build and Push
@@ -45,3 +44,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
