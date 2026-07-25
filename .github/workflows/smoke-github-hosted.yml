@@ -38,7 +38,7 @@ jobs:
       browser: ${{ matrix.project }}
       engine: ${{ matrix.engine }}
       image-tag: latest
-      runner: self-hosted
+      runner: ubuntu-latest
 
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
