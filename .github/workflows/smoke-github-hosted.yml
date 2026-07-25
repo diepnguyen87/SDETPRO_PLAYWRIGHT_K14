@@ -31,12 +31,13 @@ jobs:
           - project: Mobile Chrome
             engine: chromium
 
-    uses: ./.github/workflows/reusable-workflow.yml
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.0
     with:
       suite: Smoke
       command: test:smoke
       browser: ${{ matrix.project }}
       engine: ${{ matrix.engine }}
+      image-tag: latest
 
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
