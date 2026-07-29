@@ -6,10 +6,10 @@ import paymentMethods from "../../../constant/PaymentMethod.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import TAG from "../../../constant/Tag.js";
 
-test(`${TAG} | Test Random Standard Component`, async ({ page }) => {
+test(`${TAG} | Test Random Standard Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-own-computer")
 
-    const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, randomStandardComputerData, undefined)
+    const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, randomStandardComputerData, undefined, testInfo)
     await orderTestFlow.buildRandomComputerDetailListAndAddToCart(3)
     await orderTestFlow.navigateToShoppingCartPage()
     await orderTestFlow.verifyShoppingCart()

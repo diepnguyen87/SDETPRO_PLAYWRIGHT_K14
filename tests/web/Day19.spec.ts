@@ -16,7 +16,7 @@ test('Link Text - CSS', async ({ page }) => {
 
 test.only('Link Text - Filtering', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/")
-    const elementalElem = await page.locator("//a").filter({ hasText: "Elemental" })
+    const elementalElem = await page.locator("//a").filter({ hasText: "Elemental1" })
     elementalElem.scrollIntoViewIfNeeded()
     await page.waitForTimeout(3 * 1000)
 

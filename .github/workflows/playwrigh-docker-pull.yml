@@ -22,8 +22,7 @@ jobs:
       - name: Run Playwright Tests
         run: |
           docker run --rm \
-          -v $(pwd)/playwright-report:/app/playwright-report \
-          -v $(pwd)/allure-results:/app/allure-results \
+          -v $(pwd):/app \
           181221/playwright-framework:latest \
           yarn test:smoke
 

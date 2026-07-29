@@ -1,4 +1,4 @@
-import { Page, expect } from "@playwright/test";
+import { Page, TestInfo, expect } from "@playwright/test";
 import paymentMethods from "../../constant/PaymentMethod.js";
 import CartItemRowComponent from "../../models/components/cart/CartItemRowComponent.js";
 import BillingAddressComponent from "../../models/components/checkout/BillingAddressComponent.js";
@@ -19,30 +19,42 @@ import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
 import FooterComponent from "../../models/components/global/footer/FooterComponent.js";
+import LoggerManager from "../../utils/LoggerManager.js";
 
 export default class OrderTestFlow extends BaseFlow {
     private rawTotalPrice: number = 0;
     private shippingPrice: number = 0;
     private additionalFee: number = 0;
+    private logger;
 
     constructor(page: Page,
         private readonly computerComponentClass: ComputerComponentConstructor<ComputerEssentialComponent>,
         private readonly computerData: any,
-        private readonly computerDataList: any[] | undefined
+        private readonly computerDataList: any[] | undefined,
+        testInfo: TestInfo
     ) {
         super(page)
         this.computerComponentClass = computerComponentClass;
         this.computerData = computerData;
         this.computerDataList = computerDataList;
+        this.logger = LoggerManager.getLogger(testInfo);
     }
 
     public async buildComputerDetailListAndAddToCart() {
         if (this.computerDataList === undefined) {
+            this.logger.error("Computer Data List is empty");
             throw new Error("Computer Data List is empty");
         }
-        for (const computerData of this.computerDataList) {
-            await this.buildComputerDetailAndAddToCart(computerData)
+
+        for (let index = 0; index < this.computerDataList.length; index++) {
+            this.logger.info("Building computer " + (index+1));
+            await this.buildComputerDetailAndAddToCart(this.computerDataList[index])
+            
         }
+        // for (const computerData of this.computerDataList) {
+        //     logger.info("");
+        //     await this.buildComputerDetailAndAddToCart(computerData)
+        // }
     }
 
     private async buildComputerDetailAndAddToCart(computerData: any) {

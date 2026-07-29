@@ -5,7 +5,7 @@ on:
 
 jobs:
   mobile-web:
-    name: Mobile Web - ${{ matrix.config.project }}
+    name: ${{ matrix.config.project }}
 
     strategy:
       fail-fast: false

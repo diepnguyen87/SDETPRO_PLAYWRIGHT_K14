@@ -13,7 +13,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -f Dockerfile.playwright \
+            -f Dockerfile \
             -t playwright-framework .
       
       - name: Run Playwright Tests

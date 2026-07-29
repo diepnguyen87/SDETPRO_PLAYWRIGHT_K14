@@ -6,9 +6,9 @@ import cheapComputerDataList from "../../../test-data/CheapComputer.json" assert
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 
-test(`${TAG.smoke} | Test Cheap Component`, async ({ page }) => {
+test(`${TAG.smoke} | Test Cheap Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-cheap-own-computer")
-    const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList)
+    const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart()
     await orderTestFlow.navigateToShoppingCartPage()
     await orderTestFlow.verifyShoppingCart()

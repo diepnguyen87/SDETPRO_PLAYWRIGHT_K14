@@ -4,3 +4,5 @@ test-results
 package-lock.json
 allure-report
 allure-results
+.DS_Store
+.vscode
