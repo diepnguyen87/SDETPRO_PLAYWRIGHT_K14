@@ -1,6 +1,5 @@
-const TAG = {
-    smoke: 'Smoke',
-    featureA: 'FeatureA'
+export const TAG = {
+    smoke: "@Smoke",
+    regression: "@Regression",
+    sanity: "@Sanity"
 }
-
-export default TAG

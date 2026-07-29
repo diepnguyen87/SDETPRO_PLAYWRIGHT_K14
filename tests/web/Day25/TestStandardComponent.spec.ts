@@ -4,9 +4,9 @@ import StandardComputerComponent from "../../../models/components/computer/Stand
 import standardComputerDataList from "../../../test-data/StandardComputer.json" assert { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
-import TAG from "../../../constant/Tag.js";
+import { TAG } from "../../../constant/Tag.js";
 
-test(`${TAG} | Test Standard Component`, async ({ page }, testInfo) => {
+test(`${TAG.smoke} | Test Standard Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart();

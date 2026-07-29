@@ -4,9 +4,9 @@ import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import randomStandardComputerData from "../../../test-data/RandomStandardComputer.json" assert { type: "json" };
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
-import TAG from "../../../constant/Tag.js";
+import { TAG } from "../../../constant/Tag.js";
 
-test(`${TAG} | Test Random Standard Component`, async ({ page }, testInfo) => {
+test(`${TAG.regression} | Test Random Standard Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-own-computer")
 
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, randomStandardComputerData, undefined, testInfo)

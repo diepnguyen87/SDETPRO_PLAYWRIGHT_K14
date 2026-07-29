@@ -4,9 +4,9 @@ import CheapComputerComponent from "../../../models/components/computer/CheapCom
 import randomCheapComputerData from "../../../test-data/RandomCheapComputer.json" assert { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
-import TAG from "../../../constant/Tag.js";
+import { TAG } from "../../../constant/Tag.js";
 
-test(`${TAG} | Test Random Cheap Component`, async ({ page }, testInfo) => {
+test(`${TAG.regression} | Test Random Cheap Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-cheap-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, randomCheapComputerData, undefined, testInfo)
     await orderTestFlow.buildRandomComputerDetailListAndAddToCart(3)

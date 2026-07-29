@@ -1,12 +1,12 @@
 import { test } from "@playwright/test";
 import paymentMethods from "../../../constant/PaymentMethod.js";
-import TAG from "../../../constant/Tag.js";
 import CheapComputerComponent from "../../../models/components/computer/CheapComputerComponent.js";
 import cheapComputerDataList from "../../../test-data/CheapComputer.json" assert { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
+import { TAG } from "../../../constant/Tag.js";
 
-test(`${TAG.smoke} | Test Cheap Component`, async ({ page }, testInfo) => {
+test(`${TAG.regression} | Test Cheap Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-cheap-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart()
