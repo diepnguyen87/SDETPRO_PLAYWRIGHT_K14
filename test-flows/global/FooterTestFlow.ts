@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { deepStrictEqual } from 'assert';
 import FooterColumnComponent from "../../models/components/global/footer/FooterColumnComponent.js";
 import FooterComponent from "../../models/components/global/footer/FooterComponent.js";
@@ -8,8 +8,8 @@ import { MenuItemComponent, SubMenuItemComponent } from "../../models/components
 
 export default class FooterTestFlow extends BaseFlow {
 
-    constructor(page: Page) {
-        super(page)
+    constructor(page: Page, testInfo: TestInfo) {
+        super(page, testInfo)
     }
 
     async verifyFooterCompByRandomCategoryPage(slug: string) {
@@ -24,7 +24,7 @@ export default class FooterTestFlow extends BaseFlow {
     }
 
     async navigateToRandomMenuItem(): Promise<string> {
-        let homePage: HomePage = new HomePage(this.page)
+        let homePage: HomePage = new HomePage(this.page, this.testInfo)
         let menuItemCompList: MenuItemComponent[] = await homePage.topMenuComp().menuItemList()
 
         let randomMenuIndex = Math.floor(Math.random() * menuItemCompList.length)

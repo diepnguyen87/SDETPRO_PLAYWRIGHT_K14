@@ -1,12 +1,12 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
-import CheckoutComponent from "./CheckoutComponent.js";
+import Component from "../Component.js";
 
 @selector("#opc-shipping")
-export default class ShippingAddressComponent extends CheckoutComponent {
+export default class ShippingAddressComponent extends Component {
 
-    constructor(component: Locator) {
-        super(component)
-        this.component.scrollIntoViewIfNeeded()
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo);
+        this.componentLocator.scrollIntoViewIfNeeded()
     }
 }

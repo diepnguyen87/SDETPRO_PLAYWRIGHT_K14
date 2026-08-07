@@ -1,29 +1,33 @@
-import { Locator } from "@playwright/test";
+import { expect, Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
-import CheckoutComponent from "./CheckoutComponent.js";
+import Component from "../Component.js";
 
 @selector(".section.order-completed")
-export default class CompletedComponent extends CheckoutComponent {
+export default class CompletedComponent extends Component {
 
     private readonly titleSel = ".title"
     private readonly orderNumber = "//ul[@class='details']//li[contains(text(), 'Order number')]"
     private readonly orderDetailLinkSel = ".details>li>a"
 
-    constructor(component: Locator) {
-        super(component)
-        this.component.scrollIntoViewIfNeeded()
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo);
+        // this.componentLocator.scrollIntoViewIfNeeded()
     }
 
     public async getOrderCompletedTitle(): Promise<string> {
-        return await this.component.locator(this.titleSel).innerText()
+        return await this.componentLocator.locator(this.titleSel).innerText()
     }
 
     public async getOrderNumber(): Promise<string | null> {
-        let matchesArr = (await this.component.locator(this.orderNumber).innerText()).match(/\d+/)
+        await expect(this.componentLocator).toBeVisible({
+            timeout: 30000
+        });
+        
+        let matchesArr = (await this.componentLocator.getByText("Order number").innerText()).match(/\d+/)
         return matchesArr ? matchesArr[0] : null
     }
-
+ 
     public oderDetailLink(): Locator {
-        return this.component.locator(this.orderDetailLinkSel)
+        return this.componentLocator.locator(this.orderDetailLinkSel)
     }
 }

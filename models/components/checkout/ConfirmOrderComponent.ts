@@ -1,23 +1,23 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
 import TotalComponent from "../cart/TotalComponent.js";
-import CheckoutComponent from "./CheckoutComponent.js";
+import Component from "../Component.js";
 
 @selector("#opc-confirm_order")
-export default class ConfirmOrderComponent extends CheckoutComponent {
+export default class ConfirmOrderComponent extends Component {
 
     private confirmBtnSel = "input[value='Confirm']"
 
-    constructor(component: Locator) {
-        super(component)
-        this.component.scrollIntoViewIfNeeded()
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo);
+        componentLocator.scrollIntoViewIfNeeded();
     }
 
     public async clickOnConfirmBtn(): Promise<void> {
-        await this.component.locator(this.confirmBtnSel).click()
+        await this.click(this.confirmBtnSel, this.componentLocator.locator(this.confirmBtnSel));
     }
 
     public totalComp(): TotalComponent {
-        return new TotalComponent(this.component.locator(TotalComponent.selectorValue))
+        return new TotalComponent(this.page, this.componentLocator.locator(TotalComponent.selectorValue), this.testInfo)
     }
 }

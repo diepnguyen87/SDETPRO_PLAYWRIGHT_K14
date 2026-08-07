@@ -1,21 +1,21 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
+import Component from "../../Component.js";
 
-export default class FooterColumnComponent {
+export default class FooterColumnComponent extends Component {
 
     private titleSel: string = "h3"
     private linksSel: string = "li>a"
 
-    constructor(private component: Locator) {
-        this.component = component
-        this.component.scrollIntoViewIfNeeded()
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo)
+        this.componentLocator.scrollIntoViewIfNeeded()
     }
 
     title(): Locator {
-        return this.component.locator(this.titleSel)
+        return this.componentLocator.locator(this.titleSel)
     }
 
     async links(): Promise<Locator[]> {
-        return await this.component.locator(this.linksSel).all()
+        return await this.componentLocator.locator(this.linksSel).all()
     }
-
 }

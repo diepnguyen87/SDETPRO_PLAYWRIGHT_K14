@@ -1,10 +1,11 @@
-import { Page } from "@playwright/test";
+import { Page, TestInfo } from "@playwright/test";
+import BasePage from "./BasePage.js";
 
-export default class CheckoutAsGuestPage {
+export default class CheckoutAsGuestPage extends BasePage {
 
     private checkoutAsGuestBtnSel = ".checkout-as-guest-button"
-    constructor(private page: Page) {
-        this.page = page
+    constructor(page: Page, testInfo: TestInfo) {
+        super(page, testInfo)
     }
 
     public async clickOnCheckoutAsGuestBtn(): Promise<void> {

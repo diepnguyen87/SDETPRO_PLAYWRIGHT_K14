@@ -1,12 +1,12 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import BasePage from "./BasePage.js";
 import TotalComponent from "../components/cart/TotalComponent.js";
 import CartItemRowComponent from "../components/cart/CartItemRowComponent.js";
 
 export default class ShoppingCartPage extends BasePage {
 
-    constructor(page: Page) {
-        super(page)
+    constructor(page: Page, testInfo: TestInfo) {
+        super(page, testInfo)
     }
 
     public async cartItemRowCompList(): Promise<CartItemRowComponent[]> {
@@ -15,6 +15,6 @@ export default class ShoppingCartPage extends BasePage {
     }
 
     public totalComp(): TotalComponent {
-        return new TotalComponent(this.page.locator(TotalComponent.selectorValue))
+        return new TotalComponent(this.page, this.page.locator(TotalComponent.selectorValue), this.testInfo)
     }
 }

@@ -1,12 +1,12 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
 import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 
 @selector(".product-essential")
 export default class CheapComputerComponent extends ComputerEssentialComponent {
 
-    constructor(component: Locator) {
-        super(component)
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo)
     }
 
     public async selectProcessorByIndex(index: number): Promise<string> {

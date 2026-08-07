@@ -1,9 +1,9 @@
-import { Page } from "@playwright/test";
-import BasePage from "./BasePage";
+import { Page, TestInfo } from "@playwright/test";
+import BasePage from "./BasePage.js";
 
-export default class BookPage extends BasePage{
+export default class BookPage extends BasePage {
 
-    constructor(page: Page){
-        super(page)
+    constructor(page: Page, testInfo: TestInfo) {
+        super(page, testInfo)
     }
 }

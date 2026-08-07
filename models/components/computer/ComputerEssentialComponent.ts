@@ -1,12 +1,12 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import BaseItemDetailComponent from "../BaseItemDetailComponent.js";
 
 export default abstract class ComputerEssentialComponent extends BaseItemDetailComponent {
 
     private allCheckboxSel: string = "input[type='checkbox']"
 
-    protected constructor(component: Locator) {
-        super(component)
+    protected constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo)
     }
 
     public abstract selectProcessorByIndex(processorIndex: number): Promise<string>
@@ -15,7 +15,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     public abstract selectRAMByName(ramType: string): Promise<string>
 
     public async unselectDefaultCheckbox(): Promise<void> {
-        const allCheckboxElemList = await this.component.locator(this.allCheckboxSel).all()
+        const allCheckboxElemList = await this.componentLocator.locator(this.allCheckboxSel).all()
         for (const checkboxElem of allCheckboxElemList) {
             const isChecked = await checkboxElem.evaluate(el => (el as HTMLInputElement).checked);
             if (isChecked) {
@@ -54,7 +54,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
 
     protected async selectOptionByName(type: string): Promise<string> {
         const optionSel = `//label[contains(text(), "${type}")]`
-        const optionList: Locator[] = await this.component.locator(optionSel).all()
+        const optionList: Locator[] = await this.componentLocator.locator(optionSel).all()
         const FIRST_OPTION_INDEX = 0;
         const optionElem = optionList[FIRST_OPTION_INDEX];
         const optionText = await optionElem.textContent() ?? '';
@@ -64,7 +64,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
 
     protected async unselectOptionByName(type: string): Promise<void> {
         const optionSel = `//label[contains(text(), "${type}")]`
-        const optionList: Locator[] = await this.component.locator(optionSel).all()
+        const optionList: Locator[] = await this.componentLocator.locator(optionSel).all()
         const FIRST_OPTION_INDEX = 0;
         const optionElem = optionList[FIRST_OPTION_INDEX];
         if (await optionElem.isChecked()) {
@@ -74,7 +74,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
         const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//label)[${index + 1}]`
-        const optionElem = this.component.locator(optionSel)
+        const optionElem = this.componentLocator.locator(optionSel)
         const optionText = await optionElem.textContent() ?? '';
         await optionElem.click();
         return optionText;

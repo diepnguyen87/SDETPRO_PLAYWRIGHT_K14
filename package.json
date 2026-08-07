@@ -10,14 +10,21 @@
     "test:smoke": "playwright test --grep @smoke --config=playwright.config.web.js",
     "test:real-android": "playwright test tests/real-android/TestStandardComponent.spec.ts --config=playwright.config.android.js",
     "test:day19": "playwright test ./tests/web/Day19.spec.ts --config=playwright.config.web.js",
-    "ui": "playwright test --ui"
+    "ui": "playwright test --ui",
+    "analyze": "tsx ai/AIAnalyzer.ts"
   },
   "dependencies": {
     "@playwright/test": "^1.61.1",
     "allure-commandline": "^2.29.0",
     "allure-playwright": "^3.0.0-beta.3",
+    "dotenv": "^17.4.2",
+    "openai": "^7.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "tsx": "^4.23.5"
   }
 }

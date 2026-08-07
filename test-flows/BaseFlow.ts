@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, TestInfo } from "@playwright/test";
 import BasePage from "../models/pages/BasePage.js";
 import PageModel from "../test-data/model/Page.js";
 import { parseJsonStringToObject, readJsonFile } from "../utils/DataObjectBuilder.js";
@@ -10,8 +10,9 @@ export default class BaseFlow {
 
     protected static pageList: PageModel[] = []
 
-    constructor(protected page: Page) {
+    constructor(protected page: Page, protected testInfo: TestInfo) {
         this.page = page
+        this.testInfo = testInfo
     }
 
     private initPageInstance<T extends BasePage>(className: PageConstructor<T>): T {
@@ -53,6 +54,6 @@ export default class BaseFlow {
     }
 
     public async navigateToShoppingCartPage(): Promise<void> {
-        await new HeaderComponent(this.page.locator(HeaderComponent.selectorValue)).navigateToShoppingCartLink()
+        await new HeaderComponent(this.page, this.page.locator(HeaderComponent.selectorValue), this.testInfo).navigateToShoppingCartLink()
     }
 }

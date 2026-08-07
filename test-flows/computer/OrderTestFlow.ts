@@ -33,7 +33,7 @@ export default class OrderTestFlow extends BaseFlow {
         private readonly computerDataList: any[] | undefined,
         testInfo: TestInfo
     ) {
-        super(page)
+        super(page, testInfo)
         this.computerComponentClass = computerComponentClass;
         this.computerData = computerData;
         this.computerDataList = computerDataList;
@@ -58,7 +58,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     private async buildComputerDetailAndAddToCart(computerData: any) {
-        const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page);
+        const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page, this.testInfo);
         const beforeCardQty = await computerDetailPage.headerComp().getCartQty();
         const computerComponent: ComputerEssentialComponent = computerDetailPage.computerComponent(this.computerComponentClass);
         await computerComponent.unselectDefaultCheckbox();
@@ -112,7 +112,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     private async buildRandomComputerDetailAndAddToCart() {
-        const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page);
+        const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page, this.testInfo);
         const computerComponent: ComputerEssentialComponent = computerDetailPage.computerComponent(this.computerComponentClass);
         await computerComponent.unselectDefaultCheckbox();
 
@@ -139,7 +139,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async verifyShoppingCart(): Promise<void> {
-        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page)
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
         const cartItemRowCompList: CartItemRowComponent[] = await shoppingCartPage.cartItemRowCompList()
         for (const cartItemRowComp of cartItemRowCompList) {
             const unitPrice = await cartItemRowComp.getProductUnitPrice()
@@ -160,11 +160,11 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async selectTOSandCheckout() {
-        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page)
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
         await shoppingCartPage.totalComp().selectTermOfService()
         await shoppingCartPage.totalComp().clickOnCheckoutBtn()
 
-        const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page)
+        const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page, this.testInfo)
         await checkoutAsGuestPage.clickOnCheckoutAsGuestBtn();
     }
 
@@ -173,7 +173,7 @@ export default class OrderTestFlow extends BaseFlow {
             firstName, lastName, email, company, country, stateProvince, city, address1, zipPostalCode, phoneNumber
         } = BillingAddressData
 
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const billingAddressComp: BillingAddressComponent = checkoutPage.billingAddressComp()
         await billingAddressComp.selectNewAdressIfExist()
         await billingAddressComp.inputFirstName(firstName)
@@ -190,14 +190,14 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async inputShippingAddress(): Promise<void> {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const shippingAddressComp: ShippingAddressComponent = checkoutPage.shippingAddressComp()
         await shippingAddressComp.clickOnContinueBtn()
     }
 
     public async selectShippingMethod(): Promise<void> {
         const { shippingMethod } = shippingMethodData
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const shippingMethodComp: ShippingMethodComponent = checkoutPage.shippingMethodComp()
         const shippingPriceText = await shippingMethodComp.selectMethod(this.generateRandomIndex(shippingMethod.length))
 
@@ -208,7 +208,7 @@ export default class OrderTestFlow extends BaseFlow {
 
     public async selectPaymentMethod(paymentMethod: string): Promise<void> {
         const { cash, check, creditCard, purchaseOrder } = paymentMethods
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const paymentMethodComp: PaymentMethodComponent = checkoutPage.paymentMethodComp()
         switch (paymentMethod) {
             case cash:
@@ -227,7 +227,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async inputPaymentInfo(creditCard: CreditCard) {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const paymentInformationComp: PaymentInformationComponent = checkoutPage.paymentInformationComp()
         await paymentInformationComp.selectCreditCardType(cardType[creditCard.type as CreditCardType])
         await paymentInformationComp.inputCardHolderName(creditCard.fullName)
@@ -241,7 +241,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async confirmOrder() {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const confirmOrderComp: ConfirmOrderComponent = await checkoutPage.confirmOrderComp()
         const priceCategoryList = await confirmOrderComp.totalComp().priceCategories()
         let subTotal = priceCategoryList["Sub-Total:"]
@@ -263,7 +263,7 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async checkoutCompleted() {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const completedComp: CompletedComponent = await checkoutPage.orderCompletedComp()
         let orderNumber = await completedComp.getOrderNumber()
         expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")

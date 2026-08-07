@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
 import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 
@@ -6,15 +6,15 @@ import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 export default class StandardComputerComponent extends ComputerEssentialComponent {
 
     private dynamicDropdownSel = "//label[contains(text(), 'dynamicText')]/parent::dt/following-sibling::dd[1]/select"
-    constructor(component: Locator) {
-        super(component)
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo)
     }
 
     public async selectProcessorByIndex(processorIndex: number): Promise<string> {
         if (processorIndex === undefined) {
             throw new Error(`${processorIndex} does not exist`);
         }
-        const selectDropdownLocator = this.component.locator(this.dynamicDropdownSel.replace('dynamicText', 'Processor'))
+        const selectDropdownLocator = this.componentLocator.locator(this.dynamicDropdownSel.replace('dynamicText', 'Processor'))
         selectDropdownLocator.selectOption({ index: processorIndex });
         return await this.getSelectedTextInDropdown(selectDropdownLocator)
     }
@@ -23,7 +23,7 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
         if (ramIndex === undefined) {
             throw new Error(`${ramIndex} does not exist`);
         }
-        const selectDropdownLocator = this.component.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
+        const selectDropdownLocator = this.componentLocator.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
         selectDropdownLocator.selectOption({ index: ramIndex });
         return await this.getSelectedTextInDropdown(selectDropdownLocator)
     }
@@ -42,12 +42,12 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
     }
 
     public async selectProcessorByName(processorType: string): Promise<string> {
-        const dropdownLocator = this.component.locator("//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select");
+        const dropdownLocator = this.componentLocator.locator("//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select");
         return this.selectOptionInDropdownByText(dropdownLocator, processorType);
     }
 
     public async selectRAMByName(ramType: string): Promise<string> {
-        const dropdownLocator = this.component.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
+        const dropdownLocator = this.componentLocator.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
         return this.selectOptionInDropdownByText(dropdownLocator, ramType);
     }
 
