@@ -8,3 +8,4 @@ allure-results
 .vscode
 logs
 artifacts
+.env
