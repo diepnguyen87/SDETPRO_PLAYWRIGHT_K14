@@ -1,4 +1,24 @@
 import { test } from '@playwright/test'
+import ProductFlow from '../../test-flows/ProductFlow.spect.js'
+
+
+test.only('Pratice Locator', async ({ page }, testInfo) => {
+    await page.goto("https://demowebshop.tricentis.com/desktops")
+    // await page.getByLabel('Email:').fill('email@gmail.com')
+    // await page.getByLabel('Password:').fill('password')
+    // await page.getByRole('button', { name: 'Log in' }).click()
+    // await page.getByText('Forgot password?').click()
+    // await page.getByRole('link', {name: 'Register'}).click();
+    // await page.getByRole('link', {name: 'Shopping cart',  exact: true}).click();
+    // await page.locator('#small-searchterms').fill('Apple');
+    // await page.getByRole('checkbox', {name: 'Remember me?'}).click()
+    // const cheapProduct = await page.locator('.product-item').filter({hasText: 'Build your own cheap computer'});
+    // cheapProduct.getByRole('button', {name: 'Add to cart'}).click();
+    const productFlow: ProductFlow = new ProductFlow(page, testInfo);
+
+    await productFlow.addToCart("Build your own computer");
+    console.log(await productFlow.verifyShoppingCartQty());
+})
 
 test('Link Text - Xpath', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/")
@@ -14,7 +34,7 @@ test('Link Text - CSS', async ({ page }) => {
     await page.waitForTimeout(3 * 1000)
 })
 
-test.only('Link Text - Filtering', async ({ page }) => {
+test('Link Text - Filtering', async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/")
     const elementalElem = await page.locator("//a").filter({ hasText: "Elemental1" })
     elementalElem.scrollIntoViewIfNeeded()

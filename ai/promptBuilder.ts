@@ -1,4 +1,4 @@
-import { Metadata } from "./types.js";
+import { Metadata } from "openai/resources";
 
 export function buildPrompt(
     metadata: Metadata,

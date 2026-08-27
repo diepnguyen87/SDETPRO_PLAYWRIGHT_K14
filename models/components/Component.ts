@@ -3,11 +3,16 @@ import { FailedLocatorManager } from "../pages/FailedLocatorManager.js";
 import fs from 'fs';
 import path from "path";
 import { frameworkConfig } from "../../config/framework.config.js";
-import { Metadata } from "../../ai/types.js";
 import AIAnalyzer from "../../ai/AIAnalyzer.js";
 import SourceCodeCollector from "../../ai/SourceCodeCollector.js";
-import PatchGenerator from "../../ai/PatchGenerator.js";
 import PatchApplier from "../../ai/PatchApplier.js";
+import AIResponseValidator from "../../ai/AIResponseValidator.js";
+import BackupManager from "../../ai/BackupManager.js";
+import PatchVerifier from "../../ai/PatchVerifier.js";
+import TestRerunner from "../../ai/TestRerunner.js";
+import TestCommandBuilder from "../../ai/TestCommandBuilder.js";
+import { Metadata } from "openai/resources";
+import SelfHealingSuccess from "../../ai/SelfHealingSuccess.js";
 
 export type ComponentConstructor<T extends Component> = new (component: Locator) => T
 export default class Component {
@@ -20,12 +25,16 @@ export default class Component {
         this.componentLocator = componentLocator;
     }
 
+
     /*** COMMON ACTION ***/
-    async click(locatorName: string, locator: Locator) {
+    async click(failedLocator: string, locator: Locator) {
         try {
             await locator.click();
         } catch (e) {
-            await this.selfHealingLocator(locatorName, e)
+            const healed = await this.selfHealingLocator(failedLocator, e);
+            if (healed) {
+                throw new SelfHealingSuccess();
+            }
             throw e;
         }
     }
@@ -66,6 +75,7 @@ export default class Component {
 
         const metadata: Metadata = {
             testName: this.testInfo.title,
+            testFile: path.relative(process.cwd(), this.testInfo.file),
             browser: this.testInfo.project.name,
             error: error instanceof Error ? error.message : String(error),
             url: this.page.url(),
@@ -81,7 +91,7 @@ export default class Component {
         return folder;
     }
 
-    private async selfHealingLocator(locatorName: string, e: unknown) {
+    private async selfHealingLocator(locatorName: string, e: unknown): Promise<boolean> {
         const folder = await this.collectFailureArtifacts(locatorName, e);
         const aiAnalyzer = new AIAnalyzer();
         const analysis = await aiAnalyzer.analyze(folder)
@@ -96,12 +106,23 @@ export default class Component {
         );
 
         const sourceFile = SourceCodeCollector.find(this.constructor.name);
-        const backupFile = `${sourceFile}.bak`;
-        fs.copyFileSync(
-            sourceFile,
-            backupFile
-        );
-
+        AIResponseValidator.validate(analysis, sourceFile);
+        BackupManager.create(sourceFile);
         PatchApplier.applyToSource(sourceFile, analysis);
+        PatchVerifier.verify(sourceFile, analysis.oldLocator, analysis.newLocator);
+
+        const metadata: Metadata = JSON.parse(
+            fs.readFileSync(
+                path.join(folder, frameworkConfig.metadataName),
+                "utf8"
+            )
+        );
+        const testCommand = TestCommandBuilder.build(metadata);
+        try {
+            await TestRerunner.run(testCommand);
+            return true;
+        } catch {
+            return false;
+        }
     }
 }

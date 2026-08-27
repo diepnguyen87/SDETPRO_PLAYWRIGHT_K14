@@ -1,13 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { buildPrompt } from "./promptBuilder.js";
-import { Metadata } from "./types.js";
 import { client } from "./aiClient.js";
 import { aiConfig } from "../config/ai.config.js";
 import { frameworkConfig } from "../config/framework.config.js";
 import { AIAnalysis } from "../models/ai/AIAnalysis.js";
 import MarkdownReport from "./MarkdownReport.js";
 import { SYSTEM_PROMPT } from "./prompts/system.prompt.js";
+import { Metadata } from "openai/resources";
 
 export default class AIAnalyzer {
 
@@ -33,7 +33,7 @@ export default class AIAnalyzer {
             path.join(folder, frameworkConfig.componentName),
             "utf8"
         );
-        
+
         const prompt = buildPrompt(
             metadata,
             html,

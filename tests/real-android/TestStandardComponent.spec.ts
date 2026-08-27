@@ -4,9 +4,9 @@ import StandardComputerComponent from "../../models/components/computer/Standard
 import standardComputerDataList from "../../test-data/StandardComputer.json" assert { type: "json" };
 import OrderTestFlow from "../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../utils/GetCreditCardNumber.js";
-import TAG from "../../constant/Tag.js";
+import { TAG } from '../../constant/Tag.js';
 
-test(`${TAG} | Test Standard Component`, async ({ page }) => {
+test(`${TAG} | Test Standard Component`, async ({ page}, testInfo) => {
     const devices = await android.devices();
 
     expect(
@@ -25,7 +25,7 @@ test(`${TAG} | Test Standard Component`, async ({ page }) => {
         const page = pages[0] ?? await context.newPage();
 
         await page.goto("/build-your-own-computer")
-        const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList)
+        const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList, testInfo)
         await orderTestFlow.buildComputerDetailListAndAddToCart();
         await orderTestFlow.navigateToShoppingCartPage()
         await orderTestFlow.verifyShoppingCart()

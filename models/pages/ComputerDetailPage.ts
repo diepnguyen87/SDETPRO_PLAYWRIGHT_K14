@@ -9,6 +9,7 @@ export default class ComputerDetailPage extends BasePage {
     constructor(page: Page, testInfo: TestInfo) {
         super(page, testInfo)
     }
+    
     computerComponent<T extends ComputerEssentialComponent>(
         computerComponentClass: ComputerComponentConstructor<T>): T {
         return new computerComponentClass(this.page, this.page.locator(computerComponentClass.selectorValue), this.testInfo)

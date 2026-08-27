@@ -37,10 +37,11 @@ export default defineConfig({
     ],
     retries: process.env.CI ? 1 : 0,
     use: {
-        baseURL: 'https://demowebshop.tricentis.com',
+        baseURL: 'https://automationexercise.com/',
         actionTimeout: 5 * 1000,
         trace: 'retain-on-failure',
         video: 'retain-on-failure',
-        screenshot: 'only-on-failure'
+        screenshot: 'only-on-failure',
+        testIdAttribute: 'data-qa',
     }
 })

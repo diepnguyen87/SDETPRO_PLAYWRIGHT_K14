@@ -6,6 +6,7 @@ import ComputerEssentialComponent from "./ComputerEssentialComponent.js";
 export default class StandardComputerComponent extends ComputerEssentialComponent {
 
     private dynamicDropdownSel = "//label[contains(text(), 'dynamicText')]/parent::dt/following-sibling::dd[1]/select"
+    
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)
     }
