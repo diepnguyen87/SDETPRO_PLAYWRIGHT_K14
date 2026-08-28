@@ -6,7 +6,6 @@ import { frameworkConfig } from "../../config/framework.config.js";
 import { Metadata } from "../../ai/types.js";
 import AIAnalyzer from "../../ai/AIAnalyzer.js";
 import SourceCodeCollector from "../../ai/SourceCodeCollector.js";
-import PatchGenerator from "../../ai/PatchGenerator.js";
 import PatchApplier from "../../ai/PatchApplier.js";
 
 export type ComponentConstructor<T extends Component> = new (component: Locator) => T
