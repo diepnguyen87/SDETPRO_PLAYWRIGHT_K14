@@ -1,0 +1,18 @@
+{
+    "invalidUser": {
+        "email": "invalid@test.com",
+        "password": "wrongpassword"
+    },
+    "emptyEmail": {
+        "email": "",
+        "password": "validpassword"
+    },
+    "emptyPassword": {
+        "email": "diepniit.nguyenhong@gmail.com",
+        "password": ""
+    },
+    "invalidEmailFormat": {
+        "email": "notaemail@g",
+        "password": ""
+    }
+}

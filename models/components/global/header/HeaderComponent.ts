@@ -8,6 +8,7 @@ export default class HeaderComponent extends Component {
 
     private shoppingCartLinkSel: string = ".header-links .ico-cart"
     private cartQtySel: string = ".ico-cart .cart-qty"
+    private accountLinkSel: string = ".header-links .account"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)
@@ -19,6 +20,10 @@ export default class HeaderComponent extends Component {
 
     public async navigateToShoppingCartLink(): Promise<void> {
         await this.componentLocator.locator(this.shoppingCartLinkSel).click()
+    }
+
+    public async getLoginAccount(): Promise<string | null> {
+        return await this.componentLocator.locator(this.accountLinkSel).textContent();
     }
 
     public async getCartQty(): Promise<number> {
