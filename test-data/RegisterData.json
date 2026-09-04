@@ -1,0 +1,83 @@
+{
+    "missingFirstName": {
+        "gender": "male",
+        "firstName": "",
+        "lastName": "Doe",
+        "email": "missing.fn@mailtest.com",
+        "password": "Test@1234",
+        "confirmPassword": "Test@1234",
+        "errorMessage": "First name is required."
+    },
+    "missingLastName": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "",
+        "email": "missing.ln@mailtest.com",
+        "password": "Test@1234",
+        "confirmPassword": "Test@1234",
+        "errorMessage": "Last name is required."
+    },
+    "missingEmail": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "",
+        "password": "Test@1234",
+        "confirmPassword": "Test@1234",
+        "errorMessage": "Email is required."
+    },
+    "missingPassword": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "missing.pw@mailtest.com",
+        "password": "",
+        "confirmPassword": "",
+        "errorMessage": "Password is required."
+    },
+    "missingConfirmPassword": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "missing.cpw@mailtest.com",
+        "password": "Test@1234",
+        "confirmPassword": "",
+        "errorMessage": "Password is required."
+    },
+    "confirmPasswordMismatch": {
+        "gender": "female",
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "email": "jane.mismatch@mailtest.com",
+        "password": "Test@1234",
+        "confirmPassword": "WrongPass@999",
+        "errorMessage": "The password and confirmation password do not match."
+    },
+    "invalidEmailFormat": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "notanemail@x",
+        "password": "Test@1234",
+        "confirmPassword": "Test@1234",
+        "errorMessage": "Wrong email"
+    },
+    "passwordTooShort": {
+        "gender": "male",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "short.pw@mailtest.com",
+        "password": "12345",
+        "confirmPassword": "12345",
+        "errorMessage": "The password should have at least 6 characters."
+    },
+    "existingEmail": {
+        "gender": "male",
+        "firstName": "Diep",
+        "lastName": "Nguyen",
+        "email": "diep.test100@gmail.com",
+        "password": "123456",
+        "confirmPassword": "123456",
+        "errorMessage": "The specified email already exists"
+    }
+}
