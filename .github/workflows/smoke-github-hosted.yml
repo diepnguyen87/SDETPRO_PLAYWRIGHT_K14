@@ -33,7 +33,7 @@ jobs:
           - project: Mobile Chrome
             engine: chromium
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.3
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.4
     with:
       suite: Smoke
       command: test:smoke
@@ -47,3 +47,4 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
