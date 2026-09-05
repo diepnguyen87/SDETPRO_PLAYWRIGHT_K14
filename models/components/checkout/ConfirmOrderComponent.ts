@@ -6,7 +6,7 @@ import Component from "../Component.js";
 @selector("#opc-confirm_order")
 export default class ConfirmOrderComponent extends Component {
 
-    private confirmBtnSel = "input[value='Confirm']"
+    private confirmBtnSel = "input.confirm-order-next-step-button"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);

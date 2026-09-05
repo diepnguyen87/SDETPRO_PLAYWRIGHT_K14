@@ -9,3 +9,4 @@ allure-results
 logs
 artifacts
 .env
+env.base64
