@@ -22,6 +22,6 @@ export default class BaseItemDetailComponent extends Component {
     }
 
     public async clickOnAddToCartBtn(): Promise<void> {
-        await this.componentLocator.locator(this.addToCartSel).click()
+        await this.withHealing(this.addToCartSel, l => l.click());
     }
 }

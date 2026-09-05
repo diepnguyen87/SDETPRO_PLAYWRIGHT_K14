@@ -11,10 +11,10 @@ export default class ShippingMethodComponent extends Component {
     }
 
     public async selectMethod(optionIndex: number): Promise<string> {
-        const shippingMethodRadioSel = `#shippingoption_${optionIndex}`
-        const shippingMethodLabelSel = `label[for='shippingoption_${optionIndex}']`
+        const shippingMethodRadioSel = `#shippingoption_${optionIndex}`;
+        const shippingMethodLabelSel = `label[for='shippingoption_${optionIndex}']`;
 
-        await this.componentLocator.locator(shippingMethodRadioSel).click()
-        return await this.componentLocator.locator(shippingMethodLabelSel).textContent() ?? ''
+        await this.withHealing(shippingMethodRadioSel, l => l.click());
+        return await this.componentLocator.locator(shippingMethodLabelSel).textContent() ?? '';
     }
 }

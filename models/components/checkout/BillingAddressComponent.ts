@@ -23,49 +23,49 @@ export default class BillingAddressComponent extends Component {
     }
 
     public async selectNewAdressIfExist(): Promise<void> {
-        let buildingAddressDropdownElem: Locator = await this.componentLocator.locator(this.buildingAddressDropdownSel);
-        if(await buildingAddressDropdownElem.count() > 0){
-            await buildingAddressDropdownElem.selectOption({label: "New Address"})
+        const dropdown = this.componentLocator.locator(this.buildingAddressDropdownSel);
+        if (await dropdown.count() > 0) {
+            await this.withHealing(this.buildingAddressDropdownSel, l => l.selectOption({ label: "New Address" }));
         }
     }
 
     public async inputFirstName(firstName: string): Promise<void> {
-        await this.componentLocator.locator(this.firstNameInputSel).fill(firstName)
+        await this.withHealing(this.firstNameInputSel, l => l.fill(firstName));
     }
 
     public async inputLastName(lastName: string): Promise<void> {
-        await this.componentLocator.locator(this.lastNameInputSel).fill(lastName)
+        await this.withHealing(this.lastNameInputSel, l => l.fill(lastName));
     }
 
     public async inputEmail(email: string): Promise<void> {
-        await this.componentLocator.locator(this.emailInputSel).fill(email)
+        await this.withHealing(this.emailInputSel, l => l.fill(email));
     }
 
     public async inputCompany(companyName: string): Promise<void> {
-        await this.componentLocator.locator(this.companyInputSel).fill(companyName)
+        await this.withHealing(this.companyInputSel, l => l.fill(companyName));
     }
 
     public async selectCountry(countryName: string): Promise<void> {
-        await this.componentLocator.locator(this.countryDropdownSel).selectOption({ label: countryName })
+        await this.withHealing(this.countryDropdownSel, l => l.selectOption({ label: countryName }));
     }
 
     public async selectStateProvince(stateProvinceName: string): Promise<void> {
-        await this.componentLocator.locator(this.stateProvinceDropdownSel).selectOption({ label: stateProvinceName })
+        await this.withHealing(this.stateProvinceDropdownSel, l => l.selectOption({ label: stateProvinceName }));
     }
 
     public async inputCity(cityName: string): Promise<void> {
-        await this.componentLocator.locator(this.cityInputSel).fill(cityName)
+        await this.withHealing(this.cityInputSel, l => l.fill(cityName));
     }
 
     public async inputAddress1(address1: string): Promise<void> {
-        await this.componentLocator.locator(this.address1InputSel).fill(address1)
+        await this.withHealing(this.address1InputSel, l => l.fill(address1));
     }
 
     public async inputZipPostalCode(zipPostalCode: string): Promise<void> {
-        await this.componentLocator.locator(this.zipPostalCodeInputSel).fill(zipPostalCode)
+        await this.withHealing(this.zipPostalCodeInputSel, l => l.fill(zipPostalCode));
     }
 
     public async inputPhoneNumber(phoneNumber: string): Promise<void> {
-        await this.componentLocator.locator(this.phoneNumberInputSel).fill(phoneNumber)
+        await this.withHealing(this.phoneNumberInputSel, l => l.fill(phoneNumber));
     }
 }

@@ -14,7 +14,7 @@ export default class ConfirmOrderComponent extends Component {
     }
 
     public async clickOnConfirmBtn(): Promise<void> {
-        await this.click(this.confirmBtnSel, this.componentLocator.locator(this.confirmBtnSel));
+        await this.withHealing(this.confirmBtnSel, l => l.click());
     }
 
     public totalComp(): TotalComponent {

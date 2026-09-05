@@ -27,11 +27,10 @@ export default class TotalComponent extends Component {
     }
 
     public async selectTermOfService(): Promise<void> {
-        await this.componentLocator.locator(this.termOfServiceSel).click()
+        await this.withHealing(this.termOfServiceSel, l => l.click());
     }
 
     public async clickOnCheckoutBtn(): Promise<void> {
-        // await this.componentLocator.locator(this.checkoutBtnSel).click()
-        await this.click(this.checkoutBtnSel, this.componentLocator.locator(this.checkoutBtnSel));
+        await this.withHealing(this.checkoutBtnSel, l => l.click());
     }
 }

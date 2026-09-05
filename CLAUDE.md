@@ -76,7 +76,9 @@ Test Spec
 - All components must extend `Component` and use the `@selector("...")` decorator for their root locator.
 - Instantiate components directly: `new FooComponent(page, page.locator(FooComponent.selectorValue), testInfo)`.
 - Constructor signature: `(page, componentLocator, testInfo)`.
-- All user interactions must go through `Component.click()` and equivalent wrapped methods. Calling `locator.click()` directly bypasses self-healing.
+- All CSS/XPath-based interactions must go through `Component.withHealing(selectorStr, action)` — this is the single self-healing entry point for all action types (`click`, `fill`, `selectOption`, `check`, `uncheck`, etc.).
+- `getByRole()` and `getByLabel()` locators may call `.click()` directly — they are inherently stable and do not require self-healing.
+- Never call `locator.click()`, `locator.fill()`, or any other interaction directly on a CSS/XPath locator — this bypasses self-healing.
 - Naming convention: `*Component.ts` in `models/components/`.
 
 ---
@@ -119,7 +121,7 @@ Prefer in this order:
 The self-healing pipeline is a core part of this framework. Do not remove, bypass, or restructure it.
 
 ### How it works
-1. `Component.click()` wraps every locator action in a try/catch.
+1. `Component.withHealing(selectorStr, action)` wraps every CSS/XPath locator action in a try/catch. It creates the locator internally from `selectorStr` and passes it to `action`.
 2. On failure, `collectFailureArtifacts()` is called, which:
    - Records the failed locator via `FailedLocatorManager.set(locatorName)`
    - Saves to `artifacts/`: component source, screenshot, DOM HTML, metadata JSON
@@ -139,13 +141,13 @@ The self-healing pipeline is a core part of this framework. Do not remove, bypas
 8. `ai/TestCommandBuilder.ts` builds the rerun command from metadata:
    `yarn playwright test --grep="..." --project="..." --headed --config=playwright.config.web.js`
 9. `ai/TestRerunner.ts` executes the rerun:
-   - Passes → `selfHealingLocator()` returns `true` → `Component.click()` throws `SelfHealingSuccess`
+   - Passes → `selfHealingLocator()` returns `true` → `withHealing()` throws `SelfHealingSuccess`
    - Fails → returns `false` → original error is re-thrown
 10. `SelfHealingSuccess` is caught by the global fixture in `tests/fixtures/base.ts` — test stops cleanly without failing
 
 ### Rules
 - Never remove or comment out `FailedLocatorManager.set(locatorName)` inside `collectFailureArtifacts()`.
-- Never remove `collectFailureArtifacts()` from the catch block in `Component.click()`.
+- Never remove `collectFailureArtifacts()` from the catch block in `withHealing()`.
 - Artifact folder and file names must always come from `config/framework.config.ts` — never hardcode paths.
 - Do not change the OpenAI model (`gpt-5-mini`) in `ai/AIAnalyzer.ts` or the system prompt in `ai/prompts/system.prompt.ts` without explicit instruction.
 - Do not remove `BackupManager.create()` from the self-healing flow — it is the only rollback mechanism. `BackupManager.restore()` can recover the source if the patch or rerun fails.

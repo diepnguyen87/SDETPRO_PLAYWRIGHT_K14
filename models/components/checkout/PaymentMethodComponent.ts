@@ -16,27 +16,27 @@ export default class PaymentMethodComponent extends Component {
     }
 
     public async selectCashOnDelivery(): Promise<number> {
-        let additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText())
-        await this.componentLocator.locator(this.cashOnDeliverySel).click()
-        return additionalFee
+        const additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText());
+        await this.withHealing(this.cashOnDeliverySel, l => l.click());
+        return additionalFee;
     }
 
     public async selectCheckMoneyOrder(): Promise<number> {
-        let additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText())
-        await this.componentLocator.locator(this.checkMoneyOrderSel).click()
-        return additionalFee
+        const additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText());
+        await this.withHealing(this.checkMoneyOrderSel, l => l.click());
+        return additionalFee;
     }
 
     public async selectCreditCard(): Promise<number> {
-        let additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText())
-        await this.componentLocator.locator(this.creditCardSel).click()
-        return additionalFee
+        const additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText());
+        await this.withHealing(this.creditCardSel, l => l.click());
+        return additionalFee;
     }
 
     public async selectPurchaseOrder(): Promise<number> {
-        let additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText())
-        await this.componentLocator.locator(this.purchaseOrderSel).click()
-        return additionalFee
+        const additionalFee = this.getFeeMatchesArr(await this.componentLocator.locator(this.cashOnDeliverySel).innerText());
+        await this.withHealing(this.purchaseOrderSel, l => l.click());
+        return additionalFee;
     }
 
     private getFeeMatchesArr(searchStr: string) {

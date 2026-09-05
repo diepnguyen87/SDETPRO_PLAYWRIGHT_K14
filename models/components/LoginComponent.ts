@@ -21,7 +21,7 @@ export default class LoginComponent extends Component {
     }
 
     public async clickLoginBtn(): Promise<void> {
-        await this.click('loginBtn', this.componentLocator.getByRole('button', { name: 'Log in' }));
+        await this.componentLocator.getByRole('button', { name: 'Log in' }).click();
     }
 
     public async getSummaryError(): Promise<string | null> {

@@ -18,26 +18,26 @@ export default class PaymentInformationComponent extends Component {
     }
 
     public async selectCreditCardType(creditCardType: string): Promise<void> {
-        await this.componentLocator.locator(this.creditCartTypeSel).selectOption({ label: `${creditCardType}` })
+        await this.withHealing(this.creditCartTypeSel, l => l.selectOption({ label: creditCardType }));
     }
 
     public async inputCardHolderName(cardHolderName: string): Promise<void> {
-        await this.componentLocator.locator(this.cardHolderNameInputSel).fill(cardHolderName)
+        await this.withHealing(this.cardHolderNameInputSel, l => l.fill(cardHolderName));
     }
 
     public async inputCardNumber(cardNumber: string): Promise<void> {
-        await this.componentLocator.locator(this.cardNumberInputSel).fill(cardNumber.toString())
+        await this.withHealing(this.cardNumberInputSel, l => l.fill(cardNumber.toString()));
     }
 
     public async selectExpireMonth(expireMonth: number): Promise<void> {
-        await this.componentLocator.locator(this.expireMonthSel).selectOption({ value: `${expireMonth}`})
+        await this.withHealing(this.expireMonthSel, l => l.selectOption({ value: `${expireMonth}` }));
     }
 
     public async selectExpireYear(expireYear: number): Promise<void> {
-        await this.componentLocator.locator(this.expireYearSel).selectOption({ label: `${expireYear}` })
+        await this.withHealing(this.expireYearSel, l => l.selectOption({ label: `${expireYear}` }));
     }
 
     public async inputCardCode(cardCode: string): Promise<void> {
-        await this.componentLocator.locator(this.cardCodeSel).fill(cardCode)
+        await this.withHealing(this.cardCodeSel, l => l.fill(cardCode));
     }
 }

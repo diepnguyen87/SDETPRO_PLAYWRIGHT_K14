@@ -15,11 +15,11 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     public abstract selectRAMByName(ramType: string): Promise<string>
 
     public async unselectDefaultCheckbox(): Promise<void> {
-        const allCheckboxElemList = await this.componentLocator.locator(this.allCheckboxSel).all()
-        for (const checkboxElem of allCheckboxElemList) {
-            const isChecked = await checkboxElem.evaluate(el => (el as HTMLInputElement).checked);
+        const allCheckboxElemList = await this.componentLocator.locator(this.allCheckboxSel).all();
+        for (let i = 0; i < allCheckboxElemList.length; i++) {
+            const isChecked = await allCheckboxElemList[i].evaluate(el => (el as HTMLInputElement).checked);
             if (isChecked) {
-                checkboxElem.click()
+                await this.withHealing(this.allCheckboxSel, l => l.nth(i).click());
             }
         }
     }
@@ -53,30 +53,24 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     }
 
     protected async selectOptionByName(type: string): Promise<string> {
-        const optionSel = `//label[contains(text(), "${type}")]`
-        const optionList: Locator[] = await this.componentLocator.locator(optionSel).all()
-        const FIRST_OPTION_INDEX = 0;
-        const optionElem = optionList[FIRST_OPTION_INDEX];
-        const optionText = await optionElem.textContent() ?? '';
-        await optionElem.check();
+        const optionSel = `//label[contains(text(), "${type}")]`;
+        const optionText = await this.componentLocator.locator(optionSel).first().textContent() ?? '';
+        await this.withHealing(optionSel, l => l.first().click());
         return optionText;
     }
 
     protected async unselectOptionByName(type: string): Promise<void> {
-        const optionSel = `//label[contains(text(), "${type}")]`
-        const optionList: Locator[] = await this.componentLocator.locator(optionSel).all()
-        const FIRST_OPTION_INDEX = 0;
-        const optionElem = optionList[FIRST_OPTION_INDEX];
+        const optionSel = `//label[contains(text(), "${type}")]`;
+        const optionElem = this.componentLocator.locator(optionSel).first();
         if (await optionElem.isChecked()) {
-            await optionElem.uncheck()
+            await this.withHealing(optionSel, l => l.first().click());
         }
     }
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
-        const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//label)[${index + 1}]`
-        const optionElem = this.componentLocator.locator(optionSel)
-        const optionText = await optionElem.textContent() ?? '';
-        await optionElem.click();
+        const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//label)[${index + 1}]`;
+        const optionText = await this.componentLocator.locator(optionSel).textContent() ?? '';
+        await this.withHealing(optionSel, l => l.click());
         return optionText;
     }
 }

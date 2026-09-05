@@ -26,27 +26,28 @@ export default class Component {
     }
 
     /*** COMMON ACTION ***/
-    async click(failedLocatorStr: string, locator: Locator) {
+    protected async withHealing<T>(
+        selectorStr: string,
+        action: (locator: Locator) => Promise<T>
+    ): Promise<T> {
+        const locator = this.componentLocator.locator(selectorStr);
         try {
-            await locator.click();
+            return await action(locator);
         } catch (e) {
-            const healed = await this.selfHealingLocator(failedLocatorStr, e);
-            if (healed) {
-                throw new SelfHealingSuccess();
-            }
+            const healed = await this.selfHealingLocator(selectorStr, e);
+            if (healed) throw new SelfHealingSuccess();
             throw e;
         }
     }
 
     public async clickOnContinueBtn(): Promise<void> {
-        const continueBtn = await this.componentLocator.locator(this.continueBtnSel)
-        continueBtn.scrollIntoViewIfNeeded()
-        await continueBtn.click()
-        await continueBtn.waitFor({ state: "hidden" })
+        await this.componentLocator.locator(this.continueBtnSel).scrollIntoViewIfNeeded();
+        await this.withHealing(this.continueBtnSel, l => l.click());
+        await this.componentLocator.locator(this.continueBtnSel).waitFor({ state: "hidden" });
     }
 
-    private async collectFailureArtifacts(locatorName: string, error: unknown): Promise<string> {
-        FailedLocatorManager.set(locatorName);
+    private async collectFailureArtifacts(locatorStr: string, error: unknown): Promise<string> {
+        FailedLocatorManager.set(locatorStr);
 
         const folder = path.join(
             frameworkConfig.artifactFolder,
@@ -90,8 +91,8 @@ export default class Component {
         return folder;
     }
 
-    private async selfHealingLocator(locatorName: string, e: unknown): Promise<boolean> {
-        const folder = await this.collectFailureArtifacts(locatorName, e);
+    private async selfHealingLocator(locatorStr: string, e: unknown): Promise<boolean> {
+        const folder = await this.collectFailureArtifacts(locatorStr, e);
         const aiAnalyzer = new AIAnalyzer();
         const analysis = await aiAnalyzer.analyze(folder)
 
