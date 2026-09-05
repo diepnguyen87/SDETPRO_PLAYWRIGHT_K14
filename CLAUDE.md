@@ -120,20 +120,39 @@ The self-healing pipeline is a core part of this framework. Do not remove, bypas
 
 ### How it works
 1. `Component.click()` wraps every locator action in a try/catch.
-2. On failure, `FailedLocatorManager.set(locatorName)` records the failed locator.
-3. `collectFailureArtifacts()` captures: screenshot, DOM, metadata JSON, component source file — all saved to `artifacts/`.
-4. `ai/AIAnalyzer.ts` sends the artifacts to OpenAI (vision + text) and receives a suggested locator fix.
-5. `ai/PatchApplier.ts` applies the fix to the component source file and creates a `.bak` backup.
+2. On failure, `collectFailureArtifacts()` is called, which:
+   - Records the failed locator via `FailedLocatorManager.set(locatorName)`
+   - Saves to `artifacts/`: component source, screenshot, DOM HTML, metadata JSON
+3. `ai/AIAnalyzer.ts` sends artifacts to OpenAI using two strategies:
+   - **Way 1** (text-only): metadata + DOM + component source via `promptBuilder.ts` — response currently unused
+   - **Way 2** (vision): system prompt (`system.prompt.ts`) + text prompt + screenshot — **active response**
+   - AI Analysis JSON and Markdown report are saved to the artifact folder
+   - AI Analysis JSON is attached to the Playwright report as an artifact
+4. `ai/AIResponseValidator.ts` validates the AI response before applying:
+   - Required fields present (`field`, `oldLocator`, `newLocator`)
+   - Confidence ≥ 80
+   - `oldLocator` exists in the component source file
+   - `field` name exists in the component source file
+5. `ai/BackupManager.ts` creates a `.bak` backup of the component source file
+6. `ai/PatchApplier.ts` applies the fix: replaces `analysis.oldLocator` → `analysis.newLocator` in the source file
+7. `ai/PatchVerifier.ts` verifies the patch: old locator is gone, new locator is present
+8. `ai/TestCommandBuilder.ts` builds the rerun command from metadata:
+   `yarn playwright test --grep="..." --project="..." --headed --config=playwright.config.web.js`
+9. `ai/TestRerunner.ts` executes the rerun:
+   - Passes → `selfHealingLocator()` returns `true` → `Component.click()` throws `SelfHealingSuccess`
+   - Fails → returns `false` → original error is re-thrown
+10. `SelfHealingSuccess` is caught by the global fixture in `tests/fixtures/base.ts` — test stops cleanly without failing
 
 ### Rules
-- Never remove or comment out `FailedLocatorManager.set(locatorName)` before a click.
+- Never remove or comment out `FailedLocatorManager.set(locatorName)` inside `collectFailureArtifacts()`.
 - Never remove `collectFailureArtifacts()` from the catch block in `Component.click()`.
 - Artifact folder and file names must always come from `config/framework.config.ts` — never hardcode paths.
-- Do not change the OpenAI model (`gpt-5-mini`) or prompt structure in `ai/promptBuilder.ts` without explicit instruction.
-- Do not remove the `.bak` backup logic in `PatchApplier.ts` — it is the only rollback mechanism.
-- `ComponentFactory.create()` must continue tracking `sourceFile` — `SourceCodeCollector` depends on it to find the right file.
+- Do not change the OpenAI model (`gpt-5-mini`) in `ai/AIAnalyzer.ts` or the system prompt in `ai/prompts/system.prompt.ts` without explicit instruction.
+- Do not remove `BackupManager.create()` from the self-healing flow — it is the only rollback mechanism. `BackupManager.restore()` can recover the source if the patch or rerun fails.
+- Do not remove `PatchVerifier.verify()` — it is the post-patch safety check.
+- `SourceCodeCollector.find(this.constructor.name)` locates the component source by class name — do not change how this lookup works.
 - Artifact collection happens **before** the error is thrown — do not reorder this sequence.
-- AI-generated locator patches must not be accepted blindly — review the suggested locator against the current DOM before applying.
+- AI-generated patches are gated by `AIResponseValidator` (confidence ≥ 80, locator must exist in source) before being applied — do not bypass this validation.
 - Preserve existing framework behavior and architecture when applying self-healing fixes — a patch must only change the failed locator, nothing else.
 - When a self-healing patch may affect framework behavior beyond the failed locator, stop and ask for approval.
 
