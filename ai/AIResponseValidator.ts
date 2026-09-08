@@ -1,50 +1,54 @@
 import path from "path";
-import { frameworkConfig } from "../config/framework.config.js";
-import { AIAnalysis } from "../models/ai/AIAnalysis.js";
-import fs from 'fs'
+import { FailureAnalysis, PatchType } from "../models/ai/AIAnalysis.js";
+import fs from 'fs';
 
 export default class AIResponseValidator {
 
-    public static validate(analysis: AIAnalysis, sourceFileAddress: string): void {
+    public static validate(analysis: FailureAnalysis, sourceFileAddress: string): void {
 
         // 1. Check required fields
         if (!analysis.field) {
-            throw new Error(
-                "AI response is missing field"
-            );
+            throw new Error("AI response is missing field");
         }
 
-        if (!analysis.oldLocator) {
-            throw new Error(
-                "AI response is missing oldLocator"
-            );
+        if (!analysis.oldValue) {
+            throw new Error("AI response is missing oldValue");
         }
 
-        if (!analysis.newLocator) {
-            throw new Error(
-                "AI response is missing newLocator"
-            );
+        if (!analysis.newValue) {
+            throw new Error("AI response is missing newValue");
         }
 
-        // 2. Check confidence
-        if (analysis.confidence < 80) {
-            throw new Error(
-                `AI confidence is too low: ${analysis.confidence}`
-            );
+        if (!analysis.rootCause) {
+            throw new Error("AI response is missing rootCause");
         }
 
-        // 3. Check old locator exists
+        if (!analysis.patchType) {
+            throw new Error("AI response is missing patchType");
+        }
+
+        // 2. Check patch confidence — must be ≥ 80 to apply an auto-patch
+        if (analysis.patchConfidence < 80) {
+            throw new Error(`AI patch confidence is too low: ${analysis.patchConfidence}`);
+        }
+
+        // 3. MANUAL patches should not reach validator — guard only
+        if (analysis.patchType === PatchType.MANUAL) {
+            throw new Error(`PatchType.MANUAL cannot be applied automatically: ${analysis.reason}`);
+        }
+
+        // 4. Check oldValue exists in source
         const componentSource = fs.readFileSync(path.resolve(sourceFileAddress), "utf8");
 
-        if (!componentSource.includes(analysis.oldLocator)) {
-            throw new Error(`Old locator not found in component source: ${analysis.oldLocator}`);
+        if (!componentSource.includes(analysis.oldValue)) {
+            throw new Error(`Old value not found in component source: ${analysis.oldValue}`);
         }
 
-        // 4. Check field exists
+        // 5. Check field exists in source
         if (!componentSource.includes(analysis.field)) {
             throw new Error(`Field not found in component source: ${analysis.field}`);
         }
 
-        console.log(`AI response validated successfully: ${analysis.field}`);
+        console.log(`AI response validated successfully: ${analysis.field} [${analysis.rootCause}]`);
     }
 }

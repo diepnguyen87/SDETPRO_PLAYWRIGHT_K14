@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { frameworkConfig } from "../config/framework.config.js";
 import { LocatorPatch } from "../models/ai/LocatorPatch.js";
-import { AIAnalysis } from "../models/ai/AIAnalysis.js";
+import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
 
 export default class PatchApplier {
 
@@ -45,25 +45,24 @@ export default class PatchApplier {
         );
     }
 
-    public static applyToSource(sourceFile: string, analysis: AIAnalysis): void {
-    
+    public static applyToSource(sourceFile: string, analysis: FailureAnalysis): void {
+
         let source = fs.readFileSync(
             sourceFile,
             "utf8"
         );
 
-    
-        if (!source.includes(analysis.oldLocator)) {
+        if (!source.includes(analysis.oldValue)) {
             throw new Error(
-                `Old locator not found in source: ${analysis.oldLocator}`
+                `Old value not found in source: ${analysis.oldValue}`
             );
         }
-    
+
         source = source.replace(
-            analysis.oldLocator,
-            analysis.newLocator
+            analysis.oldValue,
+            analysis.newValue
         );
-    
+
         fs.writeFileSync(
             sourceFile,
             source,

@@ -1,4 +1,4 @@
-import { Metadata } from "./types.js";
+import { Metadata } from "./Metadata.js";
 
 export function buildPrompt(
     metadata: Metadata,
@@ -27,6 +27,9 @@ export function buildPrompt(
 
         Error:
         ${metadata.error}
+
+        Stack Trace:
+        ${metadata.stackTrace}
         ====================================
         Below is the page DOM.
         ${html}

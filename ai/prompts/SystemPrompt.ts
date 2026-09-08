@@ -1,4 +1,4 @@
-import { AI_ANALYSIS_SCHEMA } from "./schemas.js";
+import { FAILURE_ANALYSIS_SCHEMA } from "./FailtureAnalysisSchemas.js";
 
 export const SYSTEM_PROMPT = `
 You are a Senior Playwright Automation Engineer.
@@ -15,7 +15,7 @@ Your task is:
 4. Return ONLY valid JSON.
 
 Schema:
-${AI_ANALYSIS_SCHEMA}
+${FAILURE_ANALYSIS_SCHEMA}
 
 Rules:
 - Do NOT return Markdown.

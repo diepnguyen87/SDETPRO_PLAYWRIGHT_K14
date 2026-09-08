@@ -1,15 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { buildPrompt } from "./promptBuilder.js";
-import { Metadata } from "./Metadata.js";
 import { client } from "./aiClient.js";
 import { aiConfig } from "../config/ai.config.js";
 import { frameworkConfig } from "../config/framework.config.js";
 import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
+import { Metadata } from "./Metadata.js";
+import { buildPrompt } from "./promptBuilder.js";
+import { FAILURE_ANALYSIS_SYSTEM_PROMPT } from "./prompts/FailureAnalysisPrompt.js";
 import MarkdownReport from "./MarkdownReport.js";
-import { SYSTEM_PROMPT } from "./prompts/system.prompt.js";
 
-export default class AIAnalyzer {
+export default class FailureAnalyzer {
 
     public async analyze(folder: string): Promise<FailureAnalysis> {
         const metadata: Metadata = JSON.parse(
@@ -33,73 +33,58 @@ export default class AIAnalyzer {
             path.join(folder, frameworkConfig.componentName),
             "utf8"
         );
-        
-        const prompt = buildPrompt(
-            metadata,
-            html,
-            component
-        );
+
+        const textPrompt = buildPrompt(metadata, html, component);
 
         fs.writeFileSync(
             path.join(folder, frameworkConfig.promtName),
-            prompt,
+            textPrompt,
             "utf8"
         );
-        //Way 1: Metadata + DOM
-        const response =
-            await client.responses.create({
-                model: aiConfig.model,
-                input: prompt
-            });
-        //Way 2: Metadata + DOM + Screenshot
-        const response1 = await client.responses.create({
-            model: "gpt-5-mini",
+
+        const response = await client.responses.create({
+            model: aiConfig.model,
             input: [
                 {
                     role: "system",
                     content: [
                         {
                             type: "input_text",
-                            text: SYSTEM_PROMPT
+                            text: FAILURE_ANALYSIS_SYSTEM_PROMPT
                         }
                     ]
                 },
                 {
                     role: "user",
                     content: [
-
                         {
                             type: "input_text",
-                            text: prompt
+                            text: textPrompt
                         },
                         {
                             type: "input_image",
                             image_url: `data:image/png;base64,${base64}`,
-                            detail: "high"
+                            detail: aiConfig.imageDetail
                         }
                     ]
                 }
             ]
         });
 
+        const analysis: FailureAnalysis = JSON.parse(response.output_text);
 
-        const analysis: FailureAnalysis = JSON.parse(response1.output_text);
         fs.writeFileSync(
             path.join(folder, frameworkConfig.aiResponseName_json),
-            JSON.stringify(
-                analysis,
-                null,
-                4
-            ),
+            JSON.stringify(analysis, null, 4),
             "utf8"
         );
 
-        const markdown = MarkdownReport.generate(analysis);
         fs.writeFileSync(
-            `${folder}/${frameworkConfig.aiResponseName_md}`,
-            markdown,
+            path.join(folder, frameworkConfig.aiResponseName_md),
+            MarkdownReport.generate(analysis),
             "utf8"
         );
+
         return analysis;
     }
 }

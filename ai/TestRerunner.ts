@@ -6,11 +6,18 @@ export default class TestRerunner {
 
         return new Promise((resolve, reject) => {
             console.log(`Rerunning test: ${command}`);
-            const process = exec(command);
-            process.stdout?.pipe(process.stdout);
-            process.stderr?.pipe(process.stderr);
-            process.on("close", code => {
 
+            // Pass HEALING_RERUN=true so the child process skips self-healing,
+            // preventing recursive healing loops.
+            const child = exec(command, {
+                env: { ...process.env, HEALING_RERUN: "true" }
+            });
+
+            // Pipe child output to the parent process console
+            child.stdout?.pipe(process.stdout);
+            child.stderr?.pipe(process.stderr);
+
+            child.on("close", code => {
                 if (code === 0) {
                     console.log("Rerun passed.");
                     resolve();

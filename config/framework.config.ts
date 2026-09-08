@@ -7,5 +7,6 @@ export const frameworkConfig = {
     aiResponseName_md: "ai-response.md",
     aiResponseName_json: "ai-response.json",
     componentName: "component.ts",
-    locatorPath_json: "locator.patch.json"
+    locatorPath_json: "locator.patch.json",
+    maxHealingRetries: 1
 };

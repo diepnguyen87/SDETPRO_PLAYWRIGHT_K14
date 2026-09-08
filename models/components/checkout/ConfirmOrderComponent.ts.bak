@@ -6,7 +6,7 @@ import Component from "../Component.js";
 @selector("#opc-confirm_order")
 export default class ConfirmOrderComponent extends Component {
 
-    private confirmBtnSel = "input[value='Confirm2']"
+    private confirmBtnSel = "input.confirm-order-next-step-button12"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
@@ -14,7 +14,7 @@ export default class ConfirmOrderComponent extends Component {
     }
 
     public async clickOnConfirmBtn(): Promise<void> {
-        await this.click(this.confirmBtnSel, this.componentLocator.locator(this.confirmBtnSel));
+        await this.withHealing(this.confirmBtnSel, l => l.click());
     }
 
     public totalComp(): TotalComponent {

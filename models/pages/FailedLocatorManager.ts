@@ -1,7 +1,7 @@
 import { Page, TestInfo } from "@playwright/test";
 import fs from "fs";
 import path from "path";
-import { Metadata } from "../../ai/types.js";
+import { Metadata } from "../../ai/Metadata.js";
 import { frameworkConfig } from "../../config/framework.config.js";
 
 export class FailedLocatorManager {

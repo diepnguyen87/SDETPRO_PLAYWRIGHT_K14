@@ -1,20 +1,35 @@
-import { AIAnalysis } from "../models/ai/AIAnalysis.js";
+import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
 
 export default class MarkdownReport {
 
-    public static generate(analysis: AIAnalysis): string {
+    public static generate(analysis: FailureAnalysis): string {
 
         return `
-        # AI Analysis
+        # AI Failure Analysis
+
+            ## Root Cause
+            ${analysis.rootCause}
+
+            ## Patch Type
+            ${analysis.patchType}
 
             ## Reason
             ${analysis.reason}
 
-            ## Confidence
-            ${analysis.confidence}%
+            ## Root Cause Confidence
+            ${analysis.rootCauseConfidence}%
 
-            ## Suggested Locator
-            \`${analysis.newLocator}\`
+            ## Patch Confidence
+            ${analysis.patchConfidence}%
+
+            ## Field
+            \`${analysis.field}\`
+
+            ## Old Value
+            \`${analysis.oldValue}\`
+
+            ## New Value
+            \`${analysis.newValue}\`
 
             ## Strategy
             ${analysis.strategy}

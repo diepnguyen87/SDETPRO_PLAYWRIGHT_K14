@@ -1,9 +1,10 @@
 export interface Metadata {
     testName: string;
+    testFile: string;
     browser: string;
-    error: string;
+    error?: string;
+    stackTrace: string;
     url: string;
     failedLocator: string;
-    errorMessage?: string;
     timestamp: string;
 }

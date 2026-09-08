@@ -1,9 +1,10 @@
-import { Metadata } from "openai/resources";
+import { Metadata } from "./Metadata.js";
 
 export default class TestCommandBuilder {
 
     public static build(metadata: Metadata): string {
-        const testcaseName = metadata.testName.split("|")[1];
+        const parts = metadata.testName.split("|");
+        const testcaseName = (parts[1] ?? parts[0]).trim();
         let command = `yarn playwright test`;
         command += ` --grep="${this.escapeRegex(testcaseName)}"`;
         command += ` --project="${metadata.browser}"`;
