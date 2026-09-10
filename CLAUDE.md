@@ -118,45 +118,161 @@ Prefer in this order:
 
 ## AI Self-Healing — Critical
 
-The self-healing pipeline is a core part of this framework. Do not remove, bypass, or restructure it.
+The self-healing pipeline is a core part of this framework.
+Do not remove, bypass, or restructure it.
 
-### How it works
-1. `Component.withHealing(selectorStr, action)` wraps every CSS/XPath locator action in a try/catch. It creates the locator internally from `selectorStr` and passes it to `action`.
-2. On failure, `collectFailureArtifacts()` is called, which:
-   - Records the failed locator via `FailedLocatorManager.set(locatorName)`
-   - Saves to `artifacts/`: component source, screenshot, DOM HTML, metadata JSON
-3. `ai/AIAnalyzer.ts` sends artifacts to OpenAI using two strategies:
-   - **Way 1** (text-only): metadata + DOM + component source via `promptBuilder.ts` — response currently unused
-   - **Way 2** (vision): system prompt (`system.prompt.ts`) + text prompt + screenshot — **active response**
-   - AI Analysis JSON and Markdown report are saved to the artifact folder
-   - AI Analysis JSON is attached to the Playwright report as an artifact
-4. `ai/AIResponseValidator.ts` validates the AI response before applying:
-   - Required fields present (`field`, `oldLocator`, `newLocator`)
-   - Confidence ≥ 80
-   - `oldLocator` exists in the component source file
-   - `field` name exists in the component source file
-5. `ai/BackupManager.ts` creates a `.bak` backup of the component source file
-6. `ai/PatchApplier.ts` applies the fix: replaces `analysis.oldLocator` → `analysis.newLocator` in the source file
-7. `ai/PatchVerifier.ts` verifies the patch: old locator is gone, new locator is present
-8. `ai/TestCommandBuilder.ts` builds the rerun command from metadata:
-   `yarn playwright test --grep="..." --project="..." --headed --config=playwright.config.web.js`
-9. `ai/TestRerunner.ts` executes the rerun:
-   - Passes → `selfHealingLocator()` returns `true` → `withHealing()` throws `SelfHealingSuccess`
-   - Fails → returns `false` → original error is re-thrown
-10. `SelfHealingSuccess` is caught by the global fixture in `tests/fixtures/base.ts` — test stops cleanly without failing
+---
+
+### Entry Points
+
+There are two entry points into the healing pipeline:
+
+**1 — Component Action Failure** (triggered from `Component.ts`)
+
+Any CSS/XPath locator action goes through `Component.withHealing(selectorStr, action)`.
+When the action fails:
+- `ComponentFailureCollector.collect()` is called to gather artifacts
+- `HealingEngine.handle()` is called with the resulting `FailureContext`
+
+**2 — Assertion Failure** (triggered from `tests/fixtures/base.ts`)
+
+When `expect()` fails and the error bubbles to the global fixture:
+- `AssertionFailureCollector.isAssertionError(error)` checks whether it is a genuine
+  Playwright assertion error (detected via the `matcherResult` property)
+- If yes: `AssertionFailureCollector.collect()` is called to gather artifacts
+- `HealingEngine.handle()` is called with the resulting `FailureContext`
+
+Action errors re-thrown from `withHealing()` are NOT routed through assertion healing —
+the `isAssertionError()` guard prevents double-routing.
+
+---
+
+### Failure Context Collection
+
+**`ai/collectors/ComponentFailureCollector.ts`**
+- Calls `FailedLocatorManager.set(selectorStr)` — records the failed locator (do not remove)
+- Creates artifact folder: `artifacts/{browser}/{test_title}/`
+- Copies component source file via `SourceCodeCollector.find(componentClassName)`
+- Takes screenshot scoped to `componentLocator`
+- Reads DOM via `componentLocator.innerHTML()`
+- Writes `metadata.json`
+- Returns `FailureContext` with `failureSource: "ACTION"`
+
+**`ai/collectors/AssertionFailureCollector.ts`**
+- Takes full-page screenshot (`page.screenshot({ fullPage: true })`)
+- Reads full DOM via `page.content()`
+- Uses `StackTraceParser` to find the source class from the error stack trace.
+  Search priority: `models/components/` → `models/pages/` → `test-flows/` → `tests/`
+- If source class found: copies source file via `SourceCodeCollector.find(className)`
+- If not found: writes empty `component.ts` → AI returns MANUAL (safe fallback)
+- Returns `FailureContext` with `failureSource: "ASSERTION"`, `failedLocator: ""`
+
+---
+
+### HealingEngine Lifecycle
+
+`HealingEngine.handle(context, testInfo)` in `ai/HealingEngine.ts` owns the full healing
+workflow. Neither `Component.ts` nor `base.ts` contains any healing logic beyond calling
+this method.
+
+On each call:
+1. **Rerun guard** — if `HEALING_RERUN === "true"` (child process), return `SKIPPED` immediately
+2. **Lock** — `HealingLock.acquire(sourceFile)` — atomic cross-process file lock.
+   If already locked by another worker: return `SKIPPED`
+3. **Retry loop** (up to `frameworkConfig.maxHealingRetries`):
+   - `FailureAnalyzer.analyze(folder)` → `FailureAnalysis`
+   - Attach AI response JSON to Playwright test report
+   - If `patchType === MANUAL` → log root cause + reason, return `MANUAL` (no source change)
+   - `AIResponseValidator.validate()` — gates on `patchConfidence ≥ 80`, `field` and `oldValue`
+     must exist in the source file
+   - `BackupManager.create(sourceFile)` — creates `.bak` backup
+   - `PatchApplier.applyToSource()` — replaces `oldValue` → `newValue` in source
+   - `PatchVerifier.verify()` — confirms old value gone, new value present
+   - `TestCommandBuilder.build(metadata)` → `yarn playwright test --grep=... --project=...`
+   - `TestRerunner.run(command)` — spawns child process with `HEALING_RERUN=true` in env
+     - Child passes → return `HEALED`, release lock
+     - Child fails → `BackupManager.restore()`, try next attempt
+4. Max retries exhausted → return `FAILED`, release lock
+
+---
+
+### AI Analysis Model (`models/ai/AIAnalysis.ts`)
+
+```
+rootCause:           LOCATOR_BROKEN | TIMING | ASSERTION | LOGIC
+patchType:           LOCATOR | MANUAL
+reason:              string
+rootCauseConfidence: 0–100   confidence in the root cause classification
+patchConfidence:     0–100   confidence in the proposed fix
+                             = 0 when patchType = MANUAL
+                             = rootCauseConfidence when rootCause = LOCATOR_BROKEN
+field:               string  variable name in the component source
+oldValue:            string  current locator value (exact match required)
+newValue:            string  proposed replacement locator
+strategy:            string
+explanation:         string
+```
+
+---
+
+### Healing Result (`models/ai/HealingResult.ts`)
+
+```
+status:               HEALED | MANUAL | FAILED | SKIPPED
+rootCause?:           string
+patchType?:           string
+rootCauseConfidence?: number
+patchConfidence?:     number
+originalLocator?:     string
+healedLocator?:       string
+sourceFile?:          string
+reason?:              string
+retryCount:           number
+```
+
+---
+
+### Outcome Handling
+
+| HealingEngine result | Component.withHealing()           | base.ts fixture                      |
+|----------------------|-----------------------------------|--------------------------------------|
+| `HEALED`             | throws `SelfHealingSuccess`       | returns cleanly                      |
+| `MANUAL`             | re-throws original action error   | re-throws original assertion error   |
+| `FAILED`             | re-throws original action error   | re-throws original assertion error   |
+| `SKIPPED`            | re-throws original action error   | re-throws original assertion error   |
+
+`SelfHealingSuccess` thrown by `withHealing()` propagates to the global fixture in
+`tests/fixtures/base.ts`, which swallows it — the test exits without a failure.
+
+---
 
 ### Rules
-- Never remove or comment out `FailedLocatorManager.set(locatorName)` inside `collectFailureArtifacts()`.
-- Never remove `collectFailureArtifacts()` from the catch block in `withHealing()`.
-- Artifact folder and file names must always come from `config/framework.config.ts` — never hardcode paths.
-- Do not change the OpenAI model (`gpt-5-mini`) in `ai/AIAnalyzer.ts` or the system prompt in `ai/prompts/system.prompt.ts` without explicit instruction.
-- Do not remove `BackupManager.create()` from the self-healing flow — it is the only rollback mechanism. `BackupManager.restore()` can recover the source if the patch or rerun fails.
-- Do not remove `PatchVerifier.verify()` — it is the post-patch safety check.
-- `SourceCodeCollector.find(this.constructor.name)` locates the component source by class name — do not change how this lookup works.
-- Artifact collection happens **before** the error is thrown — do not reorder this sequence.
-- AI-generated patches are gated by `AIResponseValidator` (confidence ≥ 80, locator must exist in source) before being applied — do not bypass this validation.
-- Preserve existing framework behavior and architecture when applying self-healing fixes — a patch must only change the failed locator, nothing else.
-- When a self-healing patch may affect framework behavior beyond the failed locator, stop and ask for approval.
+
+- **Never remove** `FailedLocatorManager.set(selectorStr)` inside
+  `ComponentFailureCollector.collect()`.
+- **Never remove** `ComponentFailureCollector.collect()` from `withHealing()`'s catch block.
+- **Never remove** `AssertionFailureCollector.isAssertionError()` guard from `base.ts` —
+  it prevents action errors from being double-routed through assertion healing.
+- **Never remove** `HealingLock` from `HealingEngine.handle()` — it is the only mechanism
+  preventing concurrent workers from corrupting the same source file.
+- **Never remove** `HEALING_RERUN=true` from `TestRerunner.run()` — it prevents the child
+  process from triggering another healing loop, causing infinite recursion.
+- **Never remove** `BackupManager.create()` or `BackupManager.restore()` — they are the only
+  rollback mechanism if a patch or rerun fails.
+- **Never remove** `PatchVerifier.verify()` — post-patch safety check.
+- **Never remove** the `HEALING_RERUN` guard at the start of `HealingEngine.handle()`.
+- `HealingEngine` is the **single** healing orchestrator — never add healing workflow logic
+  to `Component.ts`, `base.ts`, or any other class.
+- `AIResponseValidator` gates on `patchConfidence ≥ 80` — do not lower this threshold.
+- Do not change the OpenAI model in `config/ai.config.ts` or the system prompt in
+  `ai/prompts/FailureAnalysisPrompt.ts` without explicit instruction.
+- All artifact folder and file names must come from `config/framework.config.ts` — never
+  hardcode paths.
+- Artifact collection happens **before** any healing attempt — do not reorder this sequence.
+- A patch must only change the failed locator — never modify surrounding code or test logic.
+- Never automatically modify assertion expected values or business logic.
+- When a self-healing patch may affect framework behavior beyond the failed locator,
+  stop and ask for approval.
 
 ---
 
