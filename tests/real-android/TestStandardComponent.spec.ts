@@ -29,7 +29,7 @@ test(`${TAG} | Test Standard Component`, async ({ page }) => {
         await orderTestFlow.buildComputerDetailListAndAddToCart();
         await orderTestFlow.navigateToShoppingCartPage()
         await orderTestFlow.verifyShoppingCart()
-        await orderTestFlow.selectTOSandCheckout()
+        await orderTestFlow.selectTOSandCheckoutAsGuest()
         await orderTestFlow.inputBillingAddress()
         await orderTestFlow.inputShippingAddress()
         await orderTestFlow.selectShippingMethod()

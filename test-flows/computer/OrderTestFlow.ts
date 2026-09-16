@@ -159,13 +159,39 @@ export default class OrderTestFlow extends BaseFlow {
         expect(subTotal).toEqual(this.rawTotalPrice)
     }
 
-    public async selectTOSandCheckout() {
+    public async selectTOSandCheckoutAsGuest() {
         const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
         await shoppingCartPage.totalComp().selectTermOfService()
         await shoppingCartPage.totalComp().clickOnCheckoutBtn()
 
         const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page, this.testInfo)
         await checkoutAsGuestPage.clickOnCheckoutAsGuestBtn();
+    }
+
+    public async selectTOSandCheckoutWithLogin(email: string, password: string): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        await shoppingCartPage.totalComp().selectTermOfService()
+        await shoppingCartPage.totalComp().clickOnCheckoutBtn()
+
+        const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page, this.testInfo)
+        const loginComp = checkoutAsGuestPage.loginComp()
+        await loginComp.inputEmail(email)
+        await loginComp.inputPassword(password)
+        await loginComp.clickLoginBtn()
+
+        // Back on ShoppingCartPage — click Checkout again (logged in → goes directly to onepagecheckout)
+        await shoppingCartPage.totalComp().selectTermOfService()
+        await shoppingCartPage.totalComp().clickOnCheckoutBtn()
+    }
+
+    public async inputBillingAddressOrUseSaved(): Promise<void> {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
+        const billingAddressComp: BillingAddressComponent = checkoutPage.billingAddressComp()
+        if (await billingAddressComp.hasSavedAddress()) {
+            await billingAddressComp.clickOnContinueBtn()
+        } else {
+            await this.inputBillingAddress()
+        }
     }
 
     public async inputBillingAddress(): Promise<void> {

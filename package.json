@@ -8,11 +8,13 @@
     "test": "playwright test tests/web/Day25",
     "test:cheap": "playwright test tests/web/Day25/TestCheapComponent.spec.ts",
     "test:standard": "playwright test tests/web/Day25/TestStandardComponent.spec.ts --config=playwright.config.web.js",
+    "test:standardWithLogin": "playwright test tests/web/Day25/TestStandardComponentWithLogin.spec.ts --config=playwright.config.web.js",
     "test:smoke": "playwright test --grep @smoke --config=playwright.config.web.js",
     "test:real-android": "playwright test tests/real-android/TestStandardComponent.spec.ts --config=playwright.config.android.js",
     "test:day19": "playwright test ./tests/web/Day19.spec.ts --config=playwright.config.web.js",
     "ui": "playwright test --ui",
-    "analyze": "tsx ai/AIAnalyzer.ts"
+    "analyze": "tsx ai/AIAnalyzer.ts",
+    "ai:review": "tsx ai/review.ts"
   },
   "dependencies": {
     "@playwright/test": "1.62.0",

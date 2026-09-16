@@ -22,6 +22,17 @@ export default class BillingAddressComponent extends Component {
         // this.componentLocator.scrollIntoViewIfNeeded();
     }
 
+    public async hasSavedAddress(): Promise<boolean> {
+        try {
+            await this.componentLocator
+                .locator(this.buildingAddressDropdownSel)
+                .waitFor({ state: 'visible', timeout: 3000 });
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     public async selectNewAdressIfExist(): Promise<void> {
         const dropdown = this.componentLocator.locator(this.buildingAddressDropdownSel);
         if (await dropdown.count() > 0) {

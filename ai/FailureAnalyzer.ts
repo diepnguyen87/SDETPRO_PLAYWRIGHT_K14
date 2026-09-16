@@ -6,7 +6,7 @@ import { frameworkConfig } from "../config/framework.config.js";
 import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
 import { Metadata } from "./Metadata.js";
 import { buildPrompt } from "./promptBuilder.js";
-import { FAILURE_ANALYSIS_SYSTEM_PROMPT } from "./prompts/FailureAnalysisPrompt.js";
+import { FAILURE_ANALYSIS_PROMPT as FAILURE_ANALYSIS_PROMPT } from "./prompts/FailureAnalysisPrompt.js";
 import MarkdownReport from "./MarkdownReport.js";
 
 export default class FailureAnalyzer {
@@ -50,7 +50,7 @@ export default class FailureAnalyzer {
                     content: [
                         {
                             type: "input_text",
-                            text: FAILURE_ANALYSIS_SYSTEM_PROMPT
+                            text: FAILURE_ANALYSIS_PROMPT
                         }
                     ]
                 },

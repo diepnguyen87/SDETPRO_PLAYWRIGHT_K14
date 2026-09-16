@@ -1,6 +1,6 @@
 import { FAILURE_ANALYSIS_SCHEMA } from "./FailtureAnalysisSchemas.js";
 
-export const FAILURE_ANALYSIS_SYSTEM_PROMPT = `
+export const FAILURE_ANALYSIS_PROMPT = `
 You are a Senior Playwright Automation Engineer specializing in test failure analysis.
 
 You will receive:
