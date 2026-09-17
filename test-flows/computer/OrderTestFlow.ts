@@ -178,6 +178,7 @@ export default class OrderTestFlow extends BaseFlow {
         await loginComp.inputEmail(email)
         await loginComp.inputPassword(password)
         await loginComp.clickLoginBtn()
+        await expect.poll(() => shoppingCartPage.headerComp().isLogoutVisible()).toBe(true);
 
         // Back on ShoppingCartPage — click Checkout again (logged in → goes directly to onepagecheckout)
         await shoppingCartPage.totalComp().selectTermOfService()
