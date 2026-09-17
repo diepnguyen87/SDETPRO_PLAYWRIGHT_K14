@@ -9,6 +9,7 @@ export default class HeaderComponent extends Component {
     private shoppingCartLinkSel: string = ".header-links .ico-cart"
     private cartQtySel: string = ".ico-cart .cart-qty"
     private accountLinkSel: string = ".header-links .account"
+    private logoutLinkSel: string = ".header-links .ico-logout"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)
@@ -29,5 +30,13 @@ export default class HeaderComponent extends Component {
     public async getCartQty(): Promise<number> {
         const cartQtytext = await this.componentLocator.locator(this.cartQtySel).textContent();
         return Number(cartQtytext?.match(/\d+/)?.[0]);
+    }
+
+    public async isLogoutVisible(): Promise<boolean> {
+        return await this.componentLocator.locator(this.logoutLinkSel).isVisible();
+    }
+
+    public async logout(): Promise<void> {
+        await this.withHealing(this.logoutLinkSel, l => l.click());
     }
 }
