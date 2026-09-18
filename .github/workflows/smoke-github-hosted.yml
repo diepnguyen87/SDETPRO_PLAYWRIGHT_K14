@@ -13,32 +13,11 @@ on:
 
 jobs:
   smoke:
-    name: ${{ matrix.project }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - project: Desktop Chromium
-            engine: chromium
-
-          - project: Desktop Firefox
-            engine: firefox
-
-          - project: Desktop WebKit
-            engine: webkit
-
-          - project: Mobile Safari
-            engine: webkit
-
-          - project: Mobile Chrome
-            engine: chromium
-
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.5
+    name: Smoke
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.6
     with:
       suite: Smoke
       command: test:smoke
-      browser: ${{ matrix.project }}
-      engine: ${{ matrix.engine }}
       image-tag: latest
       runner: ubuntu-latest
 

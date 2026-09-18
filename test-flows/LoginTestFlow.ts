@@ -12,6 +12,8 @@ export default class LoginTestFlow extends BaseFlow {
     public async login(email: string, password: string): Promise<void> {
         const loginPage = new LoginPage(this.page, this.testInfo);
         const loginComp = loginPage.loginComp();
+        console.log("Email length:", email.length);
+        console.log("Email:", JSON.stringify(email));   
         await loginComp.inputEmail(email);
         await loginComp.inputPassword(password);
         await loginComp.clickLoginBtn();
