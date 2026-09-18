@@ -1,10 +1,6 @@
-name: Smoke Github-Hosted CI
+name: Smoke Github-Hosted CI with Matrix
 
 on:
-  push:
-    branches:
-      - main
-
   pull_request:
     branches:
       - main
