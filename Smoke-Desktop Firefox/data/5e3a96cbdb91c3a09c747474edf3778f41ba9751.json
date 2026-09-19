@@ -1,0 +1,12 @@
+{
+    "rootCause": "ASSERTION",
+    "patchType": "MANUAL",
+    "reason": "The test expected value (4085) equals the sum of the unit prices (1250 + 1395 + 1440 = 4085). The page shows Sub-Total 8170 which is that same sum multiplied by quantity 2 for each item (1250*2 + 1395*2 + 1440*2 = 8170). The test's expected calculation is missing the item quantities (or otherwise using unit prices instead of line totals), so the assertion fails.",
+    "rootCauseConfidence": 95,
+    "patchConfidence": 0,
+    "field": "",
+    "oldValue": "",
+    "newValue": "",
+    "strategy": "Manual fix required in test logic: update the expected-total calculation to incorporate product quantities (unitPrice * quantity per line) or compute expected by summing the DOM's product-subtotal values. Alternatively, change the assertion to compare the page subtotal to a value derived from the page's own line totals (more robust) rather than a hard-coded or incorrectly calculated number.",
+    "explanation": "Evidence from the DOM: cart item rows show product-unit-price and Qty (each Qty = 2) and product-subtotal values (2500.00, 2790.00, 2880.00) which sum to Sub-Total 8170.00. The test expected 4085.00 which equals the sum of unit prices without quantity applied. This indicates the test's computation of expected total is incorrect. Recommended remediation steps:\n1) Inspect OrderTestFlow.confirmOrder where the expected total is calculated (stack trace points to /app/test-flows/computer/OrderTestFlow.ts:280). Fix logic to multiply each unit price by its quantity or sum the page product-subtotal elements.\n2) Prefer reading the page values for unit-price and quantity or product-subtotal and computing expected from them to avoid brittle hard-coded values.\n3) Add defensive assertions: assert the number of cart rows and that each product-subtotal equals unit-price * quantity before summing, so errors are easier to diagnose.\n4) If asserting a fixed expected value is required, ensure test setup adds items/quantities consistently so expected matches the page.\nHelpful Playwright selectors to read totals from the DOM (for implementing the robust calculation):\n- page.locator('span.product-subtotal') for per-line totals\n- page.locator('table.cart tbody tr.cart-item-row') to iterate rows and fetch unit price, qty and subtotal\n- page.locator('span.product-price.order-total strong') or page.locator('.cart-total .product-price.order-total strong') to fetch the final order total\nApply the manual code change in the test flow rather than changing a locator value."
+}
