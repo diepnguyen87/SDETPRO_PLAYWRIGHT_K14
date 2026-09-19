@@ -1,6 +1,10 @@
 name: Smoke Github-Hosted CI with Matrix
 
 on:
+  push:
+    branches:
+      - main
+
   pull_request:
     branches:
       - main
@@ -16,25 +20,31 @@ jobs:
         include:
           - project: Desktop Chromium
             engine: chromium
+            credential_index: 0
 
           - project: Desktop Firefox
             engine: firefox
+            credential_index: 1
 
           - project: Desktop WebKit
             engine: webkit
+            credential_index: 2
 
           - project: Mobile Safari
             engine: webkit
+            credential_index: 3
 
           - project: Mobile Chrome
             engine: chromium
+            credential_index: 4
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.5
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.8
     with:
       suite: Smoke
       command: test:smoke
       browser: ${{ matrix.project }}
       engine: ${{ matrix.engine }}
+      credential-index: ${{ matrix.credential_index }}
       image-tag: latest
       runner: ubuntu-latest
 

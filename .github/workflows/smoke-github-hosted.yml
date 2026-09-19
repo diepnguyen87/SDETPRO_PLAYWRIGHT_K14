@@ -1,10 +1,6 @@
 name: Smoke Github-Hosted CI
 
 on:
-  push:
-    branches:
-      - main
-
   pull_request:
     branches:
       - main
@@ -14,7 +10,7 @@ on:
 jobs:
   smoke:
     name: Smoke
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.7
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.8
     with:
       suite: Smoke
       command: test:smoke

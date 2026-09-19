@@ -8,7 +8,10 @@ import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
 
 test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page }, testInfo) => {
-    const idx = testInfo.parallelIndex;
+    const idx = process.env.CREDENTIAL_INDEX !== undefined
+                ? Number(process.env.CREDENTIAL_INDEX)
+                : testInfo.parallelIndex;
+                
     const email    = process.env[`LOGIN_EMAIL_${idx}`]
     const password = process.env[`LOGIN_PASSWORD_${idx}`]
 
