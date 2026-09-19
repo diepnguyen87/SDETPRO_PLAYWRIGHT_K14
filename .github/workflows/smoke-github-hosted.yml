@@ -7,6 +7,10 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   smoke:
     name: Smoke Testing
