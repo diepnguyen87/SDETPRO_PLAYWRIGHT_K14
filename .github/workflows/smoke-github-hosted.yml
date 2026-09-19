@@ -9,7 +9,7 @@ on:
 
 jobs:
   smoke:
-    name: Smoke
+    name: Smoke Testing
     uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.8
     with:
       suite: Smoke
