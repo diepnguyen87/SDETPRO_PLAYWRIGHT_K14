@@ -17,6 +17,8 @@ Never change or bypass the AI self-healing mechanism simply to make a test pass.
 - OpenAI (GPT) — AI-powered self-healing locators
 - Winston — logging
 - Allure + HTML — test reporting
+- Android (Playwright real-device) — `playwright.config.android.js`, `tests/real-android/`
+- Docker — `Dockerfile` + `docker-compose.yml` for containerised test runs
 
 Do not introduce another automation framework unless explicitly requested.
 
@@ -178,8 +180,9 @@ this method.
 On each call:
 1. **Rerun guard** — if `HEALING_RERUN === "true"` (child process), return `SKIPPED` immediately
 2. **Lock** — `HealingLock.acquire(sourceFile)` — atomic cross-process file lock.
-   If already locked by another worker: return `SKIPPED`
-3. **Retry loop** (up to `frameworkConfig.maxHealingRetries`):
+   If already locked by another worker: return `SKIPPED`.
+   Stale locks older than 5 minutes are removed automatically.
+3. **Retry loop** (up to `frameworkConfig.maxHealingRetries`, currently `1`):
    - `FailureAnalyzer.analyze(folder)` → `FailureAnalysis`
    - Attach AI response JSON to Playwright test report
    - If `patchType === MANUAL` → log root cause + reason, return `MANUAL` (no source change)
@@ -261,6 +264,7 @@ retryCount:           number
   rollback mechanism if a patch or rerun fails.
 - **Never remove** `PatchVerifier.verify()` — post-patch safety check.
 - **Never remove** the `HEALING_RERUN` guard at the start of `HealingEngine.handle()`.
+- **Never change** the stale lock timeout in `HealingLock` (currently 5 minutes) without explicit instruction.
 - `HealingEngine` is the **single** healing orchestrator — never add healing workflow logic
   to `Component.ts`, `base.ts`, or any other class.
 - `AIResponseValidator` gates on `patchConfidence ≥ 80` — do not lower this threshold.
@@ -273,6 +277,20 @@ retryCount:           number
 - Never automatically modify assertion expected values or business logic.
 - When a self-healing patch may affect framework behavior beyond the failed locator,
   stop and ask for approval.
+
+---
+
+## AI Review Tool (Standalone)
+
+`ai/review.ts` is a standalone CLI tool — it is **not** part of the self-healing pipeline.
+
+- Reads `implementation-plan.md`, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan
+- Sends them to OpenAI for an independent code review
+- Writes output to `implement-review/openai-review.md`
+- Uses `OPEN_API_KEY` and `OPEN_MODEL` from `.env` (model is configurable via env, not hardcoded)
+- Run via: `npx ts-node ai/review.ts` (or the `ai:review` npm script)
+
+Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test fixture.
 
 ---
 
