@@ -33,7 +33,6 @@ export default class BaseFlow {
 
     public async getClassNameBySlug(slug: string): Promise<string> {
         await this.getPageList()
-        console.log(typeof BaseFlow.pageList);
 
         for (const pageObj of BaseFlow.pageList) {
             if (pageObj["slug"] === slug) {

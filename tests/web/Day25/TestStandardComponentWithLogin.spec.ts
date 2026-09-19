@@ -17,7 +17,7 @@ test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page }, testI
 
     test.skip(
         !email || !password,
-        `Credentials for worker ${idx} not set. Provide LOGIN_EMAIL_${idx}/LOGIN_PASSWORD_${idx} or LOGIN_EMAIL/LOGIN_PASSWORD`
+        `Credentials for worker ${idx} not set. Provide LOGIN_EMAIL_${idx}/LOGIN_PASSWORD_${idx}`
     );
 
     await page.goto('/build-your-own-computer');

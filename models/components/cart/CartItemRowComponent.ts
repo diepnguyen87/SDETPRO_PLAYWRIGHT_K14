@@ -1,26 +1,27 @@
-import { Locator } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
+import Component from "../Component.js";
 
 @selector(".cart-item-row")
-export default class CartItemRowComponent {
+export default class CartItemRowComponent extends Component{
 
     private productUnitPriceSel = ".product-unit-price"
     private qualityInputSel = ".qty-input"
     private productSubTotalSel = ".product-subtotal"
 
-    constructor(private component: Locator) {
-        this.component = component
+    constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
+        super(page, componentLocator, testInfo)
     }
 
     public async getProductUnitPrice(): Promise<number> {
-        return Number(await this.component.locator(this.productUnitPriceSel).textContent())
+        return Number(await this.componentLocator.locator(this.productUnitPriceSel).textContent())
     }
 
     public qualityInput(): Locator {
-        return this.component.locator(this.qualityInputSel);
+        return this.componentLocator.locator(this.qualityInputSel);
     }
 
     public async getProductSubTotal(): Promise<Number> {
-        return Number(await this.component.locator(this.productSubTotalSel).textContent())
+        return Number(await this.componentLocator.locator(this.productSubTotalSel).textContent())
     }
 }

@@ -20,7 +20,7 @@ export default class HeaderComponent extends Component {
     }
 
     public async navigateToShoppingCartLink(): Promise<void> {
-        await this.componentLocator.locator(this.shoppingCartLinkSel).click()
+        await this.withHealing(this.shoppingCartLinkSel, l => l.click())
     }
 
     public async getLoginAccount(): Promise<string | null> {
