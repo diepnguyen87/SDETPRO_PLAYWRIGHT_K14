@@ -12,20 +12,17 @@ jobs:
       matrix:
         config:
           - project: Mobile Chrome
-            engine: chromium
             credential_index: 0
 
           - project: Mobile Safari
-            engine: webkit
             credential_index: 1
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.9
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.10
 
     with:
       suite: Smoke
       command: test:smoke
       browser: ${{ matrix.config.project }}
-      engine: ${{ matrix.config.engine }}
       credential-index: ${{ matrix.config.credential_index }}
       runner: mobile
 
