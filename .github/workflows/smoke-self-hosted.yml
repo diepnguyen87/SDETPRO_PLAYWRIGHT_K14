@@ -13,17 +13,24 @@ jobs:
         config:
           - project: Mobile Chrome
             engine: chromium
+            credential_index: 0
 
           - project: Mobile Safari
             engine: webkit
+            credential_index: 1
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.2
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.9
 
     with:
+      suite: Smoke
       command: test:smoke
       browser: ${{ matrix.config.project }}
       engine: ${{ matrix.config.engine }}
+      credential-index: ${{ matrix.config.credential_index }}
       runner: mobile
 
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
