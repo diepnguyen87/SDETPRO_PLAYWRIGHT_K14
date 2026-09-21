@@ -14,7 +14,7 @@ permissions:
 jobs:
   smoke:
     name: Smoke Testing
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.10
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@v1.0.11
     with:
       suite: Smoke
       command: test:smoke

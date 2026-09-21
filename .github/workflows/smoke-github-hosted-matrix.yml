@@ -37,7 +37,7 @@ jobs:
           - project: Mobile Chrome
             credential_index: 4
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.10
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.11
     with:
       suite: Smoke
       command: test:smoke
