@@ -29,6 +29,7 @@ jobs:
 
   generate-index:
     needs: smoke
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gh-pages
