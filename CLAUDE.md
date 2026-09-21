@@ -304,6 +304,24 @@ Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test f
 
 ---
 
+## GitHub Actions
+
+Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (current version: `v1.0.11`).
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `smoke-github-hosted.yml` | PR → `main`, manual | Single-runner smoke run |
+| `smoke-github-hosted-matrix.yml` | push/PR → `main`, manual | Matrix smoke run across 5 browsers |
+| `smoke-self-hosted.yml` | manual | Mobile browsers on self-hosted runner |
+| `real-android-workflow.yml` | manual | Real Android device on self-hosted macOS |
+| `docker-image.yml` | push tag `v*` | Build & push Docker image to Docker Hub |
+
+Both smoke workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
+
+Environment variables are supplied to CI via `ENV_FILE_BASE64` (base64-encoded `.env`) — never hardcode secrets in workflow files.
+
+---
+
 ## Test Execution
 
 After any code change:
