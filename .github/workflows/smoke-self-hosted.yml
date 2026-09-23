@@ -17,7 +17,7 @@ jobs:
           - project: Mobile Safari
             credential_index: 1
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@v1.0.10
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@main
 
     with:
       suite: Smoke
