@@ -6,7 +6,6 @@ import ComponentFailureCollector from "../../ai/collectors/ComponentFailureColle
 export type ComponentConstructor<T extends Component> = new (component: Locator) => T
 export default class Component {
 
-    private continueBtnSel = "input[value='Continue']"
     protected sourceFile!: string;
 
     constructor(protected page: Page, protected componentLocator: Locator, protected testInfo: TestInfo) {
@@ -42,11 +41,5 @@ export default class Component {
             }
             throw e;
         }
-    }
-
-    public async clickOnContinueBtn(): Promise<void> {
-        await this.componentLocator.locator(this.continueBtnSel).scrollIntoViewIfNeeded();
-        await this.withHealing(this.continueBtnSel, l => l.click());
-        await this.componentLocator.locator(this.continueBtnSel).waitFor({ state: "hidden" });
     }
 }

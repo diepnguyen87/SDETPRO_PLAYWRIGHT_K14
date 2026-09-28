@@ -1,9 +1,11 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
-import Component from "../Component.js";
+import CheckoutStepComponent from "./CheckoutStepComponent.js";
 
 @selector("#opc-shipping_method")
-export default class ShippingMethodComponent extends Component {
+export default class ShippingMethodComponent extends CheckoutStepComponent {
+
+    protected continueBtnSel = "input[value='Continue']"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);

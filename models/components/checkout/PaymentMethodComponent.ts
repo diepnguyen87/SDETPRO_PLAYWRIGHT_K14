@@ -1,9 +1,11 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
-import Component from "../Component.js";
+import CheckoutStepComponent from "./CheckoutStepComponent.js";
 
 @selector("#opc-payment_method")
-export default class PaymentMethodComponent extends Component {
+export default class PaymentMethodComponent extends CheckoutStepComponent {
+
+    protected continueBtnSel = "input[value='Continue']"
 
     private cashOnDeliverySel = "input[value='Payments.CashOnDelivery']"
     private checkMoneyOrderSel = "input[value='Payments.CheckMoneyOrder']"
