@@ -1,15 +1,17 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
+import Component from "../components/Component.js";
 import PageBodyComponent from "../components/PageBodyComponent.js";
 import NotificationComponent from "../components/global/NotificationComponent.js";
 import FooterComponent from "../components/global/footer/FooterComponent.js";
 import HeaderComponent from "../components/global/header/HeaderComponent.js";
 import TopMenuComponent from "../components/global/header/TopMenuComponent.js";
 
-export default class BasePage {
+export default class BasePage extends Component {
 
-    constructor(protected page: Page, protected testInfo: TestInfo) {
-        this.page = page
-        this.testInfo = testInfo
+    private static readonly rootSel = "body"
+
+    constructor(page: Page, testInfo: TestInfo) {
+        super(page, page.locator(BasePage.rootSel), testInfo)
     }
 
     notificationComp(): NotificationComponent {

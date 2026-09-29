@@ -28,54 +28,54 @@ export default class RegisterPage extends BasePage {
             throw new Error(`Invalid gender value: "${gender}". Accepted values: "male" or "female".`);
         }
         const sel = gender === 'male' ? this.genderMaleSel : this.genderFemaleSel;
-        await this.page.locator(sel).click();
+        await this.withHealing(sel, l => l.click());
     }
 
     public async inputFirstName(value: string): Promise<void> {
-        await this.page.locator(this.firstNameSel).fill(value);
+        await this.withHealing(this.firstNameSel, l => l.fill(value));
     }
 
     public async inputLastName(value: string): Promise<void> {
-        await this.page.locator(this.lastNameSel).fill(value);
+        await this.withHealing(this.lastNameSel, l => l.fill(value));
     }
 
     public async inputEmail(value: string): Promise<void> {
-        await this.page.locator(this.emailSel).fill(value);
+        await this.withHealing(this.emailSel, l => l.fill(value));
     }
 
     public async inputPassword(value: string): Promise<void> {
-        await this.page.locator(this.passwordSel).fill(value);
+        await this.withHealing(this.passwordSel, l => l.fill(value));
     }
 
     public async inputConfirmPassword(value: string): Promise<void> {
-        await this.page.locator(this.confirmPasswordSel).fill(value);
+        await this.withHealing(this.confirmPasswordSel, l => l.fill(value));
     }
 
     public async clickRegisterBtn(): Promise<void> {
-        await this.page.locator(this.registerBtnSel).click();
+        await this.withHealing(this.registerBtnSel, l => l.click());
     }
 
     public async getFirstNameValidationError(): Promise<string | null> {
-        return await this.page.locator(this.firstNameErrorSel).textContent();
+        return await this.withHealing(this.firstNameErrorSel, l => l.textContent());
     }
 
     public async getLastNameValidationError(): Promise<string | null> {
-        return await this.page.locator(this.lastNameErrorSel).textContent();
+        return await this.withHealing(this.lastNameErrorSel, l => l.textContent());
     }
 
     public async getEmailValidationError(): Promise<string | null> {
-        return await this.page.locator(this.emailErrorSel).textContent();
+        return await this.withHealing(this.emailErrorSel, l => l.textContent());
     }
 
     public async getPasswordValidationError(): Promise<string | null> {
-        return await this.page.locator(this.passwordErrorSel).textContent();
+        return await this.withHealing(this.passwordErrorSel, l => l.textContent());
     }
 
     public async getConfirmPasswordValidationError(): Promise<string | null> {
-        return await this.page.locator(this.confirmPasswordErrorSel).textContent();
+        return await this.withHealing(this.confirmPasswordErrorSel, l => l.textContent());
     }
 
     public async getSummaryError(): Promise<string | null> {
-        return await this.page.locator(this.summaryErrorSel).textContent();
+        return await this.withHealing(this.summaryErrorSel, l => l.textContent());
     }
 }

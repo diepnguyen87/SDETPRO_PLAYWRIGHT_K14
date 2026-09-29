@@ -11,7 +11,7 @@ export default class CheckoutAsGuestPage extends BasePage {
     }
 
     public async clickOnCheckoutAsGuestBtn(): Promise<void> {
-        await this.page.locator(this.checkoutAsGuestBtnSel).click()
+        await this.withHealing(this.checkoutAsGuestBtnSel, l => l.click())
     }
 
     loginComp(): LoginComponent {

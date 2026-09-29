@@ -55,6 +55,13 @@ export default class HealingEngine {
             }
         }
 
+        // Extend the test timeout so AI analysis + rerun can finish (0 = no timeout, leave as is)
+        if (testInfo.timeout > 0) {
+            testInfo.setTimeout(
+                testInfo.timeout + frameworkConfig.healingTimeoutPerRetryMs * frameworkConfig.maxHealingRetries
+            );
+        }
+
         try {
             return await this.runHealingLoop(context, testInfo);
         } catch (unexpectedError) {

@@ -51,7 +51,7 @@ Test Spec
 
 - **Tests** — instantiate a flow, call high-level steps, assert outcomes. No raw Playwright API.
 - **TestFlows** — orchestrate page interactions across a business scenario. No `page.click()` or `page.fill()` directly.
-- **Page Objects** — expose component accessors. Locators are defined in both pages and components. Locators that do not belong to a component are defined in the page.
+- **Page Objects** — expose component accessors. Locators are defined in both pages and components. Locators that do not belong to a component are defined in the page. Page-level CSS/XPath interactions go through `withHealing()`.
 - **Components** — own locators and actions. All interactions go through wrapped methods (never call `locator.click()` directly).
 
 ---
@@ -59,6 +59,7 @@ Test Spec
 ## Page Objects
 
 - All pages must extend `BasePage` with constructor `(page: Page, testInfo: TestInfo)`.
+- `BasePage extends Component` with `body` as its root locator, so pages inherit `withHealing()`. Page-level CSS/XPath interactions must use `this.withHealing(selectorStr, action)` — never `this.page.locator(sel).click()` / `.fill()` / `.textContent()` directly.
 - Global component accessors (`headerComp()`, `notificationComp()`, etc.) are defined only in `BasePage` — do not duplicate them in subclasses.
 - `ComputerDetailPage.computerComponent<T>()` is generic by design — preserve the type parameter when adding new computer types.
 - Naming convention: `*Page.ts` in `models/pages/`.
@@ -78,7 +79,7 @@ Test Spec
 - All components must extend `Component` and use the `@selector("...")` decorator for their root locator.
 - Instantiate components directly: `new FooComponent(page, page.locator(FooComponent.selectorValue), testInfo)`.
 - Constructor signature: `(page, componentLocator, testInfo)`.
-- All CSS/XPath-based interactions must go through `Component.withHealing(selectorStr, action)` — this is the single self-healing entry point for all action types (`click`, `fill`, `selectOption`, `check`, `uncheck`, etc.).
+- All CSS/XPath-based interactions must go through `Component.withHealing(selectorStr, action)` — this is the single self-healing entry point for all action types (`click`, `fill`, `selectOption`, `check`, `uncheck`, etc.), for both components and pages (via `BasePage`).
 - `getByRole()` and `getByLabel()` locators may call `.click()` directly — they are inherently stable and do not require self-healing.
 - Never call `locator.click()`, `locator.fill()`, or any other interaction directly on a CSS/XPath locator — this bypasses self-healing.
 - Naming convention: `*Component.ts` in `models/components/`.
@@ -182,7 +183,11 @@ On each call:
 2. **Lock** — `HealingLock.acquire(sourceFile)` — atomic cross-process file lock.
    If already locked by another worker: return `SKIPPED`.
    Stale locks older than 5 minutes are removed automatically.
-3. **Retry loop** (up to `frameworkConfig.maxHealingRetries`, currently `1`):
+3. **Timeout extension** — `testInfo.setTimeout()` adds
+   `frameworkConfig.healingTimeoutPerRetryMs × maxHealingRetries` (currently `60_000 × 1`)
+   so AI analysis + rerun can finish. Skipped when the test has no timeout (`timeout = 0`).
+   Applies to both ACTION and ASSERTION failures — `base.ts` does not extend the timeout itself.
+4. **Retry loop** (up to `frameworkConfig.maxHealingRetries`, currently `1`):
    - `FailureAnalyzer.analyze(folder)` → `FailureAnalysis`
    - Attach AI response JSON to Playwright test report
    - If `patchType === MANUAL` → log root cause + reason, return `MANUAL` (no source change)
@@ -195,7 +200,7 @@ On each call:
    - `TestRerunner.run(command)` — spawns child process with `HEALING_RERUN=true` in env
      - Child passes → return `HEALED`, release lock
      - Child fails → `BackupManager.restore()`, try next attempt
-4. Max retries exhausted → return `FAILED`, release lock
+5. Max retries exhausted → return `FAILED`, release lock
 
 ---
 
@@ -265,6 +270,9 @@ retryCount:           number
 - **Never remove** `PatchVerifier.verify()` — post-patch safety check.
 - **Never remove** the `HEALING_RERUN` guard at the start of `HealingEngine.handle()`.
 - **Never change** the stale lock timeout in `HealingLock` (currently 5 minutes) without explicit instruction.
+- The healing timeout extension lives only in `HealingEngine.handle()` (value from
+  `frameworkConfig.healingTimeoutPerRetryMs`) — do not add `testInfo.setTimeout()` for healing
+  in `Component.ts`, `base.ts`, or collectors.
 - `HealingEngine` is the **single** healing orchestrator — never add healing workflow logic
   to `Component.ts`, `base.ts`, or any other class.
 - `AIResponseValidator` gates on `patchConfidence ≥ 80` — do not lower this threshold.
