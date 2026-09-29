@@ -1,7 +1,7 @@
 import { Page, TestInfo, expect } from "@playwright/test";
 import RegisterPage from "../models/pages/RegisterPage.js";
 import BaseFlow from "./BaseFlow.js";
-import { RegisterFormData } from "../models/register/RegisterFormData.js";
+import { RegisterFormData } from "../test-data/model/register/RegisterFormData.js";
 
 export default class RegisterTestFlow extends BaseFlow {
 

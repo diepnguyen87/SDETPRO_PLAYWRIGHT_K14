@@ -105,7 +105,7 @@ Prefer in this order:
 ## Test Data
 
 - All test data lives in `test-data/` as JSON files.
-- Load data via `DataObjectBuilder.readJsonFile<T>()` — do not use `require()` or hardcode data inline.
+- Load data via JSON import: `import data from "../test-data/xxx.json" assert { type: "json" };` — do not use `require()` or hardcode data inline.
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
 - `OPEN_API_KEY` is read from environment only (`process.env.OPEN_API_KEY`) — never hardcode it.
 
@@ -166,8 +166,9 @@ the `isAssertionError()` guard prevents double-routing.
 - Reads full DOM via `page.content()`
 - Uses `StackTraceParser` to find the source class from the error stack trace.
   Search priority: `models/components/` → `models/pages/` → `test-flows/` → `tests/`
-- If source class found: copies source file via `SourceCodeCollector.find(className)`
-- If not found: writes empty `component.ts` → AI returns MANUAL (safe fallback)
+- Uses the matched frame's own file path (`frame.sourceFile`) — accurate for inherited methods
+- Only files under `models/` are eligible: if the frame is in `models/` and exists, copies it as `component.ts`
+- Otherwise (no frame, frame in `test-flows/` or `tests/`, file missing): writes empty `component.ts` → AI returns MANUAL (safe fallback)
 - Returns `FailureContext` with `failureSource: "ASSERTION"`, `failedLocator: ""`
 
 ---

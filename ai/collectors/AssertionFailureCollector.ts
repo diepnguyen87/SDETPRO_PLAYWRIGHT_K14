@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import { Page, TestInfo } from "@playwright/test";
-import SourceCodeCollector from "../SourceCodeCollector.js";
 import StackTraceParser from "../StackTraceParser.js";
 import { frameworkConfig } from "../../config/framework.config.js";
 import { FailureContext } from "../../models/ai/FailureContext.js";
@@ -63,14 +62,12 @@ export default class AssertionFailureCollector {
         // Locate source file from stack trace
         const sourceFile = this.resolveSourceFile(error, folder);
 
-        const stackTrace = error instanceof Error ? (error.stack ?? "") : "";
-
         const metadata: Metadata = {
             testName:      testInfo.title,
             testFile:      path.relative(process.cwd(), testInfo.file),
             browser:       testInfo.project.name,
             error:         error instanceof Error ? error.message : String(error),
-            stackTrace,
+            stackTrace:    error instanceof Error ? (error.stack ?? "") : "",
             url:           page.url(),
             failedLocator: "",   // not known for assertion failures
             timestamp:     new Date().toISOString()
@@ -88,10 +85,10 @@ export default class AssertionFailureCollector {
             testFile:       metadata.testFile,
             browser:        metadata.browser,
             error:          metadata.error ?? "",
-            stackTrace,
+            stackTrace:     metadata.stackTrace,
             url:            metadata.url,
-            failedLocator:  "",
-            sourceFile,
+            failedLocator:  metadata.failedLocator,
+            sourceFile:     sourceFile,
             artifactFolder: folder,
             timestamp:      metadata.timestamp
         };
@@ -101,7 +98,10 @@ export default class AssertionFailureCollector {
 
     /**
      * Parse the stack trace for the most relevant application source frame.
-     * If a class name is found, look up its source file via SourceCodeCollector.
+     * Use the frame's own file path (accurate even when the failing method is
+     * inherited, e.g. defined in BasePage but invoked via a subclass).
+     * Only files under models/ are eligible for healing — frames in test-flows/
+     * or tests/ must not be patched (they hold business logic and expected values).
      * Copy the source to the artifact folder as component.ts for FailureAnalyzer.
      *
      * Falls back to an empty component.ts when the source cannot be determined —
@@ -113,26 +113,28 @@ export default class AssertionFailureCollector {
     private static resolveSourceFile(error: unknown, artifactFolder: string): string {
         const stack = error instanceof Error ? (error.stack ?? "") : "";
         const componentDest = path.join(artifactFolder, frameworkConfig.componentName);
+        const modelsRoot = path.resolve(process.cwd(), "models") + path.sep;
 
         const frame = StackTraceParser.parse(stack);
 
-        if (frame?.className) {
-            try {
-                const sourceFile = SourceCodeCollector.find(frame.className);
-                fs.copyFileSync(sourceFile, componentDest);
-                console.log(
-                    `[AssertionFailureCollector] Source resolved: ${frame.className} → ${sourceFile}`
-                );
-                return sourceFile;
-            } catch {
-                console.log(
-                    `[AssertionFailureCollector] Could not resolve source for class: ${frame.className}`
-                );
-            }
-        } else {
+        if (!frame) {
             console.log(
                 "[AssertionFailureCollector] No application frame found in stack trace."
             );
+        } else if (!frame.sourceFile.startsWith(modelsRoot)) {
+            console.log(
+                `[AssertionFailureCollector] Frame outside models/, not eligible for healing: ${frame.sourceFile}`
+            );
+        } else if (!fs.existsSync(frame.sourceFile)) {
+            console.log(
+                `[AssertionFailureCollector] Source file not found: ${frame.sourceFile}`
+            );
+        } else {
+            fs.copyFileSync(frame.sourceFile, componentDest);
+            console.log(
+                `[AssertionFailureCollector] Source resolved: ${frame.className ?? "<anonymous>"} → ${frame.sourceFile}`
+            );
+            return frame.sourceFile;
         }
 
         // Write empty component source — AI will return MANUAL

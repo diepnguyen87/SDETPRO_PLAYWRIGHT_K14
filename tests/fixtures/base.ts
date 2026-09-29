@@ -23,6 +23,7 @@ function withSelfHealingGuard(fn: TestBody): TestBody {
 
             // Healing succeeded inside withHealing() — test exits cleanly
             if (error instanceof SelfHealingSuccess) {
+                testInfo.annotations.push({ type: 'self-healed', description: 'Action healed; remaining steps skipped' });
                 console.log(
                     "Self-healing succeeded. " +
                     "Original test execution stopped."
@@ -35,13 +36,16 @@ function withSelfHealingGuard(fn: TestBody): TestBody {
             if (AssertionFailureCollector.isAssertionError(error)) {
                 let result: HealingResult | null = null;
                 try {
-                    const context = await AssertionFailureCollector.collect(error, page, testInfo);
-                    result = await HealingEngine.handle(context, testInfo);
+                    const failureContext = await AssertionFailureCollector.collect(error, page, testInfo);
+                    result = await HealingEngine.handle(failureContext, testInfo);
                 } catch (engineError) {
                     console.error("[base.ts] Assertion healing engine failed unexpectedly:", engineError);
                 }
 
-                if (result?.status === "HEALED") return;
+                if (result?.status === "HEALED") {
+                    testInfo.annotations.push({ type: 'self-healed', description: 'Assertion healed; remaining steps skipped' });
+                    return;
+                }
             }
 
             // Original error always preserved and re-thrown
@@ -50,8 +54,21 @@ function withSelfHealingGuard(fn: TestBody): TestBody {
     };
 }
 
-const testWrapper = (title: string, fn: TestBody): void =>
-    (base as any)(title, withSelfHealingGuard(fn));
+type Register = (...args: any[]) => void;
 
-export const test = Object.assign(testWrapper, base) as typeof base;
+// Supports test(title, fn) and test(title, details, fn)
+const wrap = (register: Register) => (title: string, ...args: any[]) => {
+    const fn = args.pop() as TestBody;
+    return register(title, ...args, withSelfHealingGuard(fn));
+};
+
+export const test = Object.assign(wrap(base), base, {
+    only: wrap(base.only),
+}) as typeof base;
 export { expect };
+
+// const testWrapper = (title: string, fn: TestBody): void =>
+//     (base as any)(title, withSelfHealingGuard(fn));
+
+// // export const test = Object.assign(testWrapper, base) as typeof base;
+// export { expect };

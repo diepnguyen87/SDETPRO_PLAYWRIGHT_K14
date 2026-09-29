@@ -5,16 +5,10 @@ import InformationColumnComponent from '../../../models/components/global/footer
 import CustomerServiceColumnComponent from '../../../models/components/global/footer/CustomerServiceColumnComponent.js';
 import MyAccountColumnComponent from '../../../models/components/global/footer/MyAccountColumnComponent.js';
 import FollowUsColumnComponent from '../../../models/components/global/footer/FollowUsColumnComponent.js';
-// import CustomerServiceColumnComponent from '../../models/components/global/footer/CustomerServiceColumnComponent'
-// import FollowUsColumnComponent from '../../models/components/global/footer/FollowUsColumnComponent'
-// import FooterComponent from '../../models/components/global/footer/FooterComponent'
-// import InformationColumnComponent from '../../models/components/global/footer/InformationColumnComponent'
-// import MyAccountColumnComponent from '../../models/components/global/footer/MyAccountColumnComponent'
-// import HomePage from '../../models/pages/HomePage'
 
-test('Advanced POM - Test Base Component', async ({ page }) => {
+test('Advanced POM - Test Base Component', async ({ page }, testInfo) => {
     await page.goto("https://demowebshop.tricentis.com/")
-    let homePage: HomePage = new HomePage(page);
+    let homePage: HomePage = new HomePage(page, testInfo);
     let footerComp: FooterComponent = homePage.footerComp();
     let informationComp: InformationColumnComponent = footerComp.informationColumnComp();
     let customerServiceComp: CustomerServiceColumnComponent = footerComp.customerServiceColumnComp();
