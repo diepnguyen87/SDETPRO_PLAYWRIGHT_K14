@@ -15,6 +15,7 @@ import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/p
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
 import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" assert { type: "json" };
 import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" assert { type: "json" };
+import termsOfServiceWarningData from "../../test-data/checkout/TermsOfServiceWarningData.json" assert { type: "json" };
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
@@ -157,6 +158,22 @@ export default class OrderTestFlow extends BaseFlow {
         let total = priceCategories["Total:"]
         expect(subTotal + shipping + tax).toEqual(total)
         expect(subTotal).toEqual(this.rawTotalPrice)
+    }
+
+    public async checkoutWithoutTOSAndVerifyWarningPopup(): Promise<void> {
+        const { title, message } = termsOfServiceWarningData
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        const totalComp = shoppingCartPage.totalComp()
+
+        expect(await totalComp.isTermOfServiceChecked()).toBe(false)
+        await totalComp.clickOnCheckoutBtn()
+
+        await expect(shoppingCartPage.tosWarningDialog(title)).toBeVisible()
+        expect(await shoppingCartPage.getTosWarningMessage()).toEqual(message)
+        await expect(this.page).toHaveURL(/\/cart$/)
+
+        await shoppingCartPage.closeTosWarningDialog(title)
+        await expect(shoppingCartPage.tosWarningDialog(title)).toBeHidden()
     }
 
     public async selectTOSandCheckoutAsGuest() {

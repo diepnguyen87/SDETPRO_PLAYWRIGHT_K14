@@ -12,6 +12,7 @@ test(`${TAG.smoke} | Test Standard Component`, async ({ page }, testInfo) => {
     await orderTestFlow.buildComputerDetailListAndAddToCart();
     await orderTestFlow.navigateToShoppingCartPage()
     await orderTestFlow.verifyShoppingCart()
+    await orderTestFlow.checkoutWithoutTOSAndVerifyWarningPopup()
     await orderTestFlow.selectTOSandCheckoutAsGuest()
     await orderTestFlow.inputBillingAddress()
     await orderTestFlow.inputShippingAddress()

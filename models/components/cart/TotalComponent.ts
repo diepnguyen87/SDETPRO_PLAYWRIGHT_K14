@@ -26,6 +26,10 @@ export default class TotalComponent extends Component {
         return priceCategories
     }
 
+    public async isTermOfServiceChecked(): Promise<boolean> {
+        return await this.withHealing(this.termOfServiceSel, l => l.isChecked());
+    }
+
     public async selectTermOfService(): Promise<void> {
         await this.withHealing(this.termOfServiceSel, l => l.click());
     }

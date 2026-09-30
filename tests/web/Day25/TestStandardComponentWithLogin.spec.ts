@@ -25,6 +25,7 @@ test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page }, testI
     await orderTestFlow.buildComputerDetailListAndAddToCart();
     await orderTestFlow.navigateToShoppingCartPage();
     await orderTestFlow.verifyShoppingCart();
+    await orderTestFlow.checkoutWithoutTOSAndVerifyWarningPopup();
     await orderTestFlow.selectTOSandCheckoutWithLogin(email!, password!);
     await orderTestFlow.inputBillingAddressOrUseSaved();
     await orderTestFlow.inputShippingAddress();
