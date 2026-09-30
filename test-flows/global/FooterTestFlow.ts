@@ -66,25 +66,25 @@ export default class FooterTestFlow extends BaseFlow {
     private async verifyInformationColumn(footerColumnComponent: FooterColumnComponent): Promise<void> {
         let expectedLinksText: string[] = ['Sitemap', 'Shipping & Returns', 'Privacy Notice', 'Conditions of Use', 'About us', 'Contact us']
         let expectedHrefs: string[] = ['/sitemap', '/shipping-returns', '/privacy-policy', '/conditions-of-use', '/about-us', '/contactus']
-        this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
+        await this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
     }
 
     private async verifyCustomerServiceColumn(footerColumnComponent: FooterColumnComponent) {
         let expectedLinksText: string[] = ['Search', 'News', 'Blog', 'Recently viewed products', 'Compare products list', 'New products']
         let expectedHrefs: string[] = ['/search', '/news', '/blog', '/recentlyviewedproducts', '/compareproducts', '/newproducts']
-        this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
+        await this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
     }
 
     private async verifyMyAccountColumn(footerColumnComponent: FooterColumnComponent) {
         let expectedLinksText: string[] = ['My account', 'Orders', 'Addresses', 'Shopping cart', 'Wishlist']
         let expectedHrefs: string[] = ['/customer/info', '/customer/orders', '/customer/addresses', '/cart', '/wishlist']
-        this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
+        await this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
     }
 
     private async verifyFollowUsColumn(footerColumnComponent: FooterColumnComponent) {
         let expectedLinksText: string[] = ['Facebook', 'Twitter', 'RSS', 'YouTube', 'Google+']
         let expectedHrefs: string[] = ['http://www.facebook.com/nopCommerce', 'https://twitter.com/nopCommerce', '/news/rss/1', 'http://www.youtube.com/user/nopCommerce', 'https://plus.google.com/+nopcommerce']
-        this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
+        await this.verifyFooterColumn(footerColumnComponent, expectedLinksText, expectedHrefs)
     }
 
     private async verifyFooterColumn(

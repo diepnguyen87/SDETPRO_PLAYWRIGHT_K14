@@ -1,14 +1,11 @@
 import { Page, TestInfo } from "@playwright/test";
 import BasePage from "../models/pages/BasePage.js";
-import PageModel from "../test-data/model/Page.js";
-import { parseJsonStringToObject, readJsonFile } from "../utils/DataObjectBuilder.js";
 import HeaderComponent from "../models/components/global/header/HeaderComponent.js";
+import pages from "../test-data/pages.json" assert { type: "json" };
 
-type PageConstructor<T extends BasePage> = new (page: Page) => T
+type PageConstructor<T extends BasePage> = new (page: Page, testInfo: TestInfo) => T
 
 export default class BaseFlow {
-
-    protected static pageList: PageModel[] = []
 
     constructor(protected page: Page, protected testInfo: TestInfo) {
         this.page = page
@@ -16,11 +13,11 @@ export default class BaseFlow {
     }
 
     private initPageInstance<T extends BasePage>(className: PageConstructor<T>): T {
-        return new className(this.page)
+        return new className(this.page, this.testInfo)
     }
 
     public async createPageInstance(className: string) {
-        const dynamicImport = await import(`../models/pages/${className}`)
+        const dynamicImport = await import(`../models/pages/${className}.js`)
         const Class = dynamicImport.default
 
         if (Class) {
@@ -32,24 +29,11 @@ export default class BaseFlow {
 
 
     public async getClassNameBySlug(slug: string): Promise<string> {
-        await this.getPageList()
-
-        for (const pageObj of BaseFlow.pageList) {
-            if (pageObj["slug"] === slug) {
-                return pageObj["className"];
-            }
+        const pageObj = pages.find(p => p.slug === slug)
+        if (!pageObj) {
+            throw new Error(`The slug ${slug} does not map with any class name`)
         }
-        throw new Error(`The slug ${slug} does not map with any class name`)
-    }
-
-    private async getPageList() {
-        if (BaseFlow.pageList.length === 0) {
-            let jsonString = await readJsonFile("D:/HongDiep/SDETPRO_PLAYWRIGHT_K14/test-data/pages.json")
-            BaseFlow.pageList = await parseJsonStringToObject(jsonString, PageModel)
-        }
-        if (BaseFlow.pageList.length === 0) {
-            throw new Error(`File pages.json is empty. Please check again!`)
-        }
+        return pageObj.className
     }
 
     public async navigateToShoppingCartPage(): Promise<void> {
