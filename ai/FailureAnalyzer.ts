@@ -1,13 +1,18 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { client } from "./aiClient.js";
-import { aiConfig } from "../config/ai.config.js";
 import { frameworkConfig } from "../config/framework.config.js";
 import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
 import { Metadata } from "./Metadata.js";
 import { buildPrompt } from "./promptBuilder.js";
 import { FAILURE_ANALYSIS_PROMPT as FAILURE_ANALYSIS_PROMPT } from "./prompts/FailureAnalysisPrompt.js";
 import MarkdownReport from "./MarkdownReport.js";
+
+const analysisModel = process.env.OPEN_ANALYSIS_MODEL;
+if (!analysisModel) {
+    throw new Error("OPEN_ANALYSIS_MODEL is missing from .env");
+}
 
 export default class FailureAnalyzer {
 
@@ -43,7 +48,7 @@ export default class FailureAnalyzer {
         );
 
         const response = await client.responses.create({
-            model: aiConfig.model,
+            model: analysisModel,
             input: [
                 {
                     role: "system",
@@ -64,7 +69,7 @@ export default class FailureAnalyzer {
                         {
                             type: "input_image",
                             image_url: `data:image/png;base64,${base64}`,
-                            detail: aiConfig.imageDetail
+                            detail: frameworkConfig.imageDetail
                         }
                     ]
                 }

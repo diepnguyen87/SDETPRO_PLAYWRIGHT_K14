@@ -26,8 +26,8 @@ function ensureEnvironment(): void {
         throw new Error("OPEN_API_KEY is missing from .env");
     }
 
-    if (!process.env.OPEN_MODEL) {
-        throw new Error("OPEN_MODEL is missing from .env");
+    if (!process.env.OPEN_REVIEW_MODEL) {
+        throw new Error("OPEN_REVIEW_MODEL is missing from .env");
     }
 }
 
@@ -271,7 +271,7 @@ async function runReview(): Promise<void> {
     const reviewInstructions = buildReviewInstructions();
 
     const response = await client.responses.create({
-        model: process.env.OPEN_MODEL!,
+        model: process.env.OPEN_REVIEW_MODEL!,
         instructions: reviewInstructions,
         input: projectContext,
     });

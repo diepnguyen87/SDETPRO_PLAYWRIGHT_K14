@@ -108,6 +108,7 @@ Prefer in this order:
 - Load data via JSON import: `import data from "../test-data/xxx.json" assert { type: "json" };` — do not use `require()` or hardcode data inline.
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
 - `OPEN_API_KEY` is read from environment only (`process.env.OPEN_API_KEY`) — never hardcode it.
+- AI model settings (`OPEN_ANALYSIS_MODEL`, `OPEN_REVIEW_MODEL`) are read from `.env` only — never hardcode them.
 
 ---
 
@@ -277,7 +278,7 @@ retryCount:           number
 - `HealingEngine` is the **single** healing orchestrator — never add healing workflow logic
   to `Component.ts`, `base.ts`, or any other class.
 - `AIResponseValidator` gates on `patchConfidence ≥ 80` — do not lower this threshold.
-- Do not change the OpenAI model in `config/ai.config.ts` or the system prompt in
+- Do not change `OPEN_ANALYSIS_MODEL` in `.env` (currently `gpt-5-mini`) or the system prompt in
   `ai/prompts/FailureAnalysisPrompt.ts` without explicit instruction.
 - All artifact folder and file names must come from `config/framework.config.ts` — never
   hardcode paths.
@@ -296,8 +297,8 @@ retryCount:           number
 - Reads `implementation-plan.md`, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan
 - Sends them to OpenAI for an independent code review
 - Writes output to `implement-review/openai-review.md`
-- Uses `OPEN_API_KEY` and `OPEN_MODEL` from `.env` (model is configurable via env, not hardcoded)
-- Run via: `npx ts-node ai/review.ts` (or the `ai:review` npm script)
+- Uses `OPEN_API_KEY` and `OPEN_REVIEW_MODEL` from `.env` (currently `gpt-5.3-codex`; configurable via env, not hardcoded)
+- Run via: `yarn ai:review` (runs `tsx ai/review.ts`)
 
 Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test fixture.
 
