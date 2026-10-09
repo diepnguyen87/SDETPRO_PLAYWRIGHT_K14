@@ -202,6 +202,13 @@ export default class OrderTestFlow extends BaseFlow {
         await shoppingCartPage.totalComp().clickOnCheckoutBtn()
     }
 
+    public async selectTOSAndCheckout(): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        await shoppingCartPage.totalComp().selectTermOfService()
+        await shoppingCartPage.totalComp().clickOnCheckoutBtn()
+        await expect(this.page).toHaveURL(/\/onepagecheckout/)
+    }
+
     public async inputBillingAddressOrUseSaved(): Promise<void> {
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const billingAddressComp: BillingAddressComponent = checkoutPage.billingAddressComp()

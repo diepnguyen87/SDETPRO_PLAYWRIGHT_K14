@@ -1,13 +1,31 @@
-import { APIRequestContext, test as base, BrowserContext, expect, Page, TestInfo } from '@playwright/test';
+import { APIRequestContext, test as base, Browser, BrowserContext, expect, Page, TestInfo } from '@playwright/test';
 import SelfHealingSuccess from '../../ai/SelfHealingSuccess.js';
 import AssertionFailureCollector from '../../ai/collectors/AssertionFailureCollector.js';
 import HealingEngine from '../../ai/HealingEngine.js';
 import { HealingResult } from '../../models/ai/HealingResult.js';
+import LoginTestFlow from '../../test-flows/LoginTestFlow.js';
+import { frameworkConfig } from '../../config/framework.config.js';
+import path from 'path';
+
+export type Credential = { email: string; password: string };
+
+type TestOptions = {
+    loggedIn: boolean;
+};
+
+type WorkerFixtures = {
+    credential: Credential | null;
+};
+
+// Logged-in storage state is created once per worker process and reused
+let workerStatePath: string | undefined;
 
 type TestFixtures = {
     page: Page;
+    browser: Browser;
     context: BrowserContext;
     request: APIRequestContext;
+    credential: Credential | null;
 };
 
 type TestBody = (
@@ -15,10 +33,12 @@ type TestBody = (
     testInfo: TestInfo
 ) => Promise<void>;
 
+type Register = (...args: any[]) => void;
+
 function withSelfHealingGuard(fn: TestBody): TestBody {
-    return async ({ page, context, request }, testInfo) => {
+    return async ({ page, browser, context, request, credential }, testInfo) => {
         try {
-            await fn({ page, context, request }, testInfo);
+            await fn({ page, browser, context, request, credential }, testInfo);
         } catch (error) {
 
             // Healing succeeded inside withHealing() — test exits cleanly
@@ -54,7 +74,38 @@ function withSelfHealingGuard(fn: TestBody): TestBody {
     };
 }
 
-type Register = (...args: any[]) => void;
+const baseTest = base.extend<TestOptions, WorkerFixtures>({
+    credential: [async ({}, use, workerInfo) => {
+        const idx = process.env.CREDENTIAL_INDEX !== undefined
+                    ? Number(process.env.CREDENTIAL_INDEX)
+                    : workerInfo.parallelIndex;
+
+        const email    = process.env[`LOGIN_EMAIL_${idx}`]
+        const password = process.env[`LOGIN_PASSWORD_${idx}`]
+
+        await use(email && password ? { email, password } : null);
+    }, { scope: 'worker' }],
+
+    loggedIn: [false, { option: true }],
+
+    storageState: async ({ storageState, loggedIn, credential, browser }, use, testInfo) => {
+        if (!loggedIn || !credential) return use(storageState);
+
+        if (!workerStatePath) {
+            const statePath = path.join(frameworkConfig.authFolder, `credential-${testInfo.parallelIndex}.json`);
+            const context = await browser.newContext({ baseURL: testInfo.project.use.baseURL });
+            const page = await context.newPage();
+            await page.goto('/login');
+            const loginFlow = new LoginTestFlow(page, testInfo);
+            await loginFlow.login(credential.email, credential.password);
+            await loginFlow.verifyLoginSuccess(credential.email);
+            await context.storageState({ path: statePath });
+            await context.close();
+            workerStatePath = statePath;
+        }
+        await use(workerStatePath);
+    },
+});
 
 // Supports test(title, fn) and test(title, details, fn)
 const wrap = (register: Register) => (title: string, ...args: any[]) => {
@@ -62,13 +113,7 @@ const wrap = (register: Register) => (title: string, ...args: any[]) => {
     return register(title, ...args, withSelfHealingGuard(fn));
 };
 
-export const test = Object.assign(wrap(base), base, {
-    only: wrap(base.only),
-}) as typeof base;
+export const test = Object.assign(wrap(baseTest), baseTest, {
+    only: wrap(baseTest.only),
+}) as typeof baseTest;
 export { expect };
-
-// const testWrapper = (title: string, fn: TestBody): void =>
-//     (base as any)(title, withSelfHealingGuard(fn));
-
-// // export const test = Object.assign(testWrapper, base) as typeof base;
-// export { expect };

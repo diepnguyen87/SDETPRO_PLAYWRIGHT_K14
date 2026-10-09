@@ -1,5 +1,6 @@
 export const frameworkConfig = {
     artifactFolder: "artifacts",
+    authFolder: ".auth",
     screenshotName: "screenshot.png",
     domName: "dom.html",
     metadataName: "metadata.json",
