@@ -1,12 +1,13 @@
 import { test } from "../../fixtures/base.js";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
-import standardComputerDataList from "../../../test-data/StandardComputer.json" assert { type: "json" };
+import standardComputerDataList from "../../../test-data/StandardComputer.json" with { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
 
-test(`${TAG.smoke} | Test Standard Component`, async ({ page }, testInfo) => {
+test(`${TAG.smoke} | Test Standard Component`, async ({ page, browser }, testInfo) => {
+    console.log(browser.version())
     await page.goto("/build-your-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart();

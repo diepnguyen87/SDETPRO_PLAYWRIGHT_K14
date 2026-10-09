@@ -13,9 +13,9 @@ import CheckoutAsGuestPage from "../../models/pages/CheckoutAsGuestPage.js";
 import CheckoutPage from "../../models/pages/CheckoutPage.js";
 import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/pages/ComputerDetailPage.js";
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
-import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" assert { type: "json" };
-import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" assert { type: "json" };
-import termsOfServiceWarningData from "../../test-data/checkout/TermsOfServiceWarningData.json" assert { type: "json" };
+import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" with { type: "json" };
+import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" with { type: "json" };
+import termsOfServiceWarningData from "../../test-data/checkout/TermsOfServiceWarningData.json" with { type: "json" };
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
@@ -28,7 +28,7 @@ export default class OrderTestFlow extends BaseFlow {
     private additionalFee: number = 0;
     private logger;
 
-    constructor(page: Page,
+    constructor(public page: Page,
         private readonly computerComponentClass: ComputerComponentConstructor<ComputerEssentialComponent>,
         private readonly computerData: any,
         private readonly computerDataList: any[] | undefined,
@@ -52,10 +52,6 @@ export default class OrderTestFlow extends BaseFlow {
             await this.buildComputerDetailAndAddToCart(this.computerDataList[index])
             
         }
-        // for (const computerData of this.computerDataList) {
-        //     logger.info("");
-        //     await this.buildComputerDetailAndAddToCart(computerData)
-        // }
     }
 
     private async buildComputerDetailAndAddToCart(computerData: any) {

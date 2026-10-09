@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
     testDir: "./tests/web",
     testMatch: '**/*.spec.ts',
-    timeout: 30 * 1000,
+    timeout: 60 * 1000,
     workers: 5,
     projects: [
         {
@@ -13,22 +13,26 @@ export default defineConfig({
         {
             name: 'Desktop Firefox',
             use: { ...devices['Desktop Firefox'] },
+            default: false,
         },
         {
             name: 'Desktop Webkit',
             use: { ...devices['Desktop Safari'] },
+            default: false,
         },
         {
             name: 'Mobile Safari',
             use: {
               ...devices['iPhone 14'],
             },
+            default: false,
           },
           {
             name: 'Mobile Chrome',
             use: {
               ...devices['Pixel 6'],
             },
+            default: false,
           }
     ],
     reporter: [

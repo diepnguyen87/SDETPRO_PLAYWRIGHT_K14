@@ -21,7 +21,11 @@ export default class CartItemRowComponent extends Component{
         return this.componentLocator.locator(this.qualityInputSel);
     }
 
-    public async getProductSubTotal(): Promise<Number> {
+    public async getProductSubTotal(): Promise<number> {
         return Number(await this.componentLocator.locator(this.productSubTotalSel).textContent())
+    }
+
+    public async selectRemove(): Promise<void> {
+        await this.componentLocator.getByRole("checkbox").check()
     }
 }

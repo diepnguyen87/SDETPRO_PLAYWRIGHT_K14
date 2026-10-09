@@ -7,6 +7,7 @@ export default class ShoppingCartPage extends BasePage {
 
     private readonly tosWarningMessageSel = "#terms-of-service-warning-box"
     private readonly tosWarningCloseBtnName = "close"
+    private readonly updateCartBtnName = "Update shopping cart"
 
     constructor(page: Page, testInfo: TestInfo) {
         super(page, testInfo)
@@ -31,5 +32,14 @@ export default class ShoppingCartPage extends BasePage {
 
     public async closeTosWarningDialog(title: string): Promise<void> {
         await this.tosWarningDialog(title).getByRole("button", { name: this.tosWarningCloseBtnName }).click()
+    }
+
+    public async removeAllItems(): Promise<void> {
+        const rows = await this.cartItemRowCompList()
+        if (rows.length === 0) return
+        for (const row of rows) {
+            await row.selectRemove()
+        }
+        await this.page.getByRole("button", { name: this.updateCartBtnName }).click()
     }
 }

@@ -1,7 +1,7 @@
 import { test } from "@playwright/test";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import CheapComputerComponent from "../../../models/components/computer/CheapComputerComponent.js";
-import randomCheapComputerData from "../../../test-data/RandomCheapComputer.json" assert { type: "json" };
+import randomCheapComputerData from "../../../test-data/RandomCheapComputer.json" with { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
