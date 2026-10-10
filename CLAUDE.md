@@ -193,12 +193,12 @@ On each call:
    - `FailureAnalyzer.analyze(folder)` → `FailureAnalysis`
    - Attach AI response JSON to Playwright test report
    - If `patchType === MANUAL` → log root cause + reason, return `MANUAL` (no source change)
-   - `AIResponseValidator.validate()` — gates on `patchConfidence ≥ 80`, `field` and `oldValue`
-     must exist in the source file
+   - `AIResponseValidator.validate()` — requires `field`, `oldValue`, `newValue`, `rootCause`,
+     `patchType`; gates on `patchConfidence ≥ 80`; `field` and `oldValue` must exist in the source file
    - `BackupManager.create(sourceFile)` — creates `.bak` backup
    - `PatchApplier.applyToSource()` — replaces `oldValue` → `newValue` in source
    - `PatchVerifier.verify()` — confirms old value gone, new value present
-   - `TestCommandBuilder.build(metadata)` → `yarn playwright test --grep=... --project=...`
+   - `TestCommandBuilder.build(metadata)` → `yarn playwright test --grep="..." --project="..." --headed --config=playwright.config.web.js`
    - `TestRerunner.run(command)` — spawns child process with `HEALING_RERUN=true` in env
      - Child passes → return `HEALED`, release lock
      - Child fails → `BackupManager.restore()`, try next attempt
@@ -316,17 +316,23 @@ Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test f
 
 ## GitHub Actions
 
-Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (current version: `v1.0.11`).
+Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (referenced at `@main`):
+`smoke-github-hosted.yml` → `reusable-playwright-3.yml`; `smoke-github-hosted-matrix.yml` and `smoke-self-hosted.yml` → `reusable-playwright-2.yml`.
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `smoke-github-hosted.yml` | PR → `main`, manual | Single-runner smoke run |
-| `smoke-github-hosted-matrix.yml` | push/PR → `main`, manual | Matrix smoke run across 5 browsers |
-| `smoke-self-hosted.yml` | manual | Mobile browsers on self-hosted runner |
+| `smoke-github-hosted-matrix.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
+| `smoke-self-hosted.yml` | manual | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
 | `real-android-workflow.yml` | manual | Real Android device on self-hosted macOS |
 | `docker-image.yml` | push tag `v*` | Build & push Docker image to Docker Hub |
+| `playwright-docker-build.yml` | manual | Build Docker image locally on the runner and run tests in it |
+| `playwrigh-docker-pull.yml` | manual | Pull `181221/playwright-framework:latest` from Docker Hub and run tests |
+| `sample-github-hosted-workflow.yml` | push/PR → `day-30`, manual | Sample: `yarn test` on GitHub-hosted runner |
+| `sample-self-hosted-workflow.yml` | manual | Sample: run tests on self-hosted macOS runner |
 
-Both smoke workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
+Both smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
+In `smoke-github-hosted-matrix.yml` this job also downloads the `{suite}-*-report` artifacts, copies them into `gh-pages`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: true`).
 
 Environment variables are supplied to CI via `ENV_FILE_BASE64` (base64-encoded `.env`) — never hardcode secrets in workflow files.
 

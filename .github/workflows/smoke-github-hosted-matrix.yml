@@ -27,10 +27,8 @@ jobs:
       - name: Map suite to command
         id: set-command
         shell: bash
-        env:
-          SUITE: ${{ inputs.suite }}
         run: |
-          case "$SUITE" in
+          case "${{ inputs.suite }}" in
             Smoke)
               echo "command=test:smoke" >> "$GITHUB_OUTPUT"
               ;;
@@ -41,7 +39,7 @@ jobs:
               echo "command=test:sanity" >> "$GITHUB_OUTPUT"
               ;;
             *)
-              echo "Unsupported suite: $SUITE"
+              echo "Unsupported suite: ${{ inputs.suite }}"
               exit 1
               ;;
           esac
@@ -112,7 +110,7 @@ jobs:
         run: |
           mkdir -p site
 
-          for report_dir in downloaded-reports/Smoke-*-report; do
+          for report_dir in downloaded-reports/${{ inputs.suite }}-*-report; do
             [ -d "$report_dir" ] || continue
 
             name=$(basename "$report_dir" -report)
