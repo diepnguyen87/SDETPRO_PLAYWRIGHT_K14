@@ -3,6 +3,11 @@ allure-results
 allure-report
 playwright-report
 test-results
+logs
+artifacts
+.env
+.env.base64
+.auth
 .git
 .gitignore
 .vscode
