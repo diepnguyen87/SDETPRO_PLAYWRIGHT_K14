@@ -11,6 +11,7 @@
     "test:standardWithLogin": "playwright test tests/web/Day25/TestComponentWithLogin.spec.ts --config=playwright.config.web.js",
     "test:login": "playwright test tests/web/login.spec.ts --config=playwright.config.web.js",
     "test:smoke": "playwright test --grep @smoke --config=playwright.config.web.js",
+    "test:regression": "playwright test --grep @regression --config=playwright.config.web.js",
     "test:real-android": "playwright test tests/real-android/TestStandardComponent.spec.ts --config=playwright.config.android.js",
     "test:day19": "playwright test ./tests/web/Day19.spec.ts --config=playwright.config.web.js",
     "ui": "playwright test --ui",
