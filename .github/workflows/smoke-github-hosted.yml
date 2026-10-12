@@ -1,23 +1,58 @@
 name: Smoke Github-Hosted CI
 
 on:
-  pull_request:
-    branches:
-      - main
-
   workflow_dispatch:
+    inputs:
+      suite:
+        description: "Select test suite"
+        required: true
+        type: choice
+        options:
+          - Smoke
+          - Regression
+          - Sanity
+        default: Smoke
 
 permissions:
   contents: write
   actions: read
 
 jobs:
-  smoke:
-    name: Smoke Testing
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      command: ${{ steps.set-command.outputs.command }}
+
+    steps:
+      - name: Map suite to command
+        id: set-command
+        shell: bash
+        run: |
+          projects="--project='Desktop Chromium' --project='Desktop Firefox' --project='Desktop Webkit' --project='Mobile Safari' --project='Mobile Chrome'"
+
+          case "${{ inputs.suite }}" in
+            Smoke)
+              echo "command=test:smoke $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            Regression)
+              echo "command=test:regression $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            Sanity)
+              echo "command=test:sanity $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported suite: ${{ inputs.suite }}"
+              exit 1
+              ;;
+          esac
+
+  execute:
+    name: ${{ inputs.suite }} Testing
+    needs: prepare
     uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@main
     with:
-      suite: Smoke
-      command: test:smoke
+      suite: ${{ inputs.suite }}
+      command: ${{ needs.prepare.outputs.command }}
       image-tag: latest
       runner: ubuntu-latest
 
@@ -28,18 +63,51 @@ jobs:
       ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
 
   generate-index:
-    needs: smoke
+    name: Publish Playwright Reports
+    needs: execute
     if: always()
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: gh-pages-deploy-${{ github.repository }}
+      cancel-in-progress: false
+
     steps:
       - name: Checkout gh-pages
         uses: actions/checkout@v5
         with:
           ref: gh-pages
+          path: site
+
+      - name: Download Playwright Report
+        uses: actions/download-artifact@v6
+        continue-on-error: true
+        with:
+          name: ${{ inputs.suite }}-report
+          path: downloaded-report
+
+      - name: Update report directory
+        shell: bash
+        run: |
+          mkdir -p site
+
+          name="${{ inputs.suite }}-single-runner"
+
+          if [ ! -f "downloaded-report/index.html" ]; then
+            echo "No index.html found in downloaded-report"
+          else
+            echo "Updating report: $name"
+
+            rm -rf "site/$name"
+            mkdir -p "site/$name"
+            cp -a "downloaded-report/." "site/$name/"
+          fi
 
       - name: Generate index.html
         shell: bash
         run: |
+          cd site
+
           cat > index.html <<'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -47,38 +115,33 @@ jobs:
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Playwright Test Reports</title>
-
             <style>
               body {
                 font-family: Arial, sans-serif;
                 margin: 40px;
               }
-
               h1 {
                 margin-bottom: 30px;
               }
-
               li {
                 margin: 12px 0;
               }
-
               a {
                 text-decoration: none;
                 font-size: 18px;
               }
             </style>
           </head>
-
           <body>
             <h1>Playwright Test Reports</h1>
-
             <ul>
           EOF
 
           for dir in */; do
             if [ -f "$dir/index.html" ]; then
               name="${dir%/}"
-              echo "              <li><a href=\"./$name/\">$name</a></li>" >> index.html
+              printf '              <li><a href="./%s/">%s</a></li>\n' \
+                "$name" "$name" >> index.html
             fi
           done
 
@@ -88,16 +151,10 @@ jobs:
           </html>
           EOF
 
-      - name: Commit and push index.html
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add index.html
-
-          if git diff --cached --quiet; then
-            echo "No changes to index.html"
-          else
-            git commit -m "docs: update Playwright report index"
-            git push origin gh-pages
-          fi
+      - name: Publish reports to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site
+          keep_files: true

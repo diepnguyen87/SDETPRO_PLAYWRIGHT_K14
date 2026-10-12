@@ -321,7 +321,7 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `smoke-github-hosted.yml` | PR → `main`, manual | Single-runner smoke run |
+| `smoke-github-hosted.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects with the workers from `playwright.config.web.js`; a `prepare` job maps the suite to the yarn command plus `--project` flags |
 | `smoke-github-hosted-matrix.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
 | `smoke-self-hosted.yml` | manual | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
 | `real-android-workflow.yml` | manual | Real Android device on self-hosted macOS |
@@ -332,7 +332,8 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 | `sample-self-hosted-workflow.yml` | manual | Sample: run tests on self-hosted macOS runner |
 
 Both smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
-In `smoke-github-hosted-matrix.yml` this job also downloads the `{suite}-*-report` artifacts, copies them into `gh-pages`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: true`).
+This job also downloads the run's report artifacts, copies them into `gh-pages`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: true`), sharing the `gh-pages-deploy-{repo}` concurrency group:
+`smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{suite}-{browser}/`; `smoke-github-hosted.yml` publishes `{suite}-report` as `{suite}-single-runner/`.
 
 Environment variables are supplied to CI via `ENV_FILE_BASE64` (base64-encoded `.env`) — never hardcode secrets in workflow files.
 

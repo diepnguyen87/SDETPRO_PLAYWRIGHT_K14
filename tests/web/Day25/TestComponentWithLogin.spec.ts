@@ -11,6 +11,7 @@ import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
 
 test.use({ loggedIn: true });
+test.skip(({ credential }) => !credential, "Login credentials not set for this worker. Provide LOGIN_EMAIL_<idx>/LOGIN_PASSWORD_<idx>");
 
 test.afterEach(async ({ page }, testInfo) => {
     const status = testInfo.status
@@ -22,9 +23,7 @@ test.afterEach(async ({ page }, testInfo) => {
     await new BaseFlow(page, testInfo).clearShoppingCart()
 });
 
-test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page, credential }, testInfo) => {
-    test.skip(!credential, "Login credentials not set for this worker. Provide LOGIN_EMAIL_<idx>/LOGIN_PASSWORD_<idx>");
-
+test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page }, testInfo) => {
     await page.goto('/build-your-own-computer');
     const orderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList, testInfo);
     await orderTestFlow.buildComputerDetailListAndAddToCart();
@@ -42,9 +41,7 @@ test(`${TAG.smoke} | Test Standard Component With Login`, async ({ page, credent
 });
 
 
-test(`${TAG.regression} | Test Cheap Component With Login`, async ({ page, credential }, testInfo) => {
-    test.skip(!credential, "Login credentials not set for this worker. Provide LOGIN_EMAIL_<idx>/LOGIN_PASSWORD_<idx>");
-
+test(`${TAG.regression} | Test Cheap Component With Login`, async ({ page }, testInfo) => {
     await page.goto("/build-your-cheap-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, CheapComputerComponent, undefined, cheapComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart()
