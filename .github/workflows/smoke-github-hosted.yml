@@ -28,7 +28,7 @@ jobs:
         id: set-command
         shell: bash
         run: |
-          projects="--project='Desktop Chromium' --project='Desktop Firefox' --project='Desktop Webkit' --project='Mobile Safari' --project='Mobile Chrome'"
+          projects="--project='*'"
 
           case "${{ inputs.suite }}" in
             Smoke)
