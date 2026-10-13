@@ -1,4 +1,4 @@
-name: Smoke Github-Hosted CI
+name: Smoke Github-Hosted CI with Sharding
 
 on:
   workflow_dispatch:
@@ -28,17 +28,15 @@ jobs:
         id: set-command
         shell: bash
         run: |
-          projects="--project='*'"
-
           case "${{ inputs.suite }}" in
             Smoke)
-              echo "command=test:smoke $projects" >> "$GITHUB_OUTPUT"
+              echo "command=test:smoke" >> "$GITHUB_OUTPUT"
               ;;
             Regression)
-              echo "command=test:regression $projects" >> "$GITHUB_OUTPUT"
+              echo "command=test:regression" >> "$GITHUB_OUTPUT"
               ;;
             Sanity)
-              echo "command=test:sanity $projects" >> "$GITHUB_OUTPUT"
+              echo "command=test:sanity" >> "$GITHUB_OUTPUT"
               ;;
             *)
               echo "Unsupported suite: ${{ inputs.suite }}"
@@ -47,12 +45,32 @@ jobs:
           esac
 
   execute:
-    name: ${{ inputs.suite }} Testing
+    name: Shard ${{ matrix.shard }}
     needs: prepare
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@main
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: 1
+            credential_index: 0
+
+          - shard: 2
+            credential_index: 1
+
+          - shard: 3
+            credential_index: 2
+
+          - shard: 4
+            credential_index: 3
+
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-4.yml@main
     with:
       suite: ${{ inputs.suite }}
       command: ${{ needs.prepare.outputs.command }}
+      shard-index: ${{ matrix.shard }}
+      shard-total: 4
+      credential-index: ${{ matrix.credential_index }}
       image-tag: latest
       runner: ubuntu-latest
 
@@ -62,9 +80,47 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
 
+  merge-reports:
+    name: Merge Playwright Reports
+    needs: execute
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull Image
+        run: docker pull 181221/playwright-framework:latest
+
+      - name: Download Blob Reports
+        uses: actions/download-artifact@v6
+        with:
+          pattern: ${{ inputs.suite }}-blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+
+      - name: Merge into HTML Report
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/all-blob-reports:/app/all-blob-reports \
+            -v ${{ github.workspace }}/playwright-report:/app/playwright-report \
+            181221/playwright-framework:latest \
+            npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload Playwright HTML Report
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.suite }}-sharded-report
+          path: playwright-report
+          retention-days: 7
+
   generate-index:
     name: Publish Playwright Reports
-    needs: execute
+    needs: merge-reports
     if: always()
     runs-on: ubuntu-latest
 
@@ -79,29 +135,16 @@ jobs:
           ref: gh-pages
           path: site
 
+      - name: Remove old report
+        shell: bash
+        run: rm -rf "site/${{ inputs.suite }}-sharded"
+
       - name: Download Playwright Report
         uses: actions/download-artifact@v6
         continue-on-error: true
         with:
-          name: ${{ inputs.suite }}-report
-          path: downloaded-report
-
-      - name: Update report directory
-        shell: bash
-        run: |
-          mkdir -p site
-
-          name="${{ inputs.suite }}-single-runner"
-
-          if [ ! -f "downloaded-report/index.html" ]; then
-            echo "No index.html found in downloaded-report"
-          else
-            echo "Updating report: $name"
-
-            rm -rf "site/$name"
-            mkdir -p "site/$name"
-            cp -a "downloaded-report/." "site/$name/"
-          fi
+          name: ${{ inputs.suite }}-sharded-report
+          path: site/${{ inputs.suite }}-sharded
 
       - name: Generate index.html
         shell: bash
@@ -157,4 +200,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: site
-          keep_files: true
+          keep_files: false

@@ -317,11 +317,12 @@ Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test f
 ## GitHub Actions
 
 Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (referenced at `@main`):
-`smoke-github-hosted.yml` → `reusable-playwright-3.yml`; `smoke-github-hosted-matrix.yml` and `smoke-self-hosted.yml` → `reusable-playwright-2.yml`.
+`smoke-github-hosted-worker.yml` → `reusable-playwright-3.yml`; `smoke-github-hosted-shard.yml` → `reusable-playwright-4.yml`; `smoke-github-hosted-matrix.yml` and `smoke-self-hosted.yml` → `reusable-playwright-2.yml`.
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `smoke-github-hosted.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects with the workers from `playwright.config.web.js`; a `prepare` job maps the suite to the yarn command plus `--project` flags |
+| `smoke-github-hosted-worker.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects with the workers from `playwright.config.web.js`; a `prepare` job maps the suite to the yarn command plus `--project` flags |
+| `smoke-github-hosted-shard.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Default project only (no `--project`; Desktop Chromium) split across 4 runners with `--shard=N/4 --workers=1 --fully-parallel --reporter=blob`; shard N uses `CREDENTIAL_INDEX=N-1`; a `merge-reports` job merges the blob reports into one HTML report |
 | `smoke-github-hosted-matrix.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
 | `smoke-self-hosted.yml` | manual | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
 | `real-android-workflow.yml` | manual | Real Android device on self-hosted macOS |
@@ -331,9 +332,9 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 | `sample-github-hosted-workflow.yml` | push/PR → `day-30`, manual | Sample: `yarn test` on GitHub-hosted runner |
 | `sample-self-hosted-workflow.yml` | manual | Sample: run tests on self-hosted macOS runner |
 
-Both smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
-This job also downloads the run's report artifacts, copies them into `gh-pages`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: true`), sharing the `gh-pages-deploy-{repo}` concurrency group:
-`smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{suite}-{browser}/`; `smoke-github-hosted.yml` publishes `{suite}-report` as `{suite}-single-runner/`.
+All smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
+This job checks out `gh-pages` into `site/`, deletes the suite's old report folder(s) (even if no new report was produced), downloads the run's report artifacts directly into `site/`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: false` — `site/` already holds every other report), sharing the `gh-pages-deploy-{repo}` concurrency group:
+`smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{suite}-{browser}/`; `smoke-github-hosted-worker.yml` publishes `{suite}-report` as `{suite}-single-runner/`; `smoke-github-hosted-shard.yml` publishes `{suite}-sharded-report` as `{suite}-sharded/`.
 
 Environment variables are supplied to CI via `ENV_FILE_BASE64` (base64-encoded `.env`) — never hardcode secrets in workflow files.
 

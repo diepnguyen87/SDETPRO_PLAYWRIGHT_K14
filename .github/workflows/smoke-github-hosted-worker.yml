@@ -1,0 +1,147 @@
+name: Smoke Github-Hosted CI with Worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Select test suite"
+        required: true
+        type: choice
+        options:
+          - Smoke
+          - Regression
+          - Sanity
+        default: Smoke
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      command: ${{ steps.set-command.outputs.command }}
+
+    steps:
+      - name: Map suite to command
+        id: set-command
+        shell: bash
+        run: |
+          projects="--project='*'"
+
+          case "${{ inputs.suite }}" in
+            Smoke)
+              echo "command=test:smoke $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            Regression)
+              echo "command=test:regression $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            Sanity)
+              echo "command=test:sanity $projects" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported suite: ${{ inputs.suite }}"
+              exit 1
+              ;;
+          esac
+
+  execute:
+    name: ${{ inputs.suite }} Testing
+    needs: prepare
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@main
+    with:
+      suite: ${{ inputs.suite }}
+      command: ${{ needs.prepare.outputs.command }}
+      image-tag: latest
+      runner: ubuntu-latest
+
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
+
+  generate-index:
+    name: Publish Playwright Reports
+    needs: execute
+    if: always()
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: gh-pages-deploy-${{ github.repository }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Remove old report
+        shell: bash
+        run: rm -rf "site/${{ inputs.suite }}-single-runner"
+
+      - name: Download Playwright Report
+        uses: actions/download-artifact@v6
+        continue-on-error: true
+        with:
+          name: ${{ inputs.suite }}-report
+          path: site/${{ inputs.suite }}-single-runner
+
+      - name: Generate index.html
+        shell: bash
+        run: |
+          cd site
+
+          cat > index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Playwright Test Reports</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 40px;
+              }
+              h1 {
+                margin-bottom: 30px;
+              }
+              li {
+                margin: 12px 0;
+              }
+              a {
+                text-decoration: none;
+                font-size: 18px;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Playwright Test Reports</h1>
+            <ul>
+          EOF
+
+          for dir in */; do
+            if [ -f "$dir/index.html" ]; then
+              name="${dir%/}"
+              printf '              <li><a href="./%s/">%s</a></li>\n' \
+                "$name" "$name" >> index.html
+            fi
+          done
+
+          cat >> index.html <<'EOF'
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Publish reports to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: site
+          keep_files: false

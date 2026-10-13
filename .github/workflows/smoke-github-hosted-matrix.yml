@@ -58,7 +58,7 @@ jobs:
           - project: Desktop Firefox
             credential_index: 1
 
-          - project: Desktop WebKit
+          - project: Desktop Webkit
             credential_index: 2
 
           - project: Mobile Safari
@@ -98,33 +98,26 @@ jobs:
           ref: gh-pages
           path: site
 
+      - name: Remove old reports
+        shell: bash
+        run: |
+          for browser in "Desktop Chromium" "Desktop Firefox" "Desktop Webkit" "Mobile Safari" "Mobile Chrome"; do
+            rm -rf "site/${{ inputs.suite }}-$browser"
+          done
+
       - name: Download Playwright Reports
         uses: actions/download-artifact@v6
         with:
           pattern: "${{ inputs.suite }}-*-report"
-          path: downloaded-reports
+          path: site
           merge-multiple: false
 
-      - name: Update report directories
+      - name: Rename report directories
         shell: bash
         run: |
-          mkdir -p site
-
-          for report_dir in downloaded-reports/${{ inputs.suite }}-*-report; do
+          for report_dir in site/${{ inputs.suite }}-*-report; do
             [ -d "$report_dir" ] || continue
-
-            name=$(basename "$report_dir" -report)
-
-            if [ ! -f "$report_dir/index.html" ]; then
-              echo "No index.html found in $report_dir"
-              continue
-            fi
-
-            echo "Updating report: $name"
-
-            rm -rf "site/$name"
-            mkdir -p "site/$name"
-            cp -a "$report_dir/." "site/$name/"
+            mv "$report_dir" "${report_dir%-report}"
           done
 
       - name: Generate index.html
@@ -181,4 +174,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: site
-          keep_files: true
+          keep_files: false
