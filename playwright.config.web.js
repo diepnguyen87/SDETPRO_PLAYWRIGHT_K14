@@ -9,16 +9,19 @@ export default defineConfig({
         {
             name: 'Desktop Chromium',
             use: { ...devices['Desktop Chrome'] },
+            workers: 1,
         },
         {
             name: 'Desktop Firefox',
             use: { ...devices['Desktop Firefox'] },
             default: false,
+            workers: 1,
         },
         {
             name: 'Desktop Webkit',
             use: { ...devices['Desktop Safari'] },
             default: false,
+            workers: 1,
         },
         {
             name: 'Mobile Safari',
@@ -26,6 +29,7 @@ export default defineConfig({
               ...devices['iPhone 14'],
             },
             default: false,
+            workers: 1,
           },
           {
             name: 'Mobile Chrome',
@@ -33,6 +37,7 @@ export default defineConfig({
               ...devices['Pixel 6'],
             },
             default: false,
+            workers: 1,
           }
     ],
     reporter: [

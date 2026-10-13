@@ -321,7 +321,7 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `smoke-github-hosted-worker.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects with the workers from `playwright.config.web.js`; a `prepare` job maps the suite to the yarn command plus `--project` flags |
+| `smoke-github-hosted-worker.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects (`workers: 5` overall, `workers: 1` per project in `playwright.config.web.js`, so one browser of each type runs at a time); a `prepare` job maps the suite to the yarn command plus `--project` flags |
 | `smoke-github-hosted-shard.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Default project only (no `--project`; Desktop Chromium) split across 4 runners with `--shard=N/4 --workers=1 --fully-parallel --reporter=blob`; shard N uses `CREDENTIAL_INDEX=N-1`; a `merge-reports` job merges the blob reports into one HTML report |
 | `smoke-github-hosted-matrix.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
 | `smoke-self-hosted.yml` | manual | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
