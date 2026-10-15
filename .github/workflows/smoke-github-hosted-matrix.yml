@@ -78,6 +78,7 @@ jobs:
 
     uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-2.yml@main
     with:
+      environment: ${{ inputs.environment }}
       suite: ${{ inputs.suite }}
       command: ${{ needs.prepare.outputs.command }}
       browser: ${{ matrix.project }}
@@ -88,7 +89,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      ENV_FILE_BASE64: ${{ inputs.environment == 'UAT' && secrets.ENV_FILE_BASE64_UAT || secrets.ENV_FILE_BASE64_SIT }}
+      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
 
   generate-index:
     name: Publish Playwright Reports

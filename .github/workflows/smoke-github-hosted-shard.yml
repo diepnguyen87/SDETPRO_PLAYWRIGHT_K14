@@ -75,6 +75,7 @@ jobs:
 
     uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-4.yml@main
     with:
+      environment: ${{ inputs.environment }}
       suite: ${{ inputs.suite }}
       command: ${{ needs.prepare.outputs.command }}
       shard-index: ${{ matrix.shard }}
@@ -87,7 +88,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      ENV_FILE_BASE64: ${{ inputs.environment == 'UAT' && secrets.ENV_FILE_BASE64_UAT || secrets.ENV_FILE_BASE64_SIT }}
+      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
 
   merge-reports:
     name: Merge Playwright Reports
