@@ -1,10 +1,12 @@
 import { test } from "../../fixtures/base.js";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
-import standardComputerDataList from "../../../test-data/StandardComputer.json" with { type: "json" };
+import { testData } from "../../../test-data/TestDataProvider.js";
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
+
+const standardComputerDataList = testData.standardComputer;
 
 test(`${TAG.smoke} | Test Standard Component`, async ({ page, browser }, testInfo) => {
     console.log(browser.version())

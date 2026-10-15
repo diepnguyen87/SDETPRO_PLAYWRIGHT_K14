@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { test } from "@playwright/test";
 import RegisterTestFlow from "../../test-flows/RegisterTestFlow.js";
-import registerData from "../../test-data/RegisterData.json" assert { type: "json" };
+import { testData } from "../../test-data/TestDataProvider.js";
 import { TAG } from "../../constant/Tag.js";
+
+const registerData = testData.register;
 
 test(`${TAG.smoke} | Register with valid credentials`, async ({ page }, testInfo) => {
     const gender = process.env.REGISTER_GENDER ?? 'male';

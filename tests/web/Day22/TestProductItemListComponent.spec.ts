@@ -3,7 +3,7 @@ import ProductItemComponent from '../../../models/components/ProductItemComponen
 import HomePage from '../../../models/pages/HomePage.js'
 
 test('Advance POM - Component in page', async ({ page }) => {
-    await page.goto("https://demowebshop.tricentis.com/")
+    await page.goto("/")
     let homePage: HomePage = new HomePage(page)
     let productItemCompList: ProductItemComponent[] = await homePage.productItemComp()
     for (const productItemComp of productItemCompList) {

@@ -7,7 +7,7 @@ import MyAccountColumnComponent from '../../../models/components/global/footer/M
 import FollowUsColumnComponent from '../../../models/components/global/footer/FollowUsColumnComponent.js';
 
 test('Advanced POM - Test Base Component', async ({ page }, testInfo) => {
-    await page.goto("https://demowebshop.tricentis.com/")
+    await page.goto("/")
     let homePage: HomePage = new HomePage(page, testInfo);
     let footerComp: FooterComponent = homePage.footerComp();
     let informationComp: InformationColumnComponent = footerComp.informationColumnComp();

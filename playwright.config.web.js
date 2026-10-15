@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+import { testEnv, envConfig } from './config/environment.config.js'
+
+dotenv.config({ path: `.env.${testEnv}`, quiet: true });
 
 export default defineConfig({
     testDir: "./tests/web",
@@ -46,7 +50,7 @@ export default defineConfig({
     ],
     retries: process.env.CI ? 1 : 0,
     use: {
-        baseURL: 'https://demowebshop.tricentis.com',
+        baseURL: envConfig.baseURL,
         actionTimeout: 5 * 1000,
         trace: 'retain-on-failure',
         video: 'retain-on-failure',

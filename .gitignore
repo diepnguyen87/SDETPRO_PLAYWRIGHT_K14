@@ -12,3 +12,7 @@ artifacts
 .env.base64
 .auth
 .DS_Store
+.env.sit
+.env.uat.base64
+.env.sit.base64
+.env.uat

@@ -1,4 +1,5 @@
 name: Smoke Github-Hosted CI with Matrix
+run-name: ${{ inputs.suite }} (${{ inputs.environment }})
 
 on:
   workflow_dispatch:
@@ -12,6 +13,14 @@ on:
           - Regression
           - Sanity
         default: Smoke
+      environment:
+        description: "Select test environment"
+        required: true
+        type: choice
+        options:
+          - SIT
+          - UAT
+        default: SIT
 
 permissions:
   contents: write
@@ -79,7 +88,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
+      ENV_FILE_BASE64: ${{ inputs.environment == 'UAT' && secrets.ENV_FILE_BASE64_UAT || secrets.ENV_FILE_BASE64_SIT }}
 
   generate-index:
     name: Publish Playwright Reports
@@ -102,22 +111,23 @@ jobs:
         shell: bash
         run: |
           for browser in "Desktop Chromium" "Desktop Firefox" "Desktop Webkit" "Mobile Safari" "Mobile Chrome"; do
-            rm -rf "site/${{ inputs.suite }}-$browser"
+            rm -rf "site/${{ inputs.environment }}-${{ inputs.suite }}-$browser"
           done
 
       - name: Download Playwright Reports
         uses: actions/download-artifact@v6
         with:
           pattern: "${{ inputs.suite }}-*-report"
-          path: site
+          path: downloaded-reports
           merge-multiple: false
 
       - name: Rename report directories
         shell: bash
         run: |
-          for report_dir in site/${{ inputs.suite }}-*-report; do
+          for report_dir in downloaded-reports/${{ inputs.suite }}-*-report; do
             [ -d "$report_dir" ] || continue
-            mv "$report_dir" "${report_dir%-report}"
+            name="$(basename "$report_dir")"
+            mv "$report_dir" "site/${{ inputs.environment }}-${name%-report}"
           done
 
       - name: Generate index.html

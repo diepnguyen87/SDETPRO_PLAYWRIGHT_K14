@@ -1,10 +1,12 @@
 import { test } from "@playwright/test";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import CheapComputerComponent from "../../../models/components/computer/CheapComputerComponent.js";
-import randomCheapComputerData from "../../../test-data/RandomCheapComputer.json" with { type: "json" };
+import { testData } from "../../../test-data/TestDataProvider.js";
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
+
+const randomCheapComputerData = testData.randomCheapComputer;
 
 test(`${TAG.regression} | Test Random Cheap Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-cheap-own-computer")

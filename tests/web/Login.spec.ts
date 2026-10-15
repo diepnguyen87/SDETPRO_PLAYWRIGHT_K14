@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { test } from "@playwright/test";
 import LoginTestFlow from "../../test-flows/LoginTestFlow.js";
-import loginData from "../../test-data/LoginData.json" assert { type: "json" };
+import { testData } from "../../test-data/TestDataProvider.js";
 import { TAG } from "../../constant/Tag.js";
+
+const loginData = testData.login;
 
 test(`${TAG.smoke} | Login with valid credentials`, async ({ page }, testInfo) => {
     const email = process.env.LOGIN_EMAIL ?? '';

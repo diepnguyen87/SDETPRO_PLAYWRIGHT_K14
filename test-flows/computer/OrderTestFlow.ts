@@ -13,9 +13,11 @@ import CheckoutAsGuestPage from "../../models/pages/CheckoutAsGuestPage.js";
 import CheckoutPage from "../../models/pages/CheckoutPage.js";
 import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/pages/ComputerDetailPage.js";
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
-import BillingAddressData from "../../test-data/checkout/BillingAddressData.json" with { type: "json" };
-import shippingMethodData from "../../test-data/checkout/ShippingMethodData.json" with { type: "json" };
-import termsOfServiceWarningData from "../../test-data/checkout/TermsOfServiceWarningData.json" with { type: "json" };
+import { testData } from "../../test-data/TestDataProvider.js";
+
+const BillingAddressData = testData.billingAddress;
+const shippingMethodData = testData.shippingMethod;
+const termsOfServiceWarningData = testData.termsOfServiceWarning;
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";

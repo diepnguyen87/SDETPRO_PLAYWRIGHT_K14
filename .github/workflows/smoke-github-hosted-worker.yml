@@ -1,4 +1,5 @@
 name: Smoke Github-Hosted CI with Worker
+run-name: ${{ inputs.suite }} (${{ inputs.environment }})
 
 on:
   workflow_dispatch:
@@ -12,6 +13,14 @@ on:
           - Regression
           - Sanity
         default: Smoke
+      environment:
+        description: "Select test environment"
+        required: true
+        type: choice
+        options:
+          - SIT
+          - UAT
+        default: SIT
 
 permissions:
   contents: write
@@ -60,7 +69,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
+      ENV_FILE_BASE64: ${{ inputs.environment == 'UAT' && secrets.ENV_FILE_BASE64_UAT || secrets.ENV_FILE_BASE64_SIT }}
 
   generate-index:
     name: Publish Playwright Reports
@@ -81,14 +90,14 @@ jobs:
 
       - name: Remove old report
         shell: bash
-        run: rm -rf "site/${{ inputs.suite }}-single-runner"
+        run: rm -rf "site/${{ inputs.environment }}-${{ inputs.suite }}-single-runner"
 
       - name: Download Playwright Report
         uses: actions/download-artifact@v6
         continue-on-error: true
         with:
           name: ${{ inputs.suite }}-report
-          path: site/${{ inputs.suite }}-single-runner
+          path: site/${{ inputs.environment }}-${{ inputs.suite }}-single-runner
 
       - name: Generate index.html
         shell: bash

@@ -2,13 +2,15 @@ import "dotenv/config";
 import { test } from "../../fixtures/base.js";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
-import standardComputerDataList from "../../../test-data/StandardComputer.json" with { type: "json" };
+import { testData } from "../../../test-data/TestDataProvider.js";
 import CheapComputerComponent from "../../../models/components/computer/CheapComputerComponent.js";
-import cheapComputerDataList from "../../../test-data/CheapComputer.json" with { type: "json" };
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import BaseFlow from "../../../test-flows/BaseFlow.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
+
+const standardComputerDataList = testData.standardComputer;
+const cheapComputerDataList = testData.cheapComputer;
 
 test.use({ loggedIn: true });
 test.skip(({ credential }) => !credential, "Login credentials not set for this worker. Provide LOGIN_EMAIL_<idx>/LOGIN_PASSWORD_<idx>");

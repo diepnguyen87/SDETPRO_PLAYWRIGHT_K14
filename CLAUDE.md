@@ -102,10 +102,23 @@ Prefer in this order:
 
 ---
 
+## Test Environments (SIT / UAT)
+
+- The target environment is selected by `TEST_ENV` (`sit` | `uat`, default `sit`), e.g. `TEST_ENV=uat yarn test:smoke`.
+- `config/environment.config.ts` is the single source of truth: it validates `TEST_ENV` and holds each environment's `baseURL`. Never hardcode a base URL — use `baseURL` (`page.goto("/...")`) or `envConfig.baseURL`.
+- Environment variables:
+  - `.env` — environment-independent keys only (`OPEN_*`, `RANDOMMER_API_KEY`), loaded by `import "dotenv/config"`.
+  - `.env.sit` / `.env.uat` — environment-specific keys (`LOGIN_*`, `LOGIN_EMAIL_<idx>`/`LOGIN_PASSWORD_<idx>`, `REGISTER_*`), loaded by `playwright.config.web.js` via ``dotenv.config({ path: `.env.${testEnv}` })``. Variables already in `process.env` (CI `--env-file`) take precedence.
+- UAT is a sample environment (fake URL, fake `uat_`-prefixed accounts); it has no test data yet, so `TEST_ENV=uat` fails fast at `TestDataProvider` load.
+
+---
+
 ## Test Data
 
-- All test data lives in `test-data/` as JSON files.
-- Load data via JSON import: `import data from "../test-data/xxx.json" assert { type: "json" };` — do not use `require()` or hardcode data inline.
+- Environment-specific test data lives in `test-data/{env}/` (`test-data/sit/`, `test-data/uat/`) as JSON files.
+- Shared, non-environment files stay in `test-data/`: `pages.json` (page registry) and `model/` (types).
+- Specs and flows read environment data only through `test-data/TestDataProvider.ts` (`testData.login`, `testData.standardComputer`, …), which statically imports each environment's JSON (`with { type: "json" }`) and selects the set for `TEST_ENV`. Adding a data file means adding it under every environment folder and registering it in `TestDataProvider.ts`.
+- Do not import `test-data/{env}/*.json` directly, use `require()`, or hardcode data inline.
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
 - `OPEN_API_KEY` is read from environment only (`process.env.OPEN_API_KEY`) — never hardcode it.
 - AI model settings (`OPEN_ANALYSIS_MODEL`, `OPEN_REVIEW_MODEL`) are read from `.env` only — never hardcode them.
@@ -321,10 +334,10 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `smoke-github-hosted-worker.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Single runner running all 5 browser projects (`workers: 5` overall, `workers: 1` per project in `playwright.config.web.js`, so one browser of each type runs at a time); a `prepare` job maps the suite to the yarn command plus `--project` flags |
-| `smoke-github-hosted-shard.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Default project only (no `--project`; Desktop Chromium) split across 4 runners with `--shard=N/4 --workers=1 --fully-parallel --reporter=blob`; shard N uses `CREDENTIAL_INDEX=N-1`; a `merge-reports` job merges the blob reports into one HTML report |
-| `smoke-github-hosted-matrix.yml` | manual (input `suite`: Smoke / Regression / Sanity) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
-| `smoke-self-hosted.yml` | manual | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
+| `smoke-github-hosted-worker.yml` | manual (inputs `suite`: Smoke / Regression / Sanity, `environment`: SIT / UAT) | Single runner running all 5 browser projects (`workers: 5` overall, `workers: 1` per project in `playwright.config.web.js`, so one browser of each type runs at a time); a `prepare` job maps the suite to the yarn command plus `--project` flags |
+| `smoke-github-hosted-shard.yml` | manual (inputs `suite`: Smoke / Regression / Sanity, `environment`: SIT / UAT) | Default project only (no `--project`; Desktop Chromium) split across 4 runners with `--shard=N/4 --workers=1 --fully-parallel --reporter=blob`; shard N uses `CREDENTIAL_INDEX=N-1`; a `merge-reports` job merges the blob reports into one HTML report |
+| `smoke-github-hosted-matrix.yml` | manual (inputs `suite`: Smoke / Regression / Sanity, `environment`: SIT / UAT) | Matrix run of the selected suite across 5 browsers; a `prepare` job maps the suite to `test:smoke` / `test:regression` / `test:sanity` |
+| `smoke-self-hosted.yml` | manual (input `environment`: SIT / UAT) | Mobile Chrome / Mobile Safari on self-hosted runner (`mobile`) |
 | `real-android-workflow.yml` | manual | Real Android device on self-hosted macOS |
 | `docker-image.yml` | push tag `v*` | Build & push Docker image to Docker Hub |
 | `playwright-docker-build.yml` | manual | Build Docker image locally on the runner and run tests in it |
@@ -333,10 +346,10 @@ Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable
 | `sample-self-hosted-workflow.yml` | manual | Sample: run tests on self-hosted macOS runner |
 
 All smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
-This job checks out `gh-pages` into `site/`, deletes the suite's old report folder(s) (even if no new report was produced), downloads the run's report artifacts directly into `site/`, and publishes via `peaceiris/actions-gh-pages` (`keep_files: false` — `site/` already holds every other report), sharing the `gh-pages-deploy-{repo}` concurrency group:
-`smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{suite}-{browser}/`; `smoke-github-hosted-worker.yml` publishes `{suite}-report` as `{suite}-single-runner/`; `smoke-github-hosted-shard.yml` publishes `{suite}-sharded-report` as `{suite}-sharded/`.
+This job checks out `gh-pages` into `site/`, deletes the environment + suite's old report folder(s) (even if no new report was produced), downloads the run's report artifacts into `site/` (matrix: into `downloaded-reports/`, then moved to `site/{ENV}-{suite}-{browser}/`), and publishes via `peaceiris/actions-gh-pages` (`keep_files: false` — `site/` already holds every other report), sharing the `gh-pages-deploy-{repo}` concurrency group:
+`smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{ENV}-{suite}-{browser}/`; `smoke-github-hosted-worker.yml` publishes `{suite}-report` as `{ENV}-{suite}-single-runner/`; `smoke-github-hosted-shard.yml` publishes `{suite}-sharded-report` as `{ENV}-{suite}-sharded/` (`{ENV}` = `SIT` / `UAT`).
 
-Environment variables are supplied to CI via `ENV_FILE_BASE64` (base64-encoded `.env`) — never hardcode secrets in workflow files.
+Environment variables are supplied to CI via the `ENV_FILE_BASE64_SIT` / `ENV_FILE_BASE64_UAT` secrets (base64 of `.env` + `.env.{env}`, each including its own `TEST_ENV=sit|uat` line), selected by the `environment` input and passed to the reusable workflows as `ENV_FILE_BASE64`. The reusable workflows forward only the env file and `CREDENTIAL_INDEX` into the container, so `TEST_ENV` must be inside the env file. Never hardcode secrets in workflow files.
 
 ---
 

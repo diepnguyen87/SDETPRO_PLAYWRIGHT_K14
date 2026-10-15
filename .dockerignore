@@ -7,6 +7,10 @@ logs
 artifacts
 .env
 .env.base64
+.env.sit
+.env.sit.base64
+.env.uat
+.env.uat.base64
 .auth
 .git
 .gitignore

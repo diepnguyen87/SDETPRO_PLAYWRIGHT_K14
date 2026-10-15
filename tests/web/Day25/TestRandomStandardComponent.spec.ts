@@ -1,10 +1,12 @@
 import { test } from "@playwright/test";
 import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
-import randomStandardComputerData from "../../../test-data/RandomStandardComputer.json" with { type: "json" };
+import { testData } from "../../../test-data/TestDataProvider.js";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import { getCreditCardNumber } from "../../../utils/GetCreditCardNumber.js";
 import { TAG } from "../../../constant/Tag.js";
+
+const randomStandardComputerData = testData.randomStandardComputer;
 
 test(`${TAG.regression} | Test Random Standard Component`, async ({ page }, testInfo) => {
     await page.goto("/build-your-own-computer")
