@@ -73,7 +73,7 @@ jobs:
           - shard: 4
             credential_index: 3
 
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-4.yml@main
+    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-4.yml@b126fae6502dbb0bf27a5d35cde2304fe1b21329 # main
     with:
       environment: ${{ inputs.environment }}
       suite: ${{ inputs.suite }}
@@ -84,11 +84,7 @@ jobs:
       image-tag: latest
       runner: ubuntu-latest
 
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      ENV_FILE_BASE64: ${{ secrets.ENV_FILE_BASE64 }}
+    secrets: inherit
 
   merge-reports:
     name: Merge Playwright Reports

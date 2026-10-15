@@ -329,7 +329,7 @@ Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test f
 
 ## GitHub Actions
 
-Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (referenced at `@main`):
+Workflows live in `.github/workflows/`. All smoke workflows delegate to reusable workflows in `diepnguyen87/automation-workflows` (pinned to a full commit SHA with a `# main` comment — bump the SHA in every caller after changing that repo):
 `smoke-github-hosted-worker.yml` → `reusable-playwright-3.yml`; `smoke-github-hosted-shard.yml` → `reusable-playwright-4.yml`; `smoke-github-hosted-matrix.yml` and `smoke-self-hosted.yml` → `reusable-playwright-2.yml`.
 
 | Workflow | Trigger | Purpose |
@@ -349,7 +349,7 @@ All smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`
 This job checks out `gh-pages` into `site/`, deletes the environment + suite's old report folder(s) (even if no new report was produced), downloads the run's report artifacts into `site/` (matrix: into `downloaded-reports/`, then moved to `site/{ENV}-{suite}-{browser}/`), and publishes via `peaceiris/actions-gh-pages` (`keep_files: false` — `site/` already holds every other report), sharing the `gh-pages-deploy-{repo}` concurrency group:
 `smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{ENV}-{suite}-{browser}/`; `smoke-github-hosted-worker.yml` publishes `{suite}-report` as `{ENV}-{suite}-single-runner/`; `smoke-github-hosted-shard.yml` publishes `{suite}-sharded-report` as `{ENV}-{suite}-sharded/` (`{ENV}` = `SIT` / `UAT`).
 
-Environment variables are supplied to CI from two sources, merged into one `.env` by the reusable workflows (`reusable-playwright-2/3/4.yml`): the repo secret `ENV_FILE_BASE64` (base64 of the shared `.env`), passed by the caller, and the GitHub Environment secret `ENV_FILE_BASE64_SIT` (environment `sit`) or `ENV_FILE_BASE64_UAT` (environment `uat`) (base64 of `.env.{env}`, including its `TEST_ENV=sit|uat` line). Callers pass `environment: ${{ inputs.environment }}`; the reusable job sets `environment:` so it can read the environment secret (a caller job that uses `uses:` cannot). The reusable workflows forward only the env file and `CREDENTIAL_INDEX` into the container, so `TEST_ENV` must be inside the environment file. Never hardcode secrets in workflow files.
+Environment variables are supplied to CI from two sources, merged into one `.env` by the reusable workflows (`reusable-playwright-2/3/4.yml`): the repo secret `ENV_FILE_BASE64` (base64 of the shared `.env`) and the GitHub Environment secret `ENV_FILE_BASE64_SIT` (environment `SIT`) or `ENV_FILE_BASE64_UAT` (environment `UAT`) (base64 of `.env.{env}`, including its `TEST_ENV=sit|uat` line). Callers pass `environment: ${{ inputs.environment }}`; the reusable job sets `environment:` so it can read the environment secret (a caller job that uses `uses:` cannot). Callers use `secrets: inherit` — GitHub only exposes environment secrets to a reusable workflow when the caller inherits secrets; explicit secret mapping leaves them empty. The reusable workflows forward only the env file and `CREDENTIAL_INDEX` into the container, so `TEST_ENV` must be inside the environment file. Never hardcode secrets in workflow files.
 
 ---
 
