@@ -58,15 +58,71 @@ jobs:
   execute:
     name: ${{ inputs.suite }} Testing
     needs: prepare
-    uses: diepnguyen87/automation-workflows/.github/workflows/reusable-playwright-3.yml@b126fae6502dbb0bf27a5d35cde2304fe1b21329 # main
-    with:
-      environment: ${{ inputs.environment }}
-      suite: ${{ inputs.suite }}
-      command: ${{ needs.prepare.outputs.command }}
-      image-tag: latest
-      runner: ubuntu-latest
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 150
 
-    secrets: inherit
+    env:
+      IMAGE: 181221/playwright-framework:latest
+
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull Image
+        run: docker pull "$IMAGE"
+
+      - name: Create .env file
+        env:
+          ENVIRONMENT_NAME: ${{ inputs.environment }}
+          SHARED_ENV: ${{ secrets.ENV_FILE_BASE64 }}
+          ENVIRONMENT_ENV: ${{ inputs.environment == 'UAT' && secrets.ENV_FILE_BASE64_UAT || inputs.environment == 'SIT' && secrets.ENV_FILE_BASE64_SIT || '' }}
+        run: |
+          if [ -n "$ENVIRONMENT_NAME" ] && [ -z "$ENVIRONMENT_ENV" ]; then
+            echo "Missing environment secret ENV_FILE_BASE64_$ENVIRONMENT_NAME in environment '$ENVIRONMENT_NAME'"
+            exit 1
+          fi
+          {
+            echo "$SHARED_ENV" | base64 -d
+            echo
+            if [ -n "$ENVIRONMENT_ENV" ]; then echo "$ENVIRONMENT_ENV" | base64 -d; fi
+          } > .env
+
+      - name: Run Playwright Tests
+        run: |
+          docker run --rm \
+            --env-file .env \
+            -v ${{ github.workspace }}/playwright-report:/app/playwright-report \
+            -v ${{ github.workspace }}/allure-results:/app/allure-results \
+            "$IMAGE" \
+            yarn ${{ needs.prepare.outputs.command }}
+
+      - name: Upload Playwright HTML Report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.suite }}-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: |
+              ${{ job.status == 'success' && '✅' || '❌' }} Playwright test: ${{ job.status }}
+              Repository: ${{ github.repository }}
+              Branch: ${{ github.ref_name }}
+              Environment: ${{ inputs.environment }}
+              Test suite: ${{ needs.prepare.outputs.command }}
+              Triggered by: ${{ github.actor }}
+              Run details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   generate-index:
     name: Publish Playwright Reports
