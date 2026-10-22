@@ -16,3 +16,4 @@ artifacts
 .env.sit.base64
 .env.uat
 .env.uat.base64
+.claude/settings.local.json
