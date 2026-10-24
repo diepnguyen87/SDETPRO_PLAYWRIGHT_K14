@@ -11,6 +11,6 @@ export default class PageBodyComponent extends Component {
     }
 
     productGridComp(): ProductGridComponent {
-        return new ProductGridComponent(this.componentLocator.locator(ProductGridComponent.selector))
+        return new ProductGridComponent(this.page, this.componentLocator.locator(ProductGridComponent.selector), this.testInfo)
     }
 }

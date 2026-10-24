@@ -2,7 +2,7 @@ import { Locator, Page, TestInfo } from "@playwright/test";
 import ComputerEssentialComponent from "../components/computer/ComputerEssentialComponent.js";
 import BasePage from "./BasePage.js";
 
-export type ComputerComponentConstructor<T extends ComputerEssentialComponent> = new (page: Page, component: Locator, testInfo: TestInfo) => T
+export type ComputerComponentConstructor<T extends ComputerEssentialComponent> = (new (page: Page, component: Locator, testInfo: TestInfo) => T) & { selectorValue: string }
 
 export default class ComputerDetailPage extends BasePage {
 

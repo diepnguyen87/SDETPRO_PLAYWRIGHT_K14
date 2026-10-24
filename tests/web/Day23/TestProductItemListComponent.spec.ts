@@ -4,9 +4,9 @@ import ProductItemComponent from '../../../models/components/ProductItemComponen
 import HomePage from '../../../models/pages/HomePage.js'
 import ProductGridComponent from '../../../models/components/ProductGridComponent.js'
 
-test('Advance POM - List components in parent component', async ({ page }) => {
+test('Advance POM - List components in parent component', async ({ page }, testInfo) => {
     await page.goto("/")
-    let homePage: HomePage = new HomePage(page)
+    let homePage: HomePage = new HomePage(page, testInfo)
     let pageBodyComp: PageBodyComponent = homePage.pageBodyComp();
     let productGridComp:ProductGridComponent = pageBodyComp.productGridComp();
     console.log(`Product Grid Component title: ${await productGridComp.title().textContent()}`);

@@ -19,6 +19,6 @@ export default class ProductGridComponent extends Component {
 
     async productItemComp(): Promise<ProductItemComponent[]> {
         const productItemLocatorList = await this.componentLocator.locator(ProductItemComponent.selector).all();
-        return productItemLocatorList.map(productItemLocator => new ProductItemComponent(productItemLocator))
+        return productItemLocatorList.map(productItemLocator => new ProductItemComponent(this.page, productItemLocator, this.testInfo))
     }
 }

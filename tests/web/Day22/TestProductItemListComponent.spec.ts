@@ -2,10 +2,10 @@ import { test } from '@playwright/test'
 import ProductItemComponent from '../../../models/components/ProductItemComponent.js'
 import HomePage from '../../../models/pages/HomePage.js'
 
-test('Advance POM - Component in page', async ({ page }) => {
+test('Advance POM - Component in page', async ({ page }, testInfo) => {
     await page.goto("/")
-    let homePage: HomePage = new HomePage(page)
-    let productItemCompList: ProductItemComponent[] = await homePage.productItemComp()
+    let homePage: HomePage = new HomePage(page, testInfo)
+    let productItemCompList: ProductItemComponent[] = await homePage.pageBodyComp().productGridComp().productItemComp()
     for (const productItemComp of productItemCompList) {
         let productTitle = await productItemComp.getProductTitle().textContent()
         let actualPrice = await productItemComp.actualPrice().textContent()

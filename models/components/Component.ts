@@ -6,6 +6,8 @@ import ComponentFailureCollector from "../../ai/collectors/ComponentFailureColle
 export type ComponentConstructor<T extends Component> = new (component: Locator) => T
 export default class Component {
 
+    declare static selectorValue: string;
+
     protected sourceFile!: string;
 
     constructor(protected page: Page, protected componentLocator: Locator, protected testInfo: TestInfo) {

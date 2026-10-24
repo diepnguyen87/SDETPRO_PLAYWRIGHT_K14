@@ -3,9 +3,9 @@ import HeaderComponent from '../../../models/components/global/header/HeaderComp
 import SearchComponent from '../../../models/components/global/header/SearchComponent.js'
 import HomePage from '../../../models/pages/HomePage.js'
 
-test('Advance POM - Component in Parent component', async ({ page }) => {
+test('Advance POM - Component in Parent component', async ({ page }, testInfo) => {
     await page.goto("/")
-    let homePage: HomePage = new HomePage(page)
+    let homePage: HomePage = new HomePage(page, testInfo)
     let headerComp: HeaderComponent = homePage.headerComp()
     let searchComp: SearchComponent = headerComp.searchComp();
 

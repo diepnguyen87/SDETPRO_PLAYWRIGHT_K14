@@ -30,13 +30,16 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
 
     private async getSelectedTextInDropdown(selectDropdown: Locator): Promise<string> {
         const allSelectedElemList = await selectDropdown.locator('option').all()
-        let selectedRAMText = undefined
+        let selectedRAMText: string | undefined = undefined
         for (const selectElem of allSelectedElemList) {
-            const isSelected = await selectElem.evaluate(el => (el as HTMLInputElement).selected);
+            const isSelected = await selectElem.evaluate(el => (el as HTMLOptionElement).selected);
             if (isSelected) {
                 selectedRAMText = await selectElem.evaluate(el => (el as HTMLInputElement).innerText);
                 break;
             }
+        }
+        if (selectedRAMText === undefined) {
+            throw new Error("No selected option found in dropdown");
         }
         return selectedRAMText.trim();
     }

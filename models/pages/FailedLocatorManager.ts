@@ -41,8 +41,10 @@ export class FailedLocatorManager {
         
         const metadata: Metadata = {
             testName: testInfo.title,
+            testFile: testInfo.file,
             browser: testInfo.project.name,
             error: testInfo.error?.message ?? '',
+            stackTrace: testInfo.error?.stack ?? '',
             url: page.url(),
             failedLocator: FailedLocatorManager.get() ?? '',
             timestamp: new Date().toISOString()

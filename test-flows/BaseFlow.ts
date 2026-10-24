@@ -3,7 +3,7 @@ import BasePage from "../models/pages/BasePage.js";
 import HeaderComponent from "../models/components/global/header/HeaderComponent.js";
 import ShoppingCartPage from "../models/pages/ShoppingCartPage.js";
 import LoggerManager from "../utils/LoggerManager.js";
-import pages from "../test-data/pages.json" assert { type: "json" };
+import pages from "../test-data/pages.json" with { type: "json" };
 
 type PageConstructor<T extends BasePage> = new (page: Page, testInfo: TestInfo) => T
 

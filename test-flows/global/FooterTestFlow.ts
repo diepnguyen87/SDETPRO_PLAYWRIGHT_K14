@@ -37,10 +37,10 @@ export default class FooterTestFlow extends BaseFlow {
         if (subMenuItemList.length != 0) {
             let randomSubCategoryIndex = Math.floor(Math.random() * subMenuItemList.length)
             let randomSubMenuItem: Locator = subMenuItemList[randomSubCategoryIndex].subMenuItem()
-            href = randomSubMenuItem.getAttribute("href")
+            href = await randomSubMenuItem.getAttribute("href")
             await randomSubMenuItem.click()
         } else {
-            href = randomMenuItem.getAttribute("href")
+            href = await randomMenuItem.getAttribute("href")
             await randomMenuItem.click()
         }
         if (href === null) {
