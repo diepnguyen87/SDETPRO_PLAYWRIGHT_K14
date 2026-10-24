@@ -183,6 +183,8 @@ After any code change:
 
 Never claim a test passed unless it was actually executed successfully.
 
+The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is excluded in `tsconfig.json`). A PostToolUse hook (`.claude/hooks/typecheck.mjs`, registered in `.claude/settings.json`) runs `tsc` after every `.ts` edit and reports any type errors — fix them before moving on.
+
 ---
 
 ## Debugging
