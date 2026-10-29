@@ -54,7 +54,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
 
     protected async selectOptionByName(type: string): Promise<string> {
         const optionSel = `//label[contains(text(), "${type}")]`;
-        const optionText = await this.componentLocator.locator(optionSel).first().textContent() ?? '';
+        const optionText = await this.withHealing(optionSel, l => l.first().textContent()) ?? '';
         await this.withHealing(optionSel, l => l.first().click());
         return optionText;
     }
@@ -69,7 +69,7 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
         const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//label)[${index + 1}]`;
-        const optionText = await this.componentLocator.locator(optionSel).textContent() ?? '';
+        const optionText = await this.withHealing(optionSel, l => l.textContent()) ?? '';
         await this.withHealing(optionSel, l => l.click());
         return optionText;
     }

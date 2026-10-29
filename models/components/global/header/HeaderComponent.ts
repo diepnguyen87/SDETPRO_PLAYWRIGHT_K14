@@ -24,11 +24,11 @@ export default class HeaderComponent extends Component {
     }
 
     public async getLoginAccount(): Promise<string | null> {
-        return await this.componentLocator.locator(this.accountLinkSel).textContent();
+        return await this.withHealing(this.accountLinkSel, l => l.textContent());
     }
 
     public async getCartQty(): Promise<number> {
-        const cartQtytext = await this.componentLocator.locator(this.cartQtySel).textContent();
+        const cartQtytext = await this.withHealing(this.cartQtySel, l => l.textContent());
         return Number(cartQtytext?.match(/\d+/)?.[0]);
     }
 

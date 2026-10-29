@@ -11,6 +11,6 @@ export default class NotificationComponent extends Component {
     }
 
     public async getContentMessage(): Promise<string> {
-        return await this.componentLocator.locator(this.contentMessageSel).textContent() ?? ''
+        return await this.withHealing(this.contentMessageSel, l => l.textContent()) ?? ''
     }
 }

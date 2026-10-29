@@ -16,7 +16,6 @@ export default class PaymentInformationComponent extends CheckoutStepComponent {
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
-        this.componentLocator.scrollIntoViewIfNeeded()
     }
 
     public async selectCreditCardType(creditCardType: string): Promise<void> {

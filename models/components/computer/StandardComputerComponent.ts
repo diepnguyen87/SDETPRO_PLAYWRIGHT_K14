@@ -14,18 +14,18 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
         if (processorIndex === undefined) {
             throw new Error(`${processorIndex} does not exist`);
         }
-        const selectDropdownLocator = this.componentLocator.locator(this.dynamicDropdownSel.replace('dynamicText', 'Processor'))
-        selectDropdownLocator.selectOption({ index: processorIndex });
-        return await this.getSelectedTextInDropdown(selectDropdownLocator)
+        const selectDropdownSel = this.dynamicDropdownSel.replace('dynamicText', 'Processor')
+        await this.withHealing(selectDropdownSel, l => l.selectOption({ index: processorIndex }));
+        return await this.getSelectedTextInDropdown(this.componentLocator.locator(selectDropdownSel))
     }
 
     public async selectRAMByIndex(ramIndex: number): Promise<string> {
         if (ramIndex === undefined) {
             throw new Error(`${ramIndex} does not exist`);
         }
-        const selectDropdownLocator = this.componentLocator.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
-        selectDropdownLocator.selectOption({ index: ramIndex });
-        return await this.getSelectedTextInDropdown(selectDropdownLocator)
+        const selectDropdownSel = "//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select"
+        await this.withHealing(selectDropdownSel, l => l.selectOption({ index: ramIndex }));
+        return await this.getSelectedTextInDropdown(this.componentLocator.locator(selectDropdownSel))
     }
 
     private async getSelectedTextInDropdown(selectDropdown: Locator): Promise<string> {
@@ -45,24 +45,24 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
     }
 
     public async selectProcessorByName(processorType: string): Promise<string> {
-        const dropdownLocator = this.componentLocator.locator("//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select");
-        return this.selectOptionInDropdownByText(dropdownLocator, processorType);
+        const dropdownSel = "//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select";
+        return this.selectOptionInDropdownByText(dropdownSel, processorType);
     }
 
     public async selectRAMByName(ramType: string): Promise<string> {
-        const dropdownLocator = this.componentLocator.locator("//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select");
-        return this.selectOptionInDropdownByText(dropdownLocator, ramType);
+        const dropdownSel = "//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select";
+        return this.selectOptionInDropdownByText(dropdownSel, ramType);
     }
 
-    private async selectOptionInDropdownByText(selectDropdown: Locator, expectedPartialOptionText: string): Promise<string> {
-        const allOptionsLocator: Locator[] = await selectDropdown.locator("option").all();
+    private async selectOptionInDropdownByText(selectDropdownSel: string, expectedPartialOptionText: string): Promise<string> {
+        const allOptionTextList: string[] = await this.withHealing(selectDropdownSel,
+            l => l.evaluate(el => Array.from((el as HTMLSelectElement).options, option => option.textContent ?? '')));
         let optionText = '';
-        for (const option of allOptionsLocator) {
-            optionText = await option.textContent() ?? ''
-            optionText = optionText.trim().replace(/\s+/g, ' ')
+        for (const rawOptionText of allOptionTextList) {
+            optionText = rawOptionText.trim().replace(/\s+/g, ' ')
 
             if (optionText.startsWith(expectedPartialOptionText)) {
-                selectDropdown.selectOption({ label: optionText })
+                await this.withHealing(selectDropdownSel, l => l.selectOption({ label: optionText }));
                 break;
             }
         }

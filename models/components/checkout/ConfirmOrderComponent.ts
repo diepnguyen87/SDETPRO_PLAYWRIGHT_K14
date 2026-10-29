@@ -10,7 +10,6 @@ export default class ConfirmOrderComponent extends Component {
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
-        componentLocator.scrollIntoViewIfNeeded();
     }
 
     public async clickOnConfirmBtn(): Promise<void> {

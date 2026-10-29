@@ -7,6 +7,7 @@ export default class LoginComponent extends Component {
 
     private summaryErrorMsgSel: string = "div.message-error"
     private emailValidationSel: string = "span.field-validation-error"
+    private loginErrorSel: string = `${this.summaryErrorMsgSel}, ${this.emailValidationSel}`
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
@@ -22,14 +23,18 @@ export default class LoginComponent extends Component {
 
     public async clickLoginBtn(): Promise<void> {
         await this.componentLocator.getByRole('button', { name: 'Log in' }).click();
-        await this.componentLocator.waitFor({ state: 'hidden' });
+        // Successful login leaves the login page; failed login keeps it and shows an error
+        await Promise.race([
+            this.componentLocator.waitFor({ state: 'hidden' }),
+            this.componentLocator.locator(this.loginErrorSel).filter({ visible: true }).first().waitFor({ state: 'visible' })
+        ]);
     }
 
     public async getSummaryError(): Promise<string | null> {
-        return await this.componentLocator.locator(this.summaryErrorMsgSel).textContent();
+        return await this.withHealing(this.summaryErrorMsgSel, l => l.textContent());
     }
 
     public async getEmailValidationError(): Promise<string | null> {
-        return await this.componentLocator.locator(this.emailValidationSel).textContent();
+        return await this.withHealing(this.emailValidationSel, l => l.textContent());
     }
 }

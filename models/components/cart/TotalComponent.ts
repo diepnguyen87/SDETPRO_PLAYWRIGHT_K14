@@ -17,12 +17,18 @@ export default class TotalComponent extends Component {
 
     public async priceCategories(): Promise<any> {
         let priceCategories: any = {}
-        const tableRowElemList: Locator[] = await this.componentLocator.locator(this.tableRowSel).all()
-        for (const tableRowElem of tableRowElemList) {
-            const catLabel = await tableRowElem.locator(this.rowLabel).innerText()
-            const catPrice = Number(await tableRowElem.locator(this.rowValue).innerText())
-            priceCategories[catLabel] = catPrice
+        const tableRowCount = await this.withHealing(this.tableRowSel, async l => {
+            await l.first().waitFor();
+            return await l.count();
+        })
+        const catLabelList = await this.withHealing(this.rowLabel, l => l.allInnerTexts())
+        const catPriceList = await this.withHealing(this.rowValue, l => l.allInnerTexts())
+        if (catLabelList.length !== tableRowCount || catPriceList.length !== tableRowCount) {
+            throw new Error(`Expected ${tableRowCount} price rows but found ${catLabelList.length} labels and ${catPriceList.length} prices`)
         }
+        catLabelList.forEach((catLabel, index) => {
+            priceCategories[catLabel] = Number(catPriceList[index])
+        })
         return priceCategories
     }
 

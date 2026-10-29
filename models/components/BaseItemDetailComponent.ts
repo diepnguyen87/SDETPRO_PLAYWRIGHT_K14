@@ -14,7 +14,7 @@ export default class BaseItemDetailComponent extends Component {
     }
 
     public async getProductPrice(): Promise<number> {
-        return Number(await this.componentLocator.locator(this.productPriceSel).textContent())
+        return Number(await this.withHealing(this.productPriceSel, l => l.textContent()))
     }
 
     public productQuality(): Locator {

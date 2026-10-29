@@ -8,7 +8,6 @@ export default class FooterColumnComponent extends Component {
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)
-        this.componentLocator.scrollIntoViewIfNeeded()
     }
 
     title(): Locator {

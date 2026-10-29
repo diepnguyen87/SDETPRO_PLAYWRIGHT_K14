@@ -14,7 +14,7 @@ export default class CartItemRowComponent extends Component{
     }
 
     public async getProductUnitPrice(): Promise<number> {
-        return Number(await this.componentLocator.locator(this.productUnitPriceSel).textContent())
+        return Number(await this.withHealing(this.productUnitPriceSel, l => l.textContent()))
     }
 
     public qualityInput(): Locator {
@@ -22,7 +22,7 @@ export default class CartItemRowComponent extends Component{
     }
 
     public async getProductSubTotal(): Promise<number> {
-        return Number(await this.componentLocator.locator(this.productSubTotalSel).textContent())
+        return Number(await this.withHealing(this.productSubTotalSel, l => l.textContent()))
     }
 
     public async selectRemove(): Promise<void> {

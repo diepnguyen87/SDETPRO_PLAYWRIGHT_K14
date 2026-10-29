@@ -15,7 +15,7 @@ export default class CompletedComponent extends Component {
     }
 
     public async getOrderCompletedTitle(): Promise<string> {
-        return await this.componentLocator.locator(this.titleSel).innerText()
+        return await this.withHealing(this.titleSel, l => l.innerText())
     }
 
     public async getOrderNumber(): Promise<string | null> {

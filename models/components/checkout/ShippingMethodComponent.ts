@@ -9,7 +9,6 @@ export default class ShippingMethodComponent extends CheckoutStepComponent {
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
-        componentLocator.scrollIntoViewIfNeeded()
     }
 
     public async selectMethod(optionIndex: number): Promise<string> {
@@ -17,6 +16,6 @@ export default class ShippingMethodComponent extends CheckoutStepComponent {
         const shippingMethodLabelSel = `label[for='shippingoption_${optionIndex}']`;
 
         await this.withHealing(shippingMethodRadioSel, l => l.click());
-        return await this.componentLocator.locator(shippingMethodLabelSel).textContent() ?? '';
+        return await this.withHealing(shippingMethodLabelSel, l => l.textContent()) ?? '';
     }
 }
