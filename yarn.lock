@@ -171,6 +171,14 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@playwright/mcp@0.0.83":
+  version "0.0.83"
+  resolved "https://registry.yarnpkg.com/@playwright/mcp/-/mcp-0.0.83.tgz#30bf9c6c0d80835517fd2e9b022559ea05cb1428"
+  integrity sha512-oNcl+Ae2/IAjhfPeP46BfIkSakfmprY+aOtkv5MjrQ4lPav4/yNtPhL0iq8SlIM90oApWgBDUxaNKvktazUKOg==
+  dependencies:
+    playwright "1.64.0-alpha-1790635538000"
+    playwright-core "1.64.0-alpha-1790635538000"
+
 "@playwright/test@1.64.0":
   version "1.64.0"
   resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.64.0.tgz#af51c4f1dd5f689b2ff16e6eacf27ac00843f239"
@@ -431,12 +439,24 @@ playwright-core@1.64.0:
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.64.0.tgz#a765f91dabd2b2cadd67e87439842c1d6c72c652"
   integrity sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==
 
+playwright-core@1.64.0-alpha-1790635538000:
+  version "1.64.0-alpha-1790635538000"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.64.0-alpha-1790635538000.tgz#1edb67e4789947da238287e930fe71536bed5e6d"
+  integrity sha512-pNwaXirhXMRLaRQs4NQ18EpTdtDoFwyPH9FOaaDC7YXG4hpwE2xmwCic/1srbuExVQC7zT9LJSJpDBAru+Vo9A==
+
 playwright@1.64.0:
   version "1.64.0"
   resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.64.0.tgz#c105a3ffe174d487a5927a6836a79778b1180742"
   integrity sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==
   dependencies:
     playwright-core "1.64.0"
+
+playwright@1.64.0-alpha-1790635538000:
+  version "1.64.0-alpha-1790635538000"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.64.0-alpha-1790635538000.tgz#443b6ce08ecb261d40b031081feed3424248c1ca"
+  integrity sha512-/5XDUMxpOd/9AojJtWDFIRV3EJZNQ0AwvK69wgt3CPzy8wTgiBG9pX45VfxtqtvIRGwfWzMhrvawNKreG69Snw==
+  dependencies:
+    playwright-core "1.64.0-alpha-1790635538000"
 
 readable-stream@^3.4.0, readable-stream@^3.6.2:
   version "3.6.2"

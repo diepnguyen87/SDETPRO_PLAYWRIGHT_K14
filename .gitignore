@@ -17,3 +17,4 @@ artifacts
 .env.uat
 .env.uat.base64
 .claude/settings.local.json
+.playwright-mcp
