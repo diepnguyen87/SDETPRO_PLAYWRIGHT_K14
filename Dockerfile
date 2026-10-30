@@ -1,10 +1,14 @@
 FROM mcr.microsoft.com/playwright:v1.64.0-jammy
 
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
 WORKDIR /app
 
-COPY package*.json yarn.lock ./
+RUN npm uninstall -g yarn && corepack enable
 
-RUN yarn install --frozen-lockfile
+COPY package*.json yarn.lock .yarnrc.yml ./
+
+RUN corepack install && yarn install --immutable
 
 COPY . .
 

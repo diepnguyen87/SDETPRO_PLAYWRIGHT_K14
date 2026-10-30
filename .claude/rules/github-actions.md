@@ -24,6 +24,8 @@ Workflows live in `.github/workflows/`. `smoke-github-hosted-worker.yml` is self
 | `sample-github-hosted-workflow.yml` | push/PR → `day-30`, manual | Sample: `yarn test` on GitHub-hosted runner |
 | `sample-self-hosted-workflow.yml` | manual | Sample: run tests on self-hosted macOS runner |
 
+The project uses Yarn 4 via Corepack (`packageManager` in `package.json`). A workflow that runs `yarn install` on the runner must call `setup-node` without `cache`, run `corepack enable`, then call `setup-node` again with `cache: yarn` before `yarn install --immutable`. The `Dockerfile` installs Yarn the same way, so workflows that run inside the image need no setup.
+
 All smoke GitHub-hosted workflows include a `generate-index` job (`if: always()`) that regenerates the `gh-pages` report index after every run — do not remove it.
 This job checks out `gh-pages` into `site/`, deletes the environment + suite's old report folder(s) (even if no new report was produced), downloads the run's report artifacts into `site/` (matrix: into `downloaded-reports/`, then moved to `site/{ENV}-{suite}-{browser}/`), and publishes via `peaceiris/actions-gh-pages` (`keep_files: false` — `site/` already holds every other report), sharing the `gh-pages-deploy-{repo}` concurrency group:
 `smoke-github-hosted-matrix.yml` publishes `{suite}-*-report` as `{ENV}-{suite}-{browser}/`; `smoke-github-hosted-worker.yml` publishes `{ENV}-{suite}-report` as `{ENV}-{suite}-single-runner/`; `smoke-github-hosted-shard.yml` publishes `{suite}-sharded-report` as `{ENV}-{suite}-sharded/` (`{ENV}` = `SIT` / `UAT`).

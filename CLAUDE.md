@@ -191,7 +191,7 @@ The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is exclud
 
 - Skills (`.claude/skills/`): `/add-page` (new Page Object + Components + `pages.json` entry), `/add-test-data` (new SIT data file + `TestDataProvider` registration), `/debug-failure` (artifacts → logs → data → component → app → env/config, root cause before fixing).
 - Agent (`.claude/agents/code-reviewer.md`): read-only review of the current diff or a folder against these rules.
-- MCP (`.mcp.json`): `playwright` server from the `@playwright/mcp` devDependency (`yarn -s playwright-mcp --isolated`), used to inspect real pages for roles/labels when writing locators.
+- MCP: `playwright` server from the `@playwright/mcp` devDependency (`yarn mcp:playwright`), used to inspect real pages for roles/labels when writing locators.
 
 ---
 

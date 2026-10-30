@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "yarn",
-      "args": ["-s", "playwright-mcp", "--isolated"]
-    }
-  }
-}
