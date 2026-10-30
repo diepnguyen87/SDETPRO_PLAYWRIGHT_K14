@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       command: ${{ steps.set-command.outputs.command }}
 
