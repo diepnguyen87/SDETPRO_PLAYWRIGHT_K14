@@ -84,14 +84,14 @@ jobs:
       browser: ${{ matrix.project }}
       credential-index: ${{ matrix.credential_index }}
       image-tag: latest
-      runner: ubuntu-latest
+      runner: ubuntu-26.04
     secrets: inherit
 
   generate-index:
     name: Publish Playwright Reports
     needs: execute
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     concurrency:
       group: gh-pages-deploy-${{ github.repository }}

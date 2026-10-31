@@ -21,4 +21,4 @@ services:
       - ./allure-results:/app/allure-results
       - ./test-results:/app/test-results
       - ./artifacts:/app/artifacts
-      - ./logs:/app/logs
+      - ./logs:/app/logs  

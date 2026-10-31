@@ -1,0 +1,110 @@
+Found 10 matches for /Welcome|Featured products|Manufacturers|Popular tags|Information|Customer service|My account|Follow us/:
+
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          ...
+          - list [ref=e49]:
+            ...
+            - listitem [ref=e62]:
+              - link "Gift Cards" [ref=e63] [cursor=pointer]:
+                - /url: /gift-cards
+        - generic [ref=e64]:
+          - strong [ref=e66]: Manufacturers
+          - list [ref=e68]:
+            - listitem [ref=e69]:
+              - link "Tricentis" [ref=e70] [cursor=pointer]:
+                - /url: /tricentis
+        - generic [ref=e71]:
+          - strong [ref=e73]: Popular tags
+          - generic [ref=e74]:
+            - list [ref=e76]:
+              - listitem [ref=e77]:
+
+----
+
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic:
+      - generic [ref=e138]:
+        - generic [ref=e139]:
+          ...
+          - generic [ref=e146]:
+            - generic [ref=e147] [cursor=pointer]: "1"
+            - generic [ref=e148] [cursor=pointer]: "2"
+        - generic [ref=e149]:
+          - heading "Welcome to our store" [level=2] [ref=e151]
+          - generic [ref=e152]:
+            - paragraph [ref=e153]: Welcome to the new Tricentis store!
+            - paragraph [ref=e154]: Feel free to shop around and explore everything.
+        - generic [ref=e155]:
+          - strong [ref=e157]: Featured products
+          - generic [ref=e159]:
+            - link [ref=e161] [cursor=pointer]:
+              - /url: /25-virtual-gift-card
+
+----
+
+- generic [ref=e2]:
+  - generic [ref=e254]:
+    - generic [ref=e255]:
+      - generic [ref=e256]:
+        - heading "Information" [level=3] [ref=e257]
+        - list [ref=e258]:
+          - listitem [ref=e259]:
+            - link "Sitemap" [ref=e260] [cursor=pointer]:
+
+----
+
+- generic [ref=e2]:
+  - generic [ref=e254]:
+    - generic [ref=e255]:
+      - generic [ref=e256]:
+        - list [ref=e258]:
+          ...
+          - listitem [ref=e269]:
+            - link "Contact us" [ref=e270] [cursor=pointer]:
+              - /url: /contactus
+      - generic [ref=e271]:
+        - heading "Customer service" [level=3] [ref=e272]
+        - list [ref=e273]:
+          - listitem [ref=e274]:
+            - link "Search" [ref=e275] [cursor=pointer]:
+
+----
+
+- generic [ref=e2]:
+  - generic [ref=e254]:
+    - generic [ref=e255]:
+      - generic [ref=e271]:
+        - list [ref=e273]:
+          ...
+          - listitem [ref=e284]:
+            - link "New products" [ref=e285] [cursor=pointer]:
+              - /url: /newproducts
+      - generic [ref=e286]:
+        - heading "My account" [level=3] [ref=e287]
+        - list [ref=e288]:
+          - listitem [ref=e289]:
+            - link "My account" [ref=e290] [cursor=pointer]:
+              - /url: /customer/info
+          - listitem [ref=e291]:
+            - link "Orders" [ref=e292] [cursor=pointer]:
+
+----
+
+- generic [ref=e2]:
+  - generic [ref=e254]:
+    - generic [ref=e255]:
+      - generic [ref=e286]:
+        - list [ref=e288]:
+          - listitem [ref=e297]:
+            - link "Wishlist" [ref=e298] [cursor=pointer]:
+              - /url: /wishlist
+      - generic [ref=e299]:
+        - heading "Follow us" [level=3] [ref=e300]
+        - list [ref=e301]:
+          - listitem [ref=e302]:
+            - link "Facebook" [ref=e303] [cursor=pointer]:

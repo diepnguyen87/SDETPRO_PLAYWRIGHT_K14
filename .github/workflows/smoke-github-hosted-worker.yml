@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   prepare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       command: ${{ steps.set-command.outputs.command }}
 
@@ -128,7 +128,7 @@ jobs:
     name: Publish Playwright Reports
     needs: execute
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     concurrency:
       group: gh-pages-deploy-${{ github.repository }}
