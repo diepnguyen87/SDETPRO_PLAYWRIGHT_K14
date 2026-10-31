@@ -82,7 +82,7 @@ jobs:
       shard-total: 4
       credential-index: ${{ matrix.credential_index }}
       image-tag: latest
-      runner: ubuntu-latest
+      runner: ubuntu-26.04
 
     secrets: inherit
 
