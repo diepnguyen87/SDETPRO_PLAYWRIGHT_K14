@@ -103,7 +103,7 @@ jobs:
         run: docker pull 181221/playwright-framework:latest
 
       - name: Download Blob Reports
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: ${{ inputs.suite }}-blob-report-*
           path: all-blob-reports

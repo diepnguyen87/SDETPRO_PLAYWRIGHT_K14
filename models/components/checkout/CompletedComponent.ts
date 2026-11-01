@@ -11,7 +11,6 @@ export default class CompletedComponent extends Component {
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
-        // this.componentLocator.scrollIntoViewIfNeeded()
     }
 
     public async getOrderCompletedTitle(): Promise<string> {
