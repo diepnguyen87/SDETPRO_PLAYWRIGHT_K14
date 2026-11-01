@@ -26,6 +26,10 @@ export default class CompletedComponent extends Component {
         let matchesArr = (await this.componentLocator.getByText("Order number").innerText()).match(/\d+/)
         return matchesArr ? matchesArr[0] : null
     }
+
+    public async clickOrderDetailsLink(): Promise<void> {
+        await this.withHealing(this.orderDetailLinkSel, l => l.click())
+    }
  
     public oderDetailLink(): Locator {
         return this.componentLocator.locator(this.orderDetailLinkSel)

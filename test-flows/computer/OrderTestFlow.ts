@@ -12,6 +12,7 @@ import ComputerEssentialComponent from "../../models/components/computer/Compute
 import CheckoutAsGuestPage from "../../models/pages/CheckoutAsGuestPage.js";
 import CheckoutPage from "../../models/pages/CheckoutPage.js";
 import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/pages/ComputerDetailPage.js";
+import OrderDetailsPage from "../../models/pages/OrderDetailsPage.js";
 import ShoppingCartPage from "../../models/pages/ShoppingCartPage.js";
 import { testData } from "../../test-data/TestDataProvider.js";
 
@@ -256,11 +257,11 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async selectPaymentMethod(paymentMethod: string): Promise<void> {
-        const { cash, check, creditCard, purchaseOrder } = paymentMethods
+        const { cashOnDelivery, check, creditCard, purchaseOrder } = paymentMethods
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const paymentMethodComp: PaymentMethodComponent = checkoutPage.paymentMethodComp()
         switch (paymentMethod) {
-            case cash:
+            case cashOnDelivery:
                 this.additionalFee = await paymentMethodComp.selectCashOnDelivery()
                 break;
             case check:
@@ -273,6 +274,13 @@ export default class OrderTestFlow extends BaseFlow {
                 this.additionalFee = await paymentMethodComp.selectPurchaseOrder()
         }
         await paymentMethodComp.clickOnContinueBtn()
+    }
+
+    public async selectCashOnDeliveryPaymentMethod(): Promise<void> {
+        await this.selectPaymentMethod(paymentMethods.cashOnDelivery)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
+        const paymentInformationComp: PaymentInformationComponent = checkoutPage.paymentInformationComp()
+        await paymentInformationComp.clickOnContinueBtn()
     }
 
     public async inputPaymentInfo(creditCard: CreditCard) {
@@ -301,8 +309,8 @@ export default class OrderTestFlow extends BaseFlow {
 
         expect(subTotal).toEqual(this.rawTotalPrice)
         expect(shipping).toEqual(this.shippingPrice)
+        expect(paymentMethodAdditionalFee ?? 0).toEqual(this.additionalFee)
         if (paymentMethodAdditionalFee) {
-            expect(paymentMethodAdditionalFee).toEqual(this.additionalFee)
             expect(subTotal + shipping + paymentMethodAdditionalFee + tax).toEqual(finalPrice)
         } else {
             expect(subTotal + shipping + tax).toEqual(finalPrice)
@@ -318,6 +326,15 @@ export default class OrderTestFlow extends BaseFlow {
         expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")
         expect(await completedComp.oderDetailLink().innerText()).toEqual("Click here for order details.")
         expect(await completedComp.oderDetailLink().getAttribute("href")).toEqual(`/orderdetails/${orderNumber}`)
+    }
+
+    public async verifyOrderDetailsPaymentMethod(paymentMethod: string): Promise<void> {
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
+        await checkoutPage.orderCompletedComp().clickOrderDetailsLink()
+        await expect(this.page).toHaveURL(/\/orderdetails\/\d+$/)
+
+        const orderDetailsPage: OrderDetailsPage = new OrderDetailsPage(this.page, this.testInfo)
+        expect(await orderDetailsPage.getPaymentMethod()).toContain(paymentMethod)
     }
 
     private generateRandomIndex(size: number) {
