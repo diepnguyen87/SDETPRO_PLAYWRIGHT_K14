@@ -103,7 +103,7 @@ jobs:
         run: docker pull 181221/playwright-framework:latest
 
       - name: Download Blob Reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: ${{ inputs.suite }}-blob-report-*
           path: all-blob-reports
@@ -146,7 +146,7 @@ jobs:
         run: rm -rf "site/${{ inputs.environment }}-${{ inputs.suite }}-sharded"
 
       - name: Download Playwright Report
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: ${{ inputs.suite }}-sharded-report
