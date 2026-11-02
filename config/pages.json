@@ -73,5 +73,35 @@
         "pageName": "GiftCard Page",
         "slug": "/gift-cards",
         "className": "GiftCardPage"
+    },
+    {
+        "pageName": "Shopping Cart Page",
+        "slug": "/cart",
+        "className": "ShoppingCartPage",
+        "directAccess": false
+    },
+    {
+        "pageName": "Checkout As Guest Page",
+        "slug": "/login/checkoutasguest",
+        "className": "CheckoutAsGuestPage",
+        "directAccess": false
+    },
+    {
+        "pageName": "Checkout Page",
+        "slug": "/onepagecheckout",
+        "className": "CheckoutPage",
+        "directAccess": false
+    },
+    {
+        "pageName": "Checkout Completed Page",
+        "slug": "/checkout/completed",
+        "className": "CheckoutCompletedPage",
+        "directAccess": false
+    },
+    {
+        "pageName": "Order Details Page",
+        "slug": "/orderdetails/:id",
+        "className": "OrderDetailsPage",
+        "directAccess": false
     }
 ]

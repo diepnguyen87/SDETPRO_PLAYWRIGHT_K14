@@ -1,6 +1,6 @@
 ---
 name: add-page
-description: Create a new Page Object and its Components for a page of the app under test, and register the page in test-data/pages.json. Use when asked to add, model, or automate a new page or page section.
+description: Create a new Page Object and its Components for a page of the app under test, and register the page in config/pages.json. Use when asked to add, model, or automate a new page or page section.
 ---
 
 # Add a Page Object
@@ -8,7 +8,7 @@ description: Create a new Page Object and its Components for a page of the app u
 Input: page name, slug (e.g. `/contactus`), and the page areas the tests must interact with.
 
 ## 1. Reuse before creating
-- Search `models/pages/`, `models/components/` (including `global/`, `checkout/`, `computer/`, `cart/`) and `test-data/pages.json`.
+- Search `models/pages/`, `models/components/` (including `global/`, `checkout/`, `computer/`, `cart/`) and `config/pages.json`.
 - If a page or component already covers the need, extend or reuse it. Header, footer, top menu, notification and page body are already exposed by `BasePage` — never duplicate those accessors.
 
 ## 2. Inspect the real page
@@ -29,9 +29,12 @@ Reference implementation: `models/pages/LoginPage.ts`.
 - `export default class <Name>Page extends BasePage`, constructor `(page: Page, testInfo: TestInfo)`.
 - One accessor per component: `fooComp(): FooComponent { return new FooComponent(this.page, this.page.locator(FooComponent.selectorValue), this.testInfo) }`.
 - Page-level CSS/XPath interactions use `this.withHealing(...)`.
+- If the page is reached by a navigation (e.g. after a form submit), make its accessors/methods async and call `await this.ensureLoaded()` first. Never wait in the constructor.
 
 ## 5. Register the page
-Add `{ "pageName": "<Name> Page", "slug": "<slug>", "className": "<Name>Page" }` to `test-data/pages.json`. `className` must match the file name, because `BaseFlow.createPageInstance()` imports `../models/pages/<className>.js`.
+Add `{ "pageName": "<Name> Page", "slug": "<slug>", "className": "<Name>Page" }` to `config/pages.json`. `className` must match the file name, because `BaseFlow.createPageInstance()` imports `../models/pages/<className>.js` and `BasePage.ensureLoaded()` finds the slug by class name.
+- Variable path segments use `:name`, e.g. `/orderdetails/:id`.
+- Add `"directAccess": false` when the page cannot be opened directly by its slug (it needs prior state such as a placed order). The footer test skips those pages.
 
 ## 6. Verify
 - The typecheck hook runs after each edit — fix every reported error.

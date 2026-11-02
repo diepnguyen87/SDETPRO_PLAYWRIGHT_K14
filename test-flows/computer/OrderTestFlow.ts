@@ -10,6 +10,7 @@ import ShippingAddressComponent from "../../models/components/checkout/ShippingA
 import ShippingMethodComponent from "../../models/components/checkout/ShippingMethodComponent.js";
 import ComputerEssentialComponent from "../../models/components/computer/ComputerEssentialComponent.js";
 import CheckoutAsGuestPage from "../../models/pages/CheckoutAsGuestPage.js";
+import CheckoutCompletedPage from "../../models/pages/CheckoutCompletedPage.js";
 import CheckoutPage from "../../models/pages/CheckoutPage.js";
 import ComputerDetailPage, { ComputerComponentConstructor } from "../../models/pages/ComputerDetailPage.js";
 import OrderDetailsPage from "../../models/pages/OrderDetailsPage.js";
@@ -320,8 +321,8 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async checkoutCompleted() {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
-        const completedComp: CompletedComponent = await checkoutPage.orderCompletedComp()
+        const checkoutCompletedPage: CheckoutCompletedPage = new CheckoutCompletedPage(this.page, this.testInfo)
+        const completedComp: CompletedComponent = await checkoutCompletedPage.orderCompletedComp()
         let orderNumber = await completedComp.getOrderNumber()
         expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")
         expect(await completedComp.oderDetailLink().innerText()).toEqual("Click here for order details.")
@@ -329,9 +330,8 @@ export default class OrderTestFlow extends BaseFlow {
     }
 
     public async verifyOrderDetailsPaymentMethod(paymentMethod: string): Promise<void> {
-        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
-        await checkoutPage.orderCompletedComp().clickOrderDetailsLink()
-        await expect(this.page).toHaveURL(/\/orderdetails\/\d+$/)
+        const checkoutCompletedPage: CheckoutCompletedPage = new CheckoutCompletedPage(this.page, this.testInfo)
+        await (await checkoutCompletedPage.orderCompletedComp()).clickOrderDetailsLink()
 
         const orderDetailsPage: OrderDetailsPage = new OrderDetailsPage(this.page, this.testInfo)
         expect(await orderDetailsPage.getPaymentMethod()).toContain(paymentMethod)

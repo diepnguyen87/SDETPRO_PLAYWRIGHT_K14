@@ -1,9 +1,9 @@
 import { test } from '@playwright/test'
-import pages from '../../../test-data/pages.json' with { type: "json" };
+import pages from '../../../config/pages.json' with { type: "json" };
 import FooterTestFlow from '../../../test-flows/global/FooterTestFlow.js'
 import { Urls } from '../../../url/Urls.js'
 
-pages.forEach(pageObj => {
+pages.filter(pageObj => pageObj.directAccess !== false).forEach(pageObj => {
     test.only(`Test Footer Flow on ${pageObj.pageName}`, async ({ page }, testInfo) => {
         await page.goto(`${Urls.baseURL.concat(pageObj.slug)}`);
         let footerTestFlow: FooterTestFlow = new FooterTestFlow(page, testInfo);

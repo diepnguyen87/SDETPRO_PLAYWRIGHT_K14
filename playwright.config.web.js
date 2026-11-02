@@ -52,6 +52,7 @@ export default defineConfig({
     use: {
         baseURL: envConfig.baseURL,
         actionTimeout: 5 * 1000,
+        navigationTimeout: 30 * 1000,
         trace: 'retain-on-failure',
         video: 'retain-on-failure',
         screenshot: 'only-on-failure'

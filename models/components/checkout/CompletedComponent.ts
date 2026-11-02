@@ -1,4 +1,4 @@
-import { expect, Locator, Page, TestInfo } from "@playwright/test";
+import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../SelectorDecorator.js";
 import Component from "../Component.js";
 
@@ -6,7 +6,7 @@ import Component from "../Component.js";
 export default class CompletedComponent extends Component {
 
     private readonly titleSel = ".title"
-    private readonly orderNumber = "//ul[@class='details']//li[contains(text(), 'Order number')]"
+    private readonly orderNumberSel = ".details>li:has-text('Order number')"
     private readonly orderDetailLinkSel = ".details>li>a"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
@@ -18,11 +18,8 @@ export default class CompletedComponent extends Component {
     }
 
     public async getOrderNumber(): Promise<string | null> {
-        await expect(this.componentLocator).toBeVisible({
-            timeout: 30000
-        });
-        
-        let matchesArr = (await this.componentLocator.getByText("Order number").innerText()).match(/\d+/)
+        const orderNumberText = await this.withHealing(this.orderNumberSel, l => l.innerText())
+        const matchesArr = orderNumberText.match(/\d+/)
         return matchesArr ? matchesArr[0] : null
     }
 

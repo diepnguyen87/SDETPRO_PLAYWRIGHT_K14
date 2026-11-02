@@ -5,6 +5,7 @@ import NotificationComponent from "../components/global/NotificationComponent.js
 import FooterComponent from "../components/global/footer/FooterComponent.js";
 import HeaderComponent from "../components/global/header/HeaderComponent.js";
 import TopMenuComponent from "../components/global/header/TopMenuComponent.js";
+import pages from "../../config/pages.json" with { type: "json" };
 
 export default class BasePage extends Component {
 
@@ -32,5 +33,15 @@ export default class BasePage extends Component {
 
     footerComp(): FooterComponent {
         return new FooterComponent(this.page, this.page.locator(FooterComponent.selectorValue), this.testInfo)
+    }
+
+    // Waits until the URL matches this page's slug in config/pages.json (":param" matches one path segment)
+    protected async ensureLoaded(): Promise<void> {
+        const pageObj = pages.find(p => p.className === this.constructor.name)
+        if (!pageObj) {
+            throw new Error(`${this.constructor.name} is not registered in config/pages.json`)
+        }
+        const slugPattern = new RegExp(`^${pageObj.slug.replace(/:[^/]+/g, "[^/]+")}/?$`)
+        await this.page.waitForURL(url => slugPattern.test(url.pathname))
     }
 }

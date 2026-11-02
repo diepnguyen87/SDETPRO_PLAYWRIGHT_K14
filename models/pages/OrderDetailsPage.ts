@@ -10,6 +10,7 @@ export default class OrderDetailsPage extends BasePage {
     }
 
     public async getPaymentMethod(): Promise<string> {
+        await this.ensureLoaded()
         return (await this.withHealing(this.paymentMethodSel, l => l.innerText())).trim()
     }
 }

@@ -18,6 +18,7 @@ export default defineConfig({
     use: {
         baseURL: 'https://demowebshop.tricentis.com',
         actionTimeout: 5 * 1000,
+        navigationTimeout: 30 * 1000,
         trace: 'on-first-retry',
         video: 'on-first-retry',
         screenshot: 'only-on-failure'

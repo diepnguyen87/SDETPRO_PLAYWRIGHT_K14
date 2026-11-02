@@ -18,6 +18,7 @@ export default class BillingAddressComponent extends CheckoutStepComponent {
     private address1InputSel = "#BillingNewAddress_Address1"
     private zipPostalCodeInputSel = "#BillingNewAddress_ZipPostalCode"
     private phoneNumberInputSel = "#BillingNewAddress_PhoneNumber"
+    private savedAddressWaitMs = 3000
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
@@ -28,7 +29,7 @@ export default class BillingAddressComponent extends CheckoutStepComponent {
         try {
             await this.componentLocator
                 .locator(this.buildingAddressDropdownSel)
-                .waitFor({ state: 'visible', timeout: 3000 });
+                .waitFor({ state: 'visible', timeout: this.savedAddressWaitMs });
             return true;
         } catch {
             return false;

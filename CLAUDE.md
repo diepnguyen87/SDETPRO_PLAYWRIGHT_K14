@@ -62,6 +62,7 @@ Test Spec
 - `BasePage extends Component` with `body` as its root locator, so pages inherit `withHealing()`. Page-level CSS/XPath interactions must use `this.withHealing(selectorStr, action)` — never `this.page.locator(sel).click()` / `.fill()` / `.textContent()` directly.
 - Global component accessors (`headerComp()`, `notificationComp()`, etc.) are defined only in `BasePage` — do not duplicate them in subclasses.
 - `ComputerDetailPage.computerComponent<T>()` is generic by design — preserve the type parameter when adding new computer types.
+- A page reached by a navigation (e.g. after a form submit) calls `await this.ensureLoaded()` at the start of its async public methods. `BasePage.ensureLoaded()` waits until the URL matches the page's `slug` in `config/pages.json`, bounded by `navigationTimeout` in the Playwright config. Do not add a timeout or URL pattern in the page class, and do not wait in the constructor.
 - Naming convention: `*Page.ts` in `models/pages/`.
 
 ---
@@ -69,7 +70,7 @@ Test Spec
 ## Test Flows
 
 - Flows call Page Object methods only — no raw Playwright API calls inside flows.
-- `BaseFlow.createPageInstance()` resolves pages dynamically via `test-data/pages.json`. Adding a new page requires updating that JSON registry.
+- `BaseFlow.createPageInstance()` resolves pages dynamically via `config/pages.json`. Adding a new page requires updating that JSON registry.
 - Naming convention: `*TestFlow.ts` in `test-flows/`.
 
 ---
@@ -116,7 +117,7 @@ Prefer in this order:
 ## Test Data
 
 - Environment-specific test data lives in `test-data/{env}/` (`test-data/sit/`, `test-data/uat/`) as JSON files.
-- Shared, non-environment files stay in `test-data/`: `pages.json` (page registry) and `model/` (types).
+- Shared, non-environment files stay in `test-data/`: `model/` (types). The page registry is app configuration, not test data, and lives in `config/pages.json`.
 - Specs and flows read environment data only through `test-data/TestDataProvider.ts` (`testData.login`, `testData.standardComputer`, …), which statically imports each environment's JSON (`with { type: "json" }`) and selects the set for `TEST_ENV`. Adding a data file means adding it under every environment folder and registering it in `TestDataProvider.ts`.
 - Do not import `test-data/{env}/*.json` directly, use `require()`, or hardcode data inline.
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
