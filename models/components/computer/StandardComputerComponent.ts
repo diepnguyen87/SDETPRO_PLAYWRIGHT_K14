@@ -14,44 +14,39 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
         if (processorIndex === undefined) {
             throw new Error(`${processorIndex} does not exist`);
         }
-        const selectDropdownSel = this.dynamicDropdownSel.replace('dynamicText', 'Processor')
+        const selectDropdownSel = this.dropdownSel('Processor')
         await this.withHealing(selectDropdownSel, l => l.selectOption({ index: processorIndex }));
-        return await this.getSelectedTextInDropdown(this.componentLocator.locator(selectDropdownSel))
+        return await this.getSelectedTextInDropdown(selectDropdownSel)
     }
 
     public async selectRAMByIndex(ramIndex: number): Promise<string> {
         if (ramIndex === undefined) {
             throw new Error(`${ramIndex} does not exist`);
         }
-        const selectDropdownSel = "//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select"
+        const selectDropdownSel = this.dropdownSel('RAM')
         await this.withHealing(selectDropdownSel, l => l.selectOption({ index: ramIndex }));
-        return await this.getSelectedTextInDropdown(this.componentLocator.locator(selectDropdownSel))
+        return await this.getSelectedTextInDropdown(selectDropdownSel)
     }
 
-    private async getSelectedTextInDropdown(selectDropdown: Locator): Promise<string> {
-        const allSelectedElemList = await selectDropdown.locator('option').all()
-        let selectedRAMText: string | undefined = undefined
-        for (const selectElem of allSelectedElemList) {
-            const isSelected = await selectElem.evaluate(el => (el as HTMLOptionElement).selected);
-            if (isSelected) {
-                selectedRAMText = await selectElem.evaluate(el => (el as HTMLInputElement).innerText);
-                break;
-            }
-        }
-        if (selectedRAMText === undefined) {
+    private dropdownSel(label: string): string {
+        return this.dynamicDropdownSel.replace('dynamicText', label)
+    }
+
+    private async getSelectedTextInDropdown(selectDropdownSel: string): Promise<string> {
+        const selectedText = await this.withHealing(selectDropdownSel,
+            l => l.evaluate(el => (el as HTMLSelectElement).selectedOptions[0]?.text));
+        if (selectedText === undefined) {
             throw new Error("No selected option found in dropdown");
         }
-        return selectedRAMText.trim();
+        return selectedText.trim();
     }
 
     public async selectProcessorByName(processorType: string): Promise<string> {
-        const dropdownSel = "//label[contains(text(), 'Processor')]/parent::dt/following-sibling::dd[1]/select";
-        return this.selectOptionInDropdownByText(dropdownSel, processorType);
+        return this.selectOptionInDropdownByText(this.dropdownSel('Processor'), processorType);
     }
 
     public async selectRAMByName(ramType: string): Promise<string> {
-        const dropdownSel = "//label[contains(text(), 'RAM')]/parent::dt/following-sibling::dd[1]/select";
-        return this.selectOptionInDropdownByText(dropdownSel, ramType);
+        return this.selectOptionInDropdownByText(this.dropdownSel('RAM'), ramType);
     }
 
     private async selectOptionInDropdownByText(selectDropdownSel: string, expectedPartialOptionText: string): Promise<string> {

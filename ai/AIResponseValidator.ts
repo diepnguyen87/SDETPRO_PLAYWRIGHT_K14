@@ -49,6 +49,15 @@ export default class AIResponseValidator {
             throw new Error(`Field not found in component source: ${analysis.field}`);
         }
 
+        // 6. Template locators: newValue must keep every placeholder token (dynamic<Name>) of oldValue,
+        //    otherwise the patch would hardcode one caller's value and break the others
+        const placeholderPattern = /\bdynamic[A-Z][A-Za-z0-9]*\b/g;
+        const oldTokens = (analysis.oldValue.match(placeholderPattern) ?? []).sort();
+        const newTokens = (analysis.newValue.match(placeholderPattern) ?? []).sort();
+        if (oldTokens.join(",") !== newTokens.join(",")) {
+            throw new Error(`newValue must keep placeholder tokens [${oldTokens.join(", ")}] but has [${newTokens.join(", ")}]`);
+        }
+
         console.log(`AI response validated successfully: ${analysis.field} [${analysis.rootCause}]`);
     }
 }

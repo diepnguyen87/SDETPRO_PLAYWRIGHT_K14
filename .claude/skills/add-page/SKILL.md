@@ -20,6 +20,7 @@ Reference implementation: `models/components/checkout/BillingAddressComponent.ts
 - `export default class <Name>Component extends Component`, decorated with `@selector("<root css>")` from `./SelectorDecorator.js`.
 - Constructor `(page: Page, componentLocator: Locator, testInfo: TestInfo)` calling `super(page, componentLocator, testInfo)`.
 - Locators are class properties, never inline in methods. Priority: `getByRole` > `getByLabel` > `getByPlaceholder` > `getByTestId` > CSS > XPath.
+- Locators that depend on runtime values are templates with `dynamic<Name>` tokens, e.g. `private optionSel = "#option_dynamicIndex"` used as `this.optionSel.replace('dynamicIndex', String(i))`. Declare each template once; no template literals.
 - `getByRole` / `getByLabel` locators may call actions directly.
 - Every CSS/XPath interaction goes through `this.withHealing(this.fooSel, l => l.click())` — never `this.componentLocator.locator(sel).click()` / `.fill()` / `.textContent()`.
 - Methods return data or `Promise<void>`; no assertions inside components.

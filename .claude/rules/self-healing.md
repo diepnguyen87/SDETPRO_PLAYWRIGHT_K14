@@ -83,7 +83,9 @@ On each call:
    - Attach AI response JSON to Playwright test report
    - If `patchType === MANUAL` → log root cause + reason, return `MANUAL` (no source change)
    - `AIResponseValidator.validate()` — requires `field`, `oldValue`, `newValue`, `rootCause`,
-     `patchType`; gates on `patchConfidence ≥ 80`; `field` and `oldValue` must exist in the source file
+     `patchType`; gates on `patchConfidence ≥ 80`; `field` and `oldValue` must exist in the source file;
+     `newValue` must keep the same placeholder tokens (`dynamic<Name>`) as `oldValue`, so a template
+     locator is never patched into one caller's hardcoded value
    - `BackupManager.create(sourceFile)` — creates `.bak` backup
    - `PatchApplier.applyToSource()` — replaces `oldValue` → `newValue` in source
    - `PatchVerifier.verify()` — confirms old value gone, new value present

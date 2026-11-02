@@ -6,7 +6,7 @@ import path from "node:path";
 
 const PROJECT_ROOT = process.cwd();
 
-const PLAN_FILE = path.join(PROJECT_ROOT, "implementation-plan.md");
+const PLAN_FILE = path.join(PROJECT_ROOT, "implementation-plans", "implementation-plan.md");
 const CONTEXT_FILE = path.join(PROJECT_ROOT, "CLAUDE.md");
 const REVIEW_OUTPUT_FILE = path.join(
     PROJECT_ROOT,

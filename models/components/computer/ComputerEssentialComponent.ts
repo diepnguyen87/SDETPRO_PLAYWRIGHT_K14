@@ -4,6 +4,8 @@ import BaseItemDetailComponent from "../BaseItemDetailComponent.js";
 export default abstract class ComputerEssentialComponent extends BaseItemDetailComponent {
 
     private allCheckboxSel: string = "input[type='checkbox']"
+    private optionLabelSel: string = "//label[contains(text(), \"dynamicText\")]"
+    private sectionOptionSel: string = "(//label[contains(text(),'dynamicSection')]/parent::dt/following-sibling::dd[1]//label)[dynamicIndex]"
 
     protected constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)
@@ -53,22 +55,23 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     }
 
     protected async selectOptionByName(type: string): Promise<string> {
-        const optionSel = `//label[contains(text(), "${type}")]`;
+        const optionSel = this.optionLabelSel.replace('dynamicText', type);
         const optionText = await this.withHealing(optionSel, l => l.first().textContent()) ?? '';
         await this.withHealing(optionSel, l => l.first().click());
         return optionText;
     }
 
     protected async unselectOptionByName(type: string): Promise<void> {
-        const optionSel = `//label[contains(text(), "${type}")]`;
-        const optionElem = this.componentLocator.locator(optionSel).first();
-        if (await optionElem.isChecked()) {
+        const optionSel = this.optionLabelSel.replace('dynamicText', type);
+        if (await this.withHealing(optionSel, l => l.first().isChecked())) {
             await this.withHealing(optionSel, l => l.first().click());
         }
     }
 
     protected async selectOptionByIndex(sectionName: string, index: number): Promise<string> {
-        const optionSel = `(//label[contains(text(),'${sectionName}')]/parent::dt/following-sibling::dd[1]//label)[${index + 1}]`;
+        const optionSel = this.sectionOptionSel
+            .replace('dynamicSection', sectionName)
+            .replace('dynamicIndex', String(index + 1));
         const optionText = await this.withHealing(optionSel, l => l.textContent()) ?? '';
         await this.withHealing(optionSel, l => l.click());
         return optionText;

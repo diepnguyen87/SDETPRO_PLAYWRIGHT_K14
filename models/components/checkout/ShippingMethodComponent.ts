@@ -6,16 +6,18 @@ import CheckoutStepComponent from "./CheckoutStepComponent.js";
 export default class ShippingMethodComponent extends CheckoutStepComponent {
 
     protected continueBtnSel = "input[value='Continue']"
+    private shippingMethodRadioSel = "#shippingoption_dynamicIndex"
+    private shippingMethodLabelSel = "label[for='shippingoption_dynamicIndex']"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
     }
 
     public async selectMethod(optionIndex: number): Promise<string> {
-        const shippingMethodRadioSel = `#shippingoption_${optionIndex}`;
-        const shippingMethodLabelSel = `label[for='shippingoption_${optionIndex}']`;
+        const radioSel = this.shippingMethodRadioSel.replace('dynamicIndex', String(optionIndex));
+        const labelSel = this.shippingMethodLabelSel.replace('dynamicIndex', String(optionIndex));
 
-        await this.withHealing(shippingMethodRadioSel, l => l.click());
-        return await this.withHealing(shippingMethodLabelSel, l => l.textContent()) ?? '';
+        await this.withHealing(radioSel, l => l.click());
+        return await this.withHealing(labelSel, l => l.textContent()) ?? '';
     }
 }

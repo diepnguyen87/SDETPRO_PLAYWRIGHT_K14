@@ -98,6 +98,7 @@ Prefer in this order:
 6. XPath — only when no other option exists
 
 - Define locators as class properties, not inline inside methods.
+- A locator that depends on runtime values is a class-property template with placeholder tokens named `dynamic<Name>` (e.g. `dynamicText`, `dynamicIndex`), substituted with `.replace('dynamicText', value)`. Never build it with a template literal or inside a method, and declare each template once. `AIResponseValidator` rejects healing patches that drop a placeholder token.
 - Avoid fragile selectors. Avoid `page.waitForTimeout()` unless technically justified.
 - Use Playwright auto-waiting and web-first assertions.
 
@@ -148,7 +149,7 @@ Do not remove, bypass, or restructure it.
 
 `ai/review.ts` is a standalone CLI tool — it is **not** part of the self-healing pipeline.
 
-- Reads `implementation-plan.md`, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan
+- Reads `implementation-plans/implementation-plan.md`, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan. All implementation plans live in `implementation-plans/` (`implementation-plan-<topic>.md`).
 - Sends them to OpenAI for an independent code review
 - Writes output to `implement-review/openai-review.md`
 - Uses `OPEN_API_KEY` and `OPEN_REVIEW_MODEL` from `.env` (currently `gpt-5.3-codex`; configurable via env, not hardcoded)
