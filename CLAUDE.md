@@ -149,11 +149,11 @@ Do not remove, bypass, or restructure it.
 
 `ai/review.ts` is a standalone CLI tool — it is **not** part of the self-healing pipeline.
 
-- Reads `implementation-plans/implementation-plan.md`, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan. All implementation plans live in `implementation-plans/` (`implementation-plan-<topic>.md`).
+- Reads the plan passed as its argument, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan. All implementation plans live in `implementation-plans/` as `<topic>.md`.
 - Sends them to OpenAI for an independent code review
 - Writes output to `implement-review/openai-review.md`
 - Uses `OPEN_API_KEY` and `OPEN_REVIEW_MODEL` from `.env` (currently `gpt-5.3-codex`; configurable via env, not hardcoded)
-- Run via: `yarn ai:review` (runs `tsx ai/review.ts`)
+- Run via: `yarn ai:review implementation-plans/<topic>.md` (runs `tsx ai/review.ts`)
 
 Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test fixture.
 

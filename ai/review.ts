@@ -6,7 +6,9 @@ import path from "node:path";
 
 const PROJECT_ROOT = process.cwd();
 
-const PLAN_FILE = path.join(PROJECT_ROOT, "implementation-plans", "implementation-plan.md");
+// Plan to review, passed as the first argument: yarn ai:review implementation-plans/<topic>.md
+const PLAN_ARG = process.argv[2];
+const PLAN_FILE = PLAN_ARG ? path.resolve(PROJECT_ROOT, PLAN_ARG) : "";
 const CONTEXT_FILE = path.join(PROJECT_ROOT, "CLAUDE.md");
 const REVIEW_OUTPUT_FILE = path.join(
     PROJECT_ROOT,
@@ -106,6 +108,9 @@ function extractRelevantFiles(planContent: string): string[] {
 }
 
 async function collectProjectContext(): Promise<string> {
+    if (!PLAN_FILE) {
+        throw new Error("Missing plan file. Usage: yarn ai:review implementation-plans/<topic>.md");
+    }
     const planContent = await readTextFile(PLAN_FILE, true);
     const claudeContent = await readTextFile(CONTEXT_FILE, true);
 
@@ -120,7 +125,7 @@ async function collectProjectContext(): Promise<string> {
     contextParts.push("===== FILE: CLAUDE.md =====\n");
     contextParts.push(claudeContent);
 
-    contextParts.push("\n\n===== FILE: implementation-plan.md =====\n");
+    contextParts.push(`\n\n===== FILE: ${path.relative(PROJECT_ROOT, PLAN_FILE)} =====\n`);
     contextParts.push(planContent);
 
     for (const relativeFilePath of relevantFiles) {
