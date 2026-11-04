@@ -144,7 +144,7 @@ export default class OrderTestFlow extends BaseFlow {
         const cartItemRowCompList: CartItemRowComponent[] = await shoppingCartPage.cartItemRowCompList()
         for (const cartItemRowComp of cartItemRowCompList) {
             const unitPrice = await cartItemRowComp.getProductUnitPrice()
-            const unitQuantity = Number(await cartItemRowComp.qualityInput().getAttribute('value'));
+            const unitQuantity = await cartItemRowComp.getQuantity();
             const unitTotal = await cartItemRowComp.getProductSubTotal();
             expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
@@ -325,8 +325,8 @@ export default class OrderTestFlow extends BaseFlow {
         const completedComp: CompletedComponent = await checkoutCompletedPage.orderCompletedComp()
         let orderNumber = await completedComp.getOrderNumber()
         expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")
-        expect(await completedComp.oderDetailLink().innerText()).toEqual("Click here for order details.")
-        expect(await completedComp.oderDetailLink().getAttribute("href")).toEqual(`/orderdetails/${orderNumber}`)
+        expect(await completedComp.getOrderDetailLinkText()).toEqual("Click here for order details.")
+        expect(await completedComp.getOrderDetailLinkHref()).toEqual(`/orderdetails/${orderNumber}`)
     }
 
     public async verifyOrderDetailsPaymentMethod(paymentMethod: string): Promise<void> {

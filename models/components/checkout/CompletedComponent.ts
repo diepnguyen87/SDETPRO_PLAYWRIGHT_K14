@@ -26,8 +26,12 @@ export default class CompletedComponent extends Component {
     public async clickOrderDetailsLink(): Promise<void> {
         await this.withHealing(this.orderDetailLinkSel, l => l.click())
     }
- 
-    public oderDetailLink(): Locator {
-        return this.componentLocator.locator(this.orderDetailLinkSel)
+
+    public async getOrderDetailLinkText(): Promise<string> {
+        return await this.withHealing(this.orderDetailLinkSel, l => l.innerText())
+    }
+
+    public async getOrderDetailLinkHref(): Promise<string | null> {
+        return await this.withHealing(this.orderDetailLinkSel, l => l.getAttribute("href"))
     }
 }

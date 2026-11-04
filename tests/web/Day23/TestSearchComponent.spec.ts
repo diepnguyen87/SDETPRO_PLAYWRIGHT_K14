@@ -9,8 +9,8 @@ test('Advance POM - Component in Parent component', async ({ page }, testInfo) =
     let headerComp: HeaderComponent = homePage.headerComp()
     let searchComp: SearchComponent = headerComp.searchComp();
 
-    searchComp.searchInput().fill("enter something here")
-    searchComp.searchBtn().click()
+    await searchComp.inputSearchTerm("enter something here")
+    await searchComp.clickSearchBtn()
 
     await page.waitForTimeout(1 * 1000)
 })

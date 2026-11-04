@@ -11,18 +11,12 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
     }
 
     public async selectProcessorByIndex(processorIndex: number): Promise<string> {
-        if (processorIndex === undefined) {
-            throw new Error(`${processorIndex} does not exist`);
-        }
         const selectDropdownSel = this.dropdownSel('Processor')
         await this.withHealing(selectDropdownSel, l => l.selectOption({ index: processorIndex }));
         return await this.getSelectedTextInDropdown(selectDropdownSel)
     }
 
     public async selectRAMByIndex(ramIndex: number): Promise<string> {
-        if (ramIndex === undefined) {
-            throw new Error(`${ramIndex} does not exist`);
-        }
         const selectDropdownSel = this.dropdownSel('RAM')
         await this.withHealing(selectDropdownSel, l => l.selectOption({ index: ramIndex }));
         return await this.getSelectedTextInDropdown(selectDropdownSel)
@@ -52,46 +46,13 @@ export default class StandardComputerComponent extends ComputerEssentialComponen
     private async selectOptionInDropdownByText(selectDropdownSel: string, expectedPartialOptionText: string): Promise<string> {
         const allOptionTextList: string[] = await this.withHealing(selectDropdownSel,
             l => l.evaluate(el => Array.from((el as HTMLSelectElement).options, option => option.textContent ?? '')));
-        let optionText = '';
-        for (const rawOptionText of allOptionTextList) {
-            optionText = rawOptionText.trim().replace(/\s+/g, ' ')
-
-            if (optionText.startsWith(expectedPartialOptionText)) {
-                await this.withHealing(selectDropdownSel, l => l.selectOption({ label: optionText }));
-                break;
-            }
+        const optionText = allOptionTextList
+            .map(rawOptionText => rawOptionText.trim().replace(/\s+/g, ' '))
+            .find(text => text.startsWith(expectedPartialOptionText));
+        if (optionText === undefined) {
+            throw new Error(`No option starts with "${expectedPartialOptionText}" in dropdown ${selectDropdownSel}`);
         }
-        return optionText;
-    }
-
-    // private async selectOptionInDropdownByText(selectDropdown: Locator, expectedPartialOptionText: string): Promise<string> {
-    //     const allOptionsLocator: Locator[] = await selectDropdown.locator("option").all();
-    //     let optionIndex = undefined;
-    //     let optionText = '';
-    //     for (const option of allOptionsLocator) {
-    //         optionText = await option.textContent() ?? ''
-    //         if (optionText.startsWith(expectedPartialOptionText)) {
-    //             optionIndex = allOptionsLocator.indexOf(option)
-    //             selectDropdown.selectOption({ index: optionIndex });
-    //             break;
-    //         }
-    //     }
-    //     if (optionIndex === undefined) {
-    //         throw new Error(`No option matches with ${expectedPartialOptionText}`);
-
-    //     }
-    //     return optionText;
-    // }
-
-    private async selectOptionInDropdownByIndex(selectDropdown: Locator, expectedIndex: number): Promise<string> {
-        const allOptionsLocator: Locator[] = await selectDropdown.locator("option").all();
-        let optionIndex = undefined;
-        let optionText = '';
-        selectDropdown.selectOption({ index: optionIndex });
-        if (optionIndex === undefined) {
-            throw new Error(`No option matches with ${expectedIndex}`);
-
-        }
+        await this.withHealing(selectDropdownSel, l => l.selectOption({ label: optionText }));
         return optionText;
     }
 }

@@ -16,7 +16,7 @@ export default class HeaderComponent extends Component {
     }
 
     searchComp(): SearchComponent {
-        return new SearchComponent(this.page, this.componentLocator.locator(SearchComponent.selector), this.testInfo);
+        return new SearchComponent(this.page, this.componentLocator.locator(SearchComponent.selectorValue), this.testInfo);
     }
 
     public async navigateToShoppingCartLink(): Promise<void> {

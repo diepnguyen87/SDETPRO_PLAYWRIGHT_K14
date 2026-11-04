@@ -1,9 +1,10 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
+import { selector } from "../../SelectorDecorator.js";
 import Component from "../../Component.js";
 
+@selector("div.search-box")
 export default class SearchComponent extends Component {
 
-    public static selector = "div.search-box"
     private searchInputSel = "input#small-searchterms"
     private searchBtnSel = ".search-box-button"
 
@@ -11,11 +12,11 @@ export default class SearchComponent extends Component {
         super(page, componentLocator, testInfo)
     }
 
-    searchInput(): Locator {
-        return this.componentLocator.locator(this.searchInputSel);
+    public async inputSearchTerm(term: string): Promise<void> {
+        await this.withHealing(this.searchInputSel, l => l.fill(term));
     }
 
-    searchBtn(): Locator {
-        return this.componentLocator.locator(this.searchBtnSel)
+    public async clickSearchBtn(): Promise<void> {
+        await this.withHealing(this.searchBtnSel, l => l.click());
     }
 }

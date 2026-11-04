@@ -7,8 +7,8 @@ test('Advance POM - Component in page', async ({ page }, testInfo) => {
     let homePage: HomePage = new HomePage(page, testInfo)
     let productItemCompList: ProductItemComponent[] = await homePage.pageBodyComp().productGridComp().productItemComp()
     for (const productItemComp of productItemCompList) {
-        let productTitle = await productItemComp.getProductTitle().textContent()
-        let actualPrice = await productItemComp.actualPrice().textContent()
+        let productTitle = await productItemComp.getProductTitle()
+        let actualPrice = await productItemComp.getActualPrice()
         productTitle = productTitle != null ? productTitle.trim() : productTitle
         actualPrice = actualPrice != null ? actualPrice.trim() : actualPrice
 

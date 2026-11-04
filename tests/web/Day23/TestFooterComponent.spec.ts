@@ -14,8 +14,8 @@ test('Advanced POM - Test Base Component', async ({ page }, testInfo) => {
     let customerServiceComp: CustomerServiceColumnComponent = footerComp.customerServiceColumnComp();
     let myAccountComp: MyAccountColumnComponent = footerComp.myAccountColumnComp();
     let followUSComp: FollowUsColumnComponent = footerComp.followUsColumnComp();
-    console.log(`Information column title: ${await informationComp.title().textContent()}`);
-    console.log(`Customer column title: ${await customerServiceComp.title().textContent()}`);
-    console.log(`My Account column title: ${await myAccountComp.title().textContent()}`);
-    console.log(`Follow Us column title: ${await followUSComp.title().textContent()}`);
+    console.log(`Information column title: ${await informationComp.getTitle()}`);
+    console.log(`Customer column title: ${await customerServiceComp.getTitle()}`);
+    console.log(`My Account column title: ${await myAccountComp.getTitle()}`);
+    console.log(`Follow Us column title: ${await followUSComp.getTitle()}`);
 })

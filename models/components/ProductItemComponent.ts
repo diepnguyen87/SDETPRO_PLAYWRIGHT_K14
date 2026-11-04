@@ -1,8 +1,9 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
+import { selector } from "./SelectorDecorator.js";
 import Component from "./Component.js";
 
+@selector("div.product-item")
 export default class ProductItemComponent extends Component {
-    public static selector = "div.product-item"
     private productTitleSel = "h2.product-title"
     private actualPriceSel = "span.actual-price"
 
@@ -10,11 +11,11 @@ export default class ProductItemComponent extends Component {
         super(page, componentLocator, testInfo)
     }
 
-    getProductTitle(): Locator {
-        return this.componentLocator.locator(this.productTitleSel)
+    public async getProductTitle(): Promise<string | null> {
+        return await this.withHealing(this.productTitleSel, l => l.textContent())
     }
 
-    actualPrice(): Locator {
-        return this.componentLocator.locator(this.actualPriceSel)
+    public async getActualPrice(): Promise<string | null> {
+        return await this.withHealing(this.actualPriceSel, l => l.textContent())
     }
 }

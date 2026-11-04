@@ -1,10 +1,11 @@
-import { Locator, Page, TestInfo } from "@playwright/test";
+import { Page, TestInfo } from "@playwright/test";
 import { deepStrictEqual } from 'assert';
 import FooterColumnComponent from "../../models/components/global/footer/FooterColumnComponent.js";
 import FooterComponent from "../../models/components/global/footer/FooterComponent.js";
 import HomePage from '../../models/pages/HomePage.js';
 import BaseFlow from "../BaseFlow.js";
-import { MenuItemComponent, SubMenuItemComponent } from "../../models/components/global/header/TopMenuComponent.js";
+import MenuItemComponent from "../../models/components/global/header/MenuItemComponent.js";
+import SubMenuItemComponent from "../../models/components/global/header/SubMenuItemComponent.js";
 
 export default class FooterTestFlow extends BaseFlow {
 
@@ -29,19 +30,18 @@ export default class FooterTestFlow extends BaseFlow {
 
         let randomMenuIndex = Math.floor(Math.random() * menuItemCompList.length)
         let randomMenuItemComp = menuItemCompList[randomMenuIndex]
-        let randomMenuItem = await randomMenuItemComp.menuItem()
-        await randomMenuItem.hover()
+        await randomMenuItemComp.hoverMenuItem()
 
         let subMenuItemList: SubMenuItemComponent[] = await randomMenuItemComp.subMenuItemList()
         let href = null
         if (subMenuItemList.length != 0) {
             let randomSubCategoryIndex = Math.floor(Math.random() * subMenuItemList.length)
-            let randomSubMenuItem: Locator = subMenuItemList[randomSubCategoryIndex].subMenuItem()
-            href = await randomSubMenuItem.getAttribute("href")
-            await randomSubMenuItem.click()
+            let randomSubMenuItemComp = subMenuItemList[randomSubCategoryIndex]
+            href = await randomSubMenuItemComp.getSubMenuItemHref()
+            await randomSubMenuItemComp.clickSubMenuItem()
         } else {
-            href = await randomMenuItem.getAttribute("href")
-            await randomMenuItem.click()
+            href = await randomMenuItemComp.getMenuItemHref()
+            await randomMenuItemComp.clickMenuItem()
         }
         if (href === null) {
             throw new Error(`The href ${href} is null`);
@@ -92,20 +92,8 @@ export default class FooterTestFlow extends BaseFlow {
         expectedLinksText: string[],
         expectedHrefs: string[]
     ) {
-        let actualLinksText: string[] = []
-        let actualHrefs: string[] = []
-        let footerColumnLinks: Locator[] = await footerColumnComp.links()
-
-        for (const colunmnLink of footerColumnLinks) {
-            let linkText = await colunmnLink.textContent()
-            let href = await colunmnLink.getAttribute("href")
-            if (linkText != null) {
-                actualLinksText.push(linkText)
-            }
-            if (href != null) {
-                actualHrefs.push(href)
-            }
-        }
+        let actualLinksText: string[] = await footerColumnComp.getLinkTexts()
+        let actualHrefs: string[] = await footerColumnComp.getLinkHrefs()
 
         deepStrictEqual(actualLinksText, expectedLinksText,
             `Actual Link Text and Expected Link Text are not the same

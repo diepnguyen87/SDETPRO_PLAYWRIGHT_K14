@@ -9,13 +9,13 @@ test('Advance POM - List components in parent component', async ({ page }, testI
     let homePage: HomePage = new HomePage(page, testInfo)
     let pageBodyComp: PageBodyComponent = homePage.pageBodyComp();
     let productGridComp:ProductGridComponent = pageBodyComp.productGridComp();
-    console.log(`Product Grid Component title: ${await productGridComp.title().textContent()}`);
+    console.log(`Product Grid Component title: ${await productGridComp.getTitle()}`);
     
     let productItemCompList: ProductItemComponent[] = await productGridComp.productItemComp()
 
     for (const productItemComp of productItemCompList) {
-        let productTitle = await productItemComp.getProductTitle().textContent()
-        let actualPrice = await productItemComp.actualPrice().textContent()
+        let productTitle = await productItemComp.getProductTitle()
+        let actualPrice = await productItemComp.getActualPrice()
         productTitle = productTitle != null ? productTitle.trim() : productTitle
         actualPrice = actualPrice != null ? actualPrice.trim() : actualPrice
 

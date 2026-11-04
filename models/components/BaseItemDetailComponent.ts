@@ -6,7 +6,6 @@ import Component from "./Component.js";
 export default class BaseItemDetailComponent extends Component {
 
     private productPriceSel: string = "div.product-price"
-    private productQualitySel: string = "input.qty-input"
     private addToCartSel: string = "input[id^='add-to-cart-button']"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
@@ -15,10 +14,6 @@ export default class BaseItemDetailComponent extends Component {
 
     public async getProductPrice(): Promise<number> {
         return Number(await this.withHealing(this.productPriceSel, l => l.textContent()))
-    }
-
-    public productQuality(): Locator {
-        return this.componentLocator.locator(this.productQualitySel)
     }
 
     public async clickOnAddToCartBtn(): Promise<void> {

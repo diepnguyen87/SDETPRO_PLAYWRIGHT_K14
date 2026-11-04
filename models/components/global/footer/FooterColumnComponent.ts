@@ -10,11 +10,22 @@ export default class FooterColumnComponent extends Component {
         super(page, componentLocator, testInfo)
     }
 
-    title(): Locator {
-        return this.componentLocator.locator(this.titleSel)
+    public async getTitle(): Promise<string | null> {
+        return await this.withHealing(this.titleSel, l => l.textContent())
     }
 
-    async links(): Promise<Locator[]> {
-        return await this.componentLocator.locator(this.linksSel).all()
+    public async getLinkTexts(): Promise<string[]> {
+        return await this.withHealing(this.linksSel, async l => {
+            await l.first().waitFor();
+            return await l.allTextContents();
+        })
+    }
+
+    public async getLinkHrefs(): Promise<string[]> {
+        return await this.withHealing(this.linksSel, async l => {
+            await l.first().waitFor();
+            const hrefs = await l.evaluateAll(links => links.map(link => link.getAttribute("href")));
+            return hrefs.filter((href): href is string => href !== null);
+        })
     }
 }

@@ -1,6 +1,7 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
 import { selector } from "../../SelectorDecorator.js";
 import Component from "../../Component.js";
+import MenuItemComponent from "./MenuItemComponent.js";
 
 @selector(".top-menu")
 export default class TopMenuComponent extends Component {
@@ -10,41 +11,9 @@ export default class TopMenuComponent extends Component {
     }
 
     public async menuItemList(): Promise<MenuItemComponent[]> {
-        let menuItemLocatorList = await this.componentLocator.locator(MenuItemComponent.selector).all()
+        let menuItemLocatorList = await this.componentLocator.locator(MenuItemComponent.selectorValue).all()
         return menuItemLocatorList.map(locator => {
-            return new MenuItemComponent(locator)
+            return new MenuItemComponent(this.page, locator, this.testInfo)
         })
-    }
-}
-
-export class MenuItemComponent {
-    public static selector: string = ">li"
-    private menuItemSel: string = ">a"
-
-    constructor(private component: Locator) {
-        this.component = component
-    }
-
-    public menuItem(): Locator {
-        return this.component.locator(this.menuItemSel);
-    }
-
-    public async subMenuItemList(): Promise<SubMenuItemComponent[]> {
-        let menuItemLocatorList = await this.component.locator(SubMenuItemComponent.selector).all()
-        return menuItemLocatorList.map(locator => {
-            return new SubMenuItemComponent(locator)
-        })
-    }
-}
-
-export class SubMenuItemComponent {
-    public static selector: string = "ul>li"
-
-    constructor(private component: Locator) {
-        this.component = component
-    }
-
-    public subMenuItem(): Locator {
-        return this.component.locator("a")
     }
 }

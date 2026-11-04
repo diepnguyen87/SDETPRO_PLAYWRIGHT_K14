@@ -18,18 +18,18 @@ export default class FooterComponent extends Component {
     }
 
     public informationColumnComp(): InformationColumnComponent {
-        return new InformationColumnComponent(this.page, this.componentLocator.locator(InformationColumnComponent.selector), this.testInfo)
+        return new InformationColumnComponent(this.page, this.componentLocator.locator(InformationColumnComponent.selectorValue), this.testInfo)
     }
 
     public customerServiceColumnComp(): CustomerServiceColumnComponent {
-        return new CustomerServiceColumnComponent(this.page, this.componentLocator.locator(CustomerServiceColumnComponent.selector), this.testInfo)
+        return new CustomerServiceColumnComponent(this.page, this.componentLocator.locator(CustomerServiceColumnComponent.selectorValue), this.testInfo)
     }
 
     public myAccountColumnComp(): MyAccountColumnComponent {
-        return new MyAccountColumnComponent(this.page, this.componentLocator.locator(MyAccountColumnComponent.selector), this.testInfo)
+        return new MyAccountColumnComponent(this.page, this.componentLocator.locator(MyAccountColumnComponent.selectorValue), this.testInfo)
     }
 
     public followUsColumnComp(): FollowUsColumnComponent {
-        return new FollowUsColumnComponent(this.page, this.componentLocator.locator(FollowUsColumnComponent.selector), this.testInfo)
+        return new FollowUsColumnComponent(this.page, this.componentLocator.locator(FollowUsColumnComponent.selectorValue), this.testInfo)
     }
 }

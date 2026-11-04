@@ -1,8 +1,9 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
+import { selector } from "../../SelectorDecorator.js";
 import FooterColumnComponent from "./FooterColumnComponent.js";
 
+@selector(".column.follow-us")
 export default class FollowUsColumnComponent extends FooterColumnComponent {
-    public static selector: string = ".column.follow-us"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo)

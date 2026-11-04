@@ -6,7 +6,7 @@ import Component from "../Component.js";
 export default class CartItemRowComponent extends Component{
 
     private productUnitPriceSel = ".product-unit-price"
-    private qualityInputSel = ".qty-input"
+    private quantityInputSel = ".qty-input"
     private productSubTotalSel = ".product-subtotal"
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
@@ -17,8 +17,8 @@ export default class CartItemRowComponent extends Component{
         return Number(await this.withHealing(this.productUnitPriceSel, l => l.textContent()))
     }
 
-    public qualityInput(): Locator {
-        return this.componentLocator.locator(this.qualityInputSel);
+    public async getQuantity(): Promise<number> {
+        return Number(await this.withHealing(this.quantityInputSel, l => l.inputValue()))
     }
 
     public async getProductSubTotal(): Promise<number> {
