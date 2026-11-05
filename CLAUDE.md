@@ -193,7 +193,7 @@ The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is exclud
 
 - Skills (`.claude/skills/`): `/add-page` (new Page Object + Components + `pages.json` entry), `/add-test-data` (new SIT data file + `TestDataProvider` registration), `/debug-failure` (artifacts → logs → data → component → app → env/config, root cause before fixing).
 - Agent (`.claude/agents/code-reviewer.md`): read-only review of the current diff or a folder against these rules.
-- MCP: `playwright` server from the `@playwright/mcp` devDependency (`yarn mcp:playwright`), used to inspect real pages for roles/labels when writing locators.
+- MCP: `playwright` server in `.mcp.json` (runs the `@playwright/mcp` devDependency via `yarn playwright-mcp --isolated`; same binary as `yarn mcp:playwright` and `.vscode/mcp.json`). Use it only to inspect real pages (accessibility snapshot) for roles/labels when writing locators — never as a substitute for running the tests, and never to log in with real credentials from `.env.*`. `browser_navigate`, `browser_snapshot` and `browser_close` are allowed in `.claude/settings.json`; interactive tools still prompt.
 
 ---
 
