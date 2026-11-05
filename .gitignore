@@ -5,7 +5,8 @@ package-lock.json
 allure-report
 allure-results
 .DS_Store
-.vscode
+.vscode/*
+!.vscode/mcp.json
 logs
 artifacts
 .env
