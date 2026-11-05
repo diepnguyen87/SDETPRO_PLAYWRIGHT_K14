@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Bash(yarn playwright:*)",
-      "Bash(npx playwright:*)",
       "Bash(yarn test:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
