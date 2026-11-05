@@ -19,8 +19,11 @@ Never change or bypass the AI self-healing mechanism simply to make a test pass.
 - Allure + HTML — test reporting
 - Android (Playwright real-device) — `playwright.config.android.js`, `tests/real-android/`
 - Docker — `Dockerfile` + `docker-compose.yml` for containerised test runs
+- Yarn 4 via Corepack (`packageManager` in `package.json`) — run everything with `yarn`, not `npm`/`npx`
 
 Do not introduce another automation framework unless explicitly requested.
+
+Supporting folders: `utils/` (helpers, incl. `LoggerManager`), `constant/` (`Tag.ts`, `PaymentMethod.ts`), `type/`, `url/`, `tests/fixtures/` (custom `test`).
 
 ---
 
@@ -49,7 +52,7 @@ Test Spec
                     └── Component Object    (locators + wrapped actions)
 ```
 
-- **Tests** — instantiate a flow, call high-level steps, assert outcomes. No raw Playwright API.
+- **Tests** — open the entry URL with `page.goto("/<slug>")`, instantiate a flow, call high-level steps, assert outcomes. No other raw Playwright API.
 - **TestFlows** — orchestrate page interactions across a business scenario. No `page.click()` or `page.fill()` directly.
 - **Page Objects** — expose component accessors. Locators are defined in both pages and components. Locators that do not belong to a component are defined in the page. Page-level CSS/XPath interactions go through `withHealing()`.
 - **Components** — own locators and actions. All interactions go through wrapped methods (never call `locator.click()` directly).
@@ -70,7 +73,7 @@ Test Spec
 ## Test Flows
 
 - Flows call Page Object methods only — no raw Playwright API calls inside flows.
-- `BaseFlow.createPageInstance()` resolves pages dynamically via `config/pages.json`. Adding a new page requires updating that JSON registry.
+- `BaseFlow.getClassNameBySlug()` maps a slug to a class name via `config/pages.json`, and `BaseFlow.createPageInstance(className)` dynamically imports `models/pages/<className>.js`. `BasePage.ensureLoaded()` also reads that registry and throws for an unregistered page, so every new page must be added to `config/pages.json`.
 - Naming convention: `*TestFlow.ts` in `test-flows/`.
 
 ---
@@ -78,7 +81,7 @@ Test Spec
 ## Components
 
 - All components must extend `Component` and use the `@selector("...")` decorator for their root locator.
-- Instantiate components directly: `new FooComponent(page, page.locator(FooComponent.selectorValue), testInfo)`.
+- Instantiate components directly: from a page, `new FooComponent(this.page, this.page.locator(FooComponent.selectorValue), this.testInfo)`; a child of another component is scoped to its parent: `new FooComponent(this.page, this.componentLocator.locator(FooComponent.selectorValue), this.testInfo)`.
 - Constructor signature: `(page, componentLocator, testInfo)`.
 - All CSS/XPath-based interactions must go through `Component.withHealing(selectorStr, action)` — this is the single self-healing entry point for all action types (`click`, `fill`, `selectOption`, `check`, `uncheck`, etc.), for both components and pages (via `BasePage`).
 - `getByRole()` and `getByLabel()` locators may call `.click()` directly — they are inherently stable and do not require self-healing.
@@ -106,7 +109,8 @@ Prefer in this order:
 
 ## Test Environments (SIT / UAT)
 
-- The target environment is selected by `TEST_ENV` (`sit` | `uat`, default `sit`), e.g. `TEST_ENV=uat yarn test:smoke`.
+- The target environment is selected by `TEST_ENV` (`sit` | `uat`, default `sit`), e.g. `TEST_ENV=uat yarn test:smoke`. Locally, set it on the command line: `environment.config.ts` reads `TEST_ENV` before `.env.${testEnv}` is loaded, so the `TEST_ENV` line inside `.env.sit` / `.env.uat` only takes effect in CI (env file passed to the container).
+- `TEST_ENV` applies to `playwright.config.web.js` only. `playwright.config.android.js` has its own hardcoded `baseURL` and does not load `.env.{env}`.
 - `config/environment.config.ts` is the single source of truth: it validates `TEST_ENV` and holds each environment's `baseURL`. Never hardcode a base URL — use `baseURL` (`page.goto("/...")`) or `envConfig.baseURL`.
 - Environment variables:
   - `.env` — environment-independent keys only (`OPEN_*`, `RANDOMMER_API_KEY`), loaded by `import "dotenv/config"`.
@@ -124,6 +128,16 @@ Prefer in this order:
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
 - `OPEN_API_KEY` is read from environment only (`process.env.OPEN_API_KEY`) — never hardcode it.
 - AI model settings (`OPEN_ANALYSIS_MODEL`, `OPEN_REVIEW_MODEL`) are read from `.env` only — never hardcode them.
+
+---
+
+## Test Fixtures
+
+- Specs import `test` (and `expect`) from `tests/fixtures/base.ts`, not from `@playwright/test`. The custom `test` wraps every test body with the self-healing guard (assertion healing + `SelfHealingSuccess` handling) and provides the login fixtures; a spec that imports from `@playwright/test` silently loses both.
+- `credential` (worker fixture) reads `LOGIN_EMAIL_<idx>` / `LOGIN_PASSWORD_<idx>` from env, where `idx` is `CREDENTIAL_INDEX` if set (CI shards) or the worker's `parallelIndex`; it is `null` when not set.
+- `test.use({ loggedIn: true })` logs in once per worker via `LoginTestFlow` and reuses the storage state saved under `.auth/` (`frameworkConfig.authFolder`). Pair it with `test.skip(({ credential }) => !credential, ...)`.
+- Tags come from `constant/Tag.ts` (`TAG.smoke` / `TAG.regression` / `TAG.sanity` → `@Smoke` / `@Regression` / `@Sanity`) in the test title: `` `${TAG.smoke} | <Title>` ``. Do not hardcode tag strings.
+- Test logging goes through `LoggerManager.getLogger(testInfo)` (Winston, one file per browser + test: `logs/{browser}.{testName}.log`).
 
 ---
 
@@ -151,7 +165,7 @@ Do not remove, bypass, or restructure it.
 
 - Reads the plan passed as its argument, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan. All implementation plans live in `implementation-plans/` as `<topic>.md`.
 - Sends them to OpenAI for an independent code review
-- Writes output to `implement-review/openai-review.md`
+- Writes output to `implementation-review/openai-review.md`
 - Uses `OPEN_API_KEY` and `OPEN_REVIEW_MODEL` from `.env` (currently `gpt-5.3-codex`; configurable via env, not hardcoded)
 - Run via: `yarn ai:review implementation-plans/<topic>.md` (runs `tsx ai/review.ts`)
 
@@ -185,6 +199,12 @@ After any code change:
 
 Never claim a test passed unless it was actually executed successfully.
 
+Running tests:
+- There is no default `playwright.config.*` at the root — always pass `--config=playwright.config.web.js` (web) or `--config=playwright.config.android.js` (Android), e.g. `yarn playwright test tests/web/Day25/TestStandardComponent.spec.ts --config=playwright.config.web.js`.
+- Suites: `yarn test:smoke` / `yarn test:regression` (`--grep`, case-insensitive against the `@Smoke` / `@Regression` title tags).
+- Only `Desktop Chromium` runs by default; the other projects (`Desktop Firefox`, `Desktop Webkit`, `Mobile Safari`, `Mobile Chrome`) need `--project="<name>"`.
+- `yarn playwright test --list --config=playwright.config.web.js` checks that specs and test data load without opening a browser.
+
 The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is excluded in `tsconfig.json`). A PostToolUse hook (`.claude/hooks/typecheck.mjs`, registered in `.claude/settings.json`) runs `tsc` after every `.ts` edit and reports any type errors — fix them before moving on.
 
 ---
@@ -193,7 +213,7 @@ The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is exclud
 
 - Skills (`.claude/skills/`): `/add-page` (new Page Object + Components + `pages.json` entry), `/add-test-data` (new SIT data file + `TestDataProvider` registration), `/debug-failure` (artifacts → logs → data → component → app → env/config, root cause before fixing).
 - Agent (`.claude/agents/code-reviewer.md`): read-only review of the current diff or a folder against these rules.
-- MCP: `playwright` server in `.mcp.json` (runs the `@playwright/mcp` devDependency via `yarn playwright-mcp --isolated`; same binary as `yarn mcp:playwright` and `.vscode/mcp.json`). Use it only to inspect real pages (accessibility snapshot) for roles/labels when writing locators — never as a substitute for running the tests, and never to log in with real credentials from `.env.*`. `browser_navigate`, `browser_snapshot` and `browser_close` are allowed in `.claude/settings.json`; interactive tools still prompt.
+- MCP: `playwright` server in `.mcp.json` (runs the `@playwright/mcp` devDependency via `yarn playwright-mcp --isolated --output-dir .playwright-mcp`, output dir gitignored; same binary as `yarn mcp:playwright` and `.vscode/mcp.json`). Use it only to inspect real pages (accessibility snapshot) for roles/labels when writing locators — never as a substitute for running the tests, and never to log in with real credentials from `.env.*`. `browser_navigate`, `browser_snapshot` and `browser_close` are allowed in `.claude/settings.json`; interactive tools still prompt.
 
 ---
 
