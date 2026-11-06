@@ -9,6 +9,10 @@ Input: test title and browser project (e.g. `Desktop Chromium`). Ask for them if
 
 Follow this order and stop at the first step that explains the failure. Report the root cause **before** changing any code.
 
+## 0. Run outcome and freshness
+- **Stale inputs:** artifacts are overwritten per test but never cleared, and the log file is appended to. Compare `metadata.json` `timestamp` (and file mtimes) with the run under investigation; if they are older, they belong to a previous run. Rerun (step 5) before trusting them.
+- **Self-healed run:** the test can end as *passed* after healing. Signs: console `[HealingEngine] HEALED on attempt N | <old> → <new>` / `Self-healing succeeded`, a `self-healed` annotation in the report, a `<Component>.ts.bak` next to the component, and a source change in `git diff`. In that case there is no `test-results/*/error-context.md`; use `metadata.json` + `ai-response.json`, and report the patch (`git diff` of the component, or diff against the `.bak`). Leave the `.bak` until the patch has been reviewed.
+
 ## 1. Locator — artifacts
 Folder: `artifacts/{browser}/{test_title}/` (title with non-word characters replaced by `_`, e.g. `_Smoke_Test_Standard_Component`). File names come from `config/framework.config.ts`:
 - `screenshot.png` — look at it
@@ -16,7 +20,7 @@ Folder: `artifacts/{browser}/{test_title}/` (title with non-word characters repl
 - `metadata.json` — failed locator, error, URL, failure source (ACTION / ASSERTION)
 - `ai-response.json` — the self-healing analysis (root cause, patch, confidence), if healing ran
 - `component.ts` — the source the analysis was based on
-Also read `test-results/*/error-context.md` for the Playwright error and call log.
+Also read `test-results/*/error-context.md` for the Playwright error and call log (only present when the test finally failed).
 
 ## 2. Logs
 `logs/{browser}.{name}.log` (Winston, one file per browser + test), where `{name}` is the part of the title after the last `|`, trimmed, spaces replaced by `_` (see `utils/LoggerManager.ts`), e.g. `logs/Desktop Chromium.Test_Standard_Component.log`.
@@ -38,4 +42,4 @@ Browser project, env vars (`.env`, `.env.{env}`), `playwright.config.web.js`, `c
 - Do not assume the test is wrong before finishing the investigation.
 - Never bypass `withHealing()`, change assertion expected values, or add `waitForTimeout` to make a test pass.
 - Do not modify the self-healing pipeline; if the root cause is there, stop and ask.
-- Report: failing step, evidence (file + excerpt), root cause category (locator / data / component / app / environment / config), and the proposed fix.
+- Report: failing step, evidence (file + excerpt), root cause category (locator / data / component / app / environment / config), the healing outcome (HEALED / MANUAL / FAILED / SKIPPED, with any source patch), and the proposed fix.
