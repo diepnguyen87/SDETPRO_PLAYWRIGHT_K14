@@ -20,6 +20,7 @@ import { testData } from "../../test-data/TestDataProvider.js";
 const BillingAddressData = testData.billingAddress;
 const shippingMethodData = testData.shippingMethod;
 const termsOfServiceWarningData = testData.termsOfServiceWarning;
+const orderCompletedData = testData.orderCompleted;
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
@@ -323,9 +324,10 @@ export default class OrderTestFlow extends BaseFlow {
     public async checkoutCompleted() {
         const checkoutCompletedPage: CheckoutCompletedPage = new CheckoutCompletedPage(this.page, this.testInfo)
         const completedComp: CompletedComponent = await checkoutCompletedPage.orderCompletedComp()
+        const { title, orderDetailLinkText } = orderCompletedData
         let orderNumber = await completedComp.getOrderNumber()
-        expect(await completedComp.getOrderCompletedTitle()).toEqual("Your order has been successfully processed!")
-        expect(await completedComp.getOrderDetailLinkText()).toEqual("Click here for order details.")
+        expect(await completedComp.getOrderCompletedTitle()).toEqual(title)
+        expect(await completedComp.getOrderDetailLinkText()).toEqual(orderDetailLinkText)
         expect(await completedComp.getOrderDetailLinkHref()).toEqual(`/orderdetails/${orderNumber}`)
     }
 
