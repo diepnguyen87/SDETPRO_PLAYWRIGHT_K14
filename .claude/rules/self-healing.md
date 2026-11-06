@@ -89,7 +89,8 @@ On each call:
    - `BackupManager.create(sourceFile)` — creates `.bak` backup
    - `PatchApplier.applyToSource()` — replaces `oldValue` → `newValue` in source
    - `PatchVerifier.verify()` — confirms old value gone, new value present
-   - `TestCommandBuilder.build(metadata)` → `yarn playwright test --grep="..." --project="..." --headed --config=playwright.config.web.js`
+   - `TestCommandBuilder.build(metadata)` → `yarn playwright test --grep="<escaped full title>$" --project="..." --headed --config=playwright.config.web.js`
+     (full title incl. tag, regex-escaped, anchored at the end so a longer title sharing the prefix is not rerun)
    - `TestRerunner.run(command)` — spawns child process with `HEALING_RERUN=true` in env
      - Child passes → return `HEALED`, release lock
      - Child fails → `BackupManager.restore()`, try next attempt

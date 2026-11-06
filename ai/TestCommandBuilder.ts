@@ -3,10 +3,9 @@ import { Metadata } from "./Metadata.js";
 export default class TestCommandBuilder {
 
     public static build(metadata: Metadata): string {
-        const parts = metadata.testName.split("|");
-        const testcaseName = (parts[1] ?? parts[0]).trim();
         let command = `yarn playwright test`;
-        command += ` --grep="${this.escapeRegex(testcaseName)}"`;
+        // Full title anchored at the end, so "X" does not also match "X With Login"
+        command += ` --grep="${this.escapeRegex(metadata.testName.trim())}$"`;
         command += ` --project="${metadata.browser}"`;
         command += ` --headed`;
         command += ` --config=playwright.config.web.js`;
