@@ -8,8 +8,7 @@ import { TAG } from "../../../constant/Tag.js";
 
 const standardComputerDataList = testData.standardComputer;
 
-test(`${TAG.smoke} | Test Standard Component`, async ({ page, browser }, testInfo) => {
-    console.log(browser.version())
+test(`${TAG.smoke} | Test Credit Card Checkout`, async ({ page, browser }, testInfo) => {
     await page.goto("/build-your-own-computer")
     const orderTestFlow: OrderTestFlow = new OrderTestFlow(page, StandardComputerComponent, undefined, standardComputerDataList, testInfo)
     await orderTestFlow.buildComputerDetailListAndAddToCart();
@@ -26,5 +25,29 @@ test(`${TAG.smoke} | Test Standard Component`, async ({ page, browser }, testInf
     await orderTestFlow.checkoutCompleted()
 
     await page.waitForTimeout(2 * 1000)
+});
+
+test(`${TAG.smoke} | Test Cash On Delivery Checkout`, async ({ page, browser }, testInfo) => {
+    await page.goto("/build-your-own-computer")
+    const orderTestFlow = new OrderTestFlow(
+        page,
+        StandardComputerComponent,
+        undefined,
+        standardComputerDataList,
+        testInfo
+    )
+
+    await orderTestFlow.buildComputerDetailListAndAddToCart();
+    await orderTestFlow.navigateToShoppingCartPage();
+    await orderTestFlow.verifyShoppingCart();
+    await orderTestFlow.checkoutWithoutTOSAndVerifyWarningPopup();
+    await orderTestFlow.selectTOSandCheckoutAsGuest();
+    await orderTestFlow.inputBillingAddress();
+    await orderTestFlow.inputShippingAddress();
+    await orderTestFlow.selectShippingMethod();
+    await orderTestFlow.selectCashOnDeliveryPaymentMethod();
+    await orderTestFlow.confirmOrder();
+    await orderTestFlow.checkoutCompleted();
+    await orderTestFlow.verifyOrderDetailsPaymentMethod(paymentMethods.cashOnDelivery);
 });
 
