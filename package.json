@@ -16,6 +16,8 @@
     "test:day19": "playwright test ./tests/web/Day19.spec.ts --config=playwright.config.web.js",
     "ui": "playwright test --ui --config=playwright.config.web.js",
     "ai:review": "tsx ai/review.ts",
+    "harness:check-req": "tsx harness/checks/requirement-check.ts",
+    "harness:check-plan": "tsx harness/checks/plan-check.ts",
     "mcp:playwright": "playwright-mcp"
   },
   "dependencies": {

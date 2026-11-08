@@ -159,6 +159,16 @@ Do not remove, bypass, or restructure it.
 
 ---
 
+## Requirements and Plans (Harness Contracts)
+
+The agentic pipeline (`implementation-plans/agent-harness.md`) chains stages through two file formats, both machine-checked.
+
+- **Requirements** live in `requirements/REQ-<nnn>-<slug>.md`, following `requirements/_TEMPLATE.md`. Every acceptance criterion is `- [ ] AC<n>: ...` and every error case `- E<n>: ...`. No secrets in the file. Copilot Chat writes them with `.github/prompts/write-requirement.prompt.md`. Validate with `yarn harness:check-req <file>`.
+- **Pipeline plans** follow `implementation-plans/_TEMPLATE.md`: a `Status:` and a `Requirement:` line under the title, an Acceptance Criteria Traceability row for every `AC<n>` / `E<n>` (or `Not automated: <reason>`), a `## Review Resolution` answering each OpenAI finding, and `## Relevant Files` with new files marked `(new)`. Validate with `yarn harness:check-plan <file>`; plans without `Status:` / `Requirement:` (written before the contract) are skipped.
+- **Status lifecycle:** `Draft → Plan Reviewed → Awaiting Human Review → Approved → Implemented → Code Reviewed → Awaiting Human Code Review → Accepted`, plus `Changes Requested`. Only the human sets `Approved`, `Changes Requested` and `Accepted`; never implement a plan that is not `Approved`.
+
+---
+
 ## AI Review Tool (Standalone)
 
 `ai/review.ts` is a standalone CLI tool — it is **not** part of the self-healing pipeline.
