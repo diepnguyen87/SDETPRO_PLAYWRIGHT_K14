@@ -3,25 +3,38 @@ import "dotenv/config";
 import OpenAI from "openai";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { PLAN_REVIEW_JSON_SCHEMA, PlanReview, renderPlanReviewMarkdown } from "./ReviewSchema.js";
 
 const PROJECT_ROOT = process.cwd();
 
-// Plan to review, passed as the first argument: yarn ai:review implementation-plans/<topic>.md
-const PLAN_ARG = process.argv[2];
+// yarn ai:review implementation-plans/<topic>.md [--mode plan] [--dry-run]
+const ARGS = process.argv.slice(2);
+const PLAN_ARG = ARGS.find(arg => !arg.startsWith("--") && ARGS[ARGS.indexOf(arg) - 1] !== "--mode");
+const MODE = ARGS.includes("--mode") ? ARGS[ARGS.indexOf("--mode") + 1] : "plan";
+const DRY_RUN = ARGS.includes("--dry-run");
+
 const PLAN_FILE = PLAN_ARG ? path.resolve(PROJECT_ROOT, PLAN_ARG) : "";
 const CONTEXT_FILE = path.join(PROJECT_ROOT, "CLAUDE.md");
-const REVIEW_OUTPUT_FILE = path.join(
-    PROJECT_ROOT,
-    "implementation-review",
-    "openai-review.md"
-);
+const REVIEW_OUTPUT_DIR = path.join(PROJECT_ROOT, "implementation-review");
 
 const MAX_FILE_CHARS = 80_000;
 const MAX_TOTAL_CONTEXT_CHARS = 300_000;
 
-const client = new OpenAI({
-    apiKey: process.env.OPEN_API_KEY,
-});
+// Rule files sent when a Relevant File falls under their scope
+const RULE_FILES: Array<{ file: string; scope: RegExp }> = [
+    {
+        file: ".claude/rules/self-healing.md",
+        scope: /^(ai\/|models\/ai\/|tests\/fixtures\/|models\/components\/Component\.ts$|models\/pages\/BasePage\.ts$|models\/pages\/FailedLocatorManager\.ts$|config\/framework\.config\.ts$)/,
+    },
+    {
+        file: ".claude/rules/github-actions.md",
+        scope: /^(\.github\/workflows\/|Dockerfile$|docker-compose\.yml$|\.dockerignore$)/,
+    },
+];
+
+type RelevantFile = { path: string; isNew: boolean };
+
+type ContextFile = { label: string; path: string; content: string };
 
 function ensureEnvironment(): void {
     if (!process.env.OPEN_API_KEY) {
@@ -73,7 +86,8 @@ function isSafeProjectRelativePath(filePath: string): boolean {
     );
 }
 
-function extractRelevantFiles(planContent: string): string[] {
+// Accepts "- path", "- `path`" and either form followed by "(new)"
+function extractRelevantFiles(planContent: string): RelevantFile[] {
     const sectionMatch = planContent.match(
         /##\s+Relevant Files\s*\n([\s\S]*?)(?=\n##\s+|$)/i
     );
@@ -84,75 +98,86 @@ function extractRelevantFiles(planContent: string): string[] {
         );
     }
 
-    const sectionContent = sectionMatch[1];
-
-    const fileMatches = [
-        ...sectionContent.matchAll(
-            /^\s*[-*]\s+`([^`]+)`\s*$/gm
+    const entries = [
+        ...sectionMatch[1].matchAll(
+            /^\s*[-*]\s+`?([^`\s]+)`?\s*(\(new\))?\s*$/gm
         ),
-    ];
+    ].map((match) => ({ path: match[1].trim(), isNew: match[2] !== undefined }));
 
-    const filePaths = fileMatches.map((match) => match[1].trim());
+    const uniqueEntries = entries.filter(
+        (entry, index) => entries.findIndex((other) => other.path === entry.path) === index
+    );
 
-    const uniquePaths = [...new Set(filePaths)];
-
-    for (const filePath of uniquePaths) {
-        if (!isSafeProjectRelativePath(filePath)) {
+    for (const entry of uniqueEntries) {
+        if (!isSafeProjectRelativePath(entry.path)) {
             throw new Error(
-                `Unsafe project-relative path detected: ${filePath}`
+                `Unsafe project-relative path detected: ${entry.path}`
             );
         }
     }
 
-    return uniquePaths;
+    return uniqueEntries;
 }
 
-async function collectProjectContext(): Promise<string> {
+function extractRequirementPath(planContent: string): string | null {
+    const requirement = planContent.match(/^Requirement:\s*(\S+)\s*$/m)?.[1];
+
+    if (requirement && !isSafeProjectRelativePath(requirement)) {
+        throw new Error(`Unsafe requirement path: ${requirement}`);
+    }
+
+    return requirement ?? null;
+}
+
+async function collectContextFiles(): Promise<ContextFile[]> {
     if (!PLAN_FILE) {
-        throw new Error("Missing plan file. Usage: yarn ai:review implementation-plans/<topic>.md");
-    }
-    const planContent = await readTextFile(PLAN_FILE, true);
-    const claudeContent = await readTextFile(CONTEXT_FILE, true);
-
-    if (!planContent || !claudeContent) {
-        throw new Error("Required project context is missing.");
+        throw new Error("Missing plan file. Usage: yarn ai:review implementation-plans/<topic>.md [--mode plan] [--dry-run]");
     }
 
+    const planContent = (await readTextFile(PLAN_FILE, true))!;
+    const claudeContent = (await readTextFile(CONTEXT_FILE, true))!;
     const relevantFiles = extractRelevantFiles(planContent);
+    const requirementPath = extractRequirementPath(planContent);
+    const planRelativePath = path.relative(PROJECT_ROOT, PLAN_FILE);
 
-    const contextParts: string[] = [];
+    const files: ContextFile[] = [{ label: "PROJECT RULES", path: "CLAUDE.md", content: claudeContent }];
 
-    contextParts.push("===== FILE: CLAUDE.md =====\n");
-    contextParts.push(claudeContent);
+    for (const rule of RULE_FILES) {
+        if (!relevantFiles.some((entry) => rule.scope.test(entry.path))) continue;
+        const content = await readTextFile(path.join(PROJECT_ROOT, rule.file), true);
+        files.push({ label: "PROJECT RULES", path: rule.file, content: content! });
+    }
 
-    contextParts.push(`\n\n===== FILE: ${path.relative(PROJECT_ROOT, PLAN_FILE)} =====\n`);
-    contextParts.push(planContent);
+    if (requirementPath) {
+        const content = await readTextFile(path.join(PROJECT_ROOT, requirementPath), true);
+        files.push({ label: "REQUIREMENT", path: requirementPath, content: content! });
+    }
 
-    for (const relativeFilePath of relevantFiles) {
-        const absoluteFilePath = path.resolve(
-            PROJECT_ROOT,
-            relativeFilePath
-        );
+    files.push({ label: "IMPLEMENTATION PLAN UNDER REVIEW", path: planRelativePath, content: planContent });
 
-        const fileContent = await readTextFile(absoluteFilePath);
+    for (const entry of relevantFiles) {
+        if (entry.path === requirementPath || entry.path === "CLAUDE.md") continue;
 
-        if (!fileContent) {
-            contextParts.push(
-                `\n\n===== FILE: ${relativeFilePath} =====\n`
-            );
-            contextParts.push(
-                "[FILE COULD NOT BE READ OR DOES NOT EXIST]"
-            );
+        if (entry.isNew) {
+            files.push({ label: "NEW FILE", path: entry.path, content: "[NEW FILE — created by this plan; it does not exist yet]" });
             continue;
         }
 
-        contextParts.push(
-            `\n\n===== FILE: ${relativeFilePath} =====\n`
-        );
-        contextParts.push(fileContent);
+        const content = await readTextFile(path.resolve(PROJECT_ROOT, entry.path));
+        files.push({
+            label: "SOURCE",
+            path: entry.path,
+            content: content ?? "[FILE COULD NOT BE READ OR DOES NOT EXIST]",
+        });
     }
 
-    let combinedContext = contextParts.join("");
+    return files;
+}
+
+function buildProjectContext(files: ContextFile[]): string {
+    let combinedContext = files
+        .map((file) => `===== ${file.label}: ${file.path} =====\n${file.content}`)
+        .join("\n\n");
 
     if (combinedContext.length > MAX_TOTAL_CONTEXT_CHARS) {
         combinedContext =
@@ -165,340 +190,119 @@ async function collectProjectContext(): Promise<string> {
 
 function buildReviewInstructions(): string {
     return `
-You are an independent senior software architect and Playwright TypeScript code reviewer.
+You are an independent senior software architect and Playwright TypeScript reviewer.
 
-Your responsibility is to review the implementation plan against the actual project
-requirements, existing architecture, and source code.
+You review an implementation plan for a Playwright + TypeScript test automation project
+against its requirement, the project rules (CLAUDE.md and any rule files provided) and the
+actual source code provided. The plan was written by another AI agent (Claude); the plan will
+be revised from your findings and then reviewed by a human before any code is written.
 
-You are an independent reviewer. Do not blindly agree with the implementation plan.
-Challenge assumptions and identify missing changes, incorrect dependencies, hidden risks,
-and potential regressions.
+This is a ONE-PASS review, not a conversation. Report every concrete issue now.
 
-However, this is a **one-pass implementation review**, not an interactive design discussion.
+## Inputs
 
-Your job is to determine whether the implementation plan is ready for implementation
-and identify **all concrete changes that are required before implementation starts**.
+* PROJECT RULES — binding architecture and coding rules.
+* REQUIREMENT — acceptance criteria (AC<n>) and error cases (E<n>). May be absent for older plans.
+* IMPLEMENTATION PLAN UNDER REVIEW — follows the project plan template.
+* SOURCE — current content of files the plan reads or changes.
+* NEW FILE — files the plan will create; they do not exist yet. Do not report them as missing.
 
 ## Review Principles
 
-1. Review the implementation plan against the actual source code, not against assumptions.
-
-2. Treat decisions explicitly stated in the implementation plan as intentional design
-   decisions unless the source code or requirements provide evidence that they are
-   incorrect.
-
-3. Do NOT ask questions about something that is already clearly defined in:
-
-   * the requirements
-   * the implementation plan
-   * the existing project architecture
-   * the existing source code
-
-4. Do NOT restate or challenge existing code merely because an alternative design
-   could be used.
-
-5. If the existing architecture already correctly supports the requirement, explicitly
-   mark it as:
-   "NO CHANGE REQUIRED"
-
-6. Only report a finding when there is a concrete problem, missing implementation,
-   inconsistency, risk, or required verification.
-
-7. Perform the review in ONE PASS.
-   Identify all known required fixes in this review.
-   Do not intentionally defer findings to a later review.
-
-8. Do not turn the review into a conversational Q&A.
-   Do not ask the developer to clarify non-blocking details.
-
-9. If information is missing but implementation can reasonably proceed using the
-   existing architecture, make the safest reasonable assumption and document it
-   under "Assumptions", rather than asking a question.
-
-10. Only identify an item as BLOCKING when implementation cannot reasonably proceed
-    without resolving it.
-
-11. Distinguish between:
-
-    * REQUIRED FIX: must be changed before implementation
-    * RECOMMENDED IMPROVEMENT: useful but not required
-    * VERIFICATION: should be confirmed by running the test/build
-    * NO CHANGE REQUIRED: existing implementation already satisfies the requirement
-
-12. Do not propose unnecessary refactoring or architectural changes outside the
-    stated requirement.
-
-13. When the implementation plan already correctly describes an existing project
-    structure, do not request that structure to be redesigned.
-
----
+1. Review against the provided source code, not assumptions. Do not invent problems without
+   evidence from the requirement, the rules, the plan or the source.
+2. Answers written under "Open Questions" as "→ A: ..." are decisions made by the human.
+   Treat them as binding. Check that the plan body is consistent with them; never challenge them.
+3. Decisions stated explicitly in the plan are intentional unless the source or the rules show
+   they are wrong.
+4. Do not propose refactoring or redesign outside the requirement, and do not ask to redesign
+   existing structure the plan describes correctly.
+5. Do not ask questions. If information is missing but implementation can reasonably proceed,
+   make the safest assumption and list it under "assumptions".
+6. Classify every finding:
+   * REQUIRED_FIX — the plan must change before implementation (wrong, missing or rule-violating).
+   * RECOMMENDED — useful but not required.
+   * VERIFICATION — something that can only be confirmed by running the code or the app.
+7. Severity: CRITICAL (cannot work / breaks the framework), HIGH (requirement not met or rule violated),
+   MEDIUM (likely bug or flakiness), LOW (minor).
 
 ## Review Areas
 
-### 1. Requirement Coverage
-
-* Does the implementation plan satisfy the stated objective?
-* Is the checkout flow implemented in the correct order?
-* Is login correctly performed mid-flow on CheckoutAsGuestPage?
-* Are all required behaviors represented?
-* Are any requirements missing from the implementation plan?
-
-### 2. Architecture and Layer Responsibility
-
-* Are page objects, component objects, and test flows used correctly?
-* Does the proposed implementation respect the existing project architecture?
-* Is LoginComponent reused appropriately?
-* Is any business logic placed in the wrong layer?
-* Does the proposed change duplicate functionality that already exists?
-* Does the change bypass an existing abstraction unnecessarily?
-
-If the current architecture is already correct, state:
-
-"NO CHANGE REQUIRED - existing architecture is compatible."
-
-### 3. TypeScript Correctness
-
-* Are imports and file extensions consistent with the project?
-* Are constructors and method signatures compatible with existing classes?
-* Are return types and async operations correct?
-* Are there possible compile-time errors?
-* Are types compatible with existing interfaces or fixtures?
-* Are there incorrect assumptions about Playwright types?
-
-### 4. Playwright Correctness
-
-* Are locators valid?
-* Is the redirect behavior handled correctly?
-* Are there timing or navigation risks after clicking Login?
-* Should the flow explicitly wait for a page state or URL?
-* Are Playwright fixtures used correctly?
-* Could the proposed implementation introduce flaky behavior?
-
-### 5. Test Data and Environment Handling
-
-* Are LOGIN_EMAIL and LOGIN_PASSWORD validated?
-* Could empty environment variables cause a misleading test failure?
-* Are secrets protected from logs and reports?
-* Is environment configuration consistent with the existing project?
-
-### 6. Regression Risk
-
-* Could the new changes affect the existing guest checkout flow?
-* Does the proposed implementation accidentally duplicate or bypass existing logic?
-* Are reused components actually compatible with the new flow?
-* Could existing tests be affected?
-
-### 7. Self-Healing Compatibility
-
-* Does the change preserve the existing self-healing mechanism?
-* Are stable locators used appropriately?
-* Is any failure handling or locator behavior bypassed?
-* Does the change preserve the existing healing flow and component abstraction?
-* Does the proposed implementation introduce a new locator/action path that bypasses
-  the existing self-healing mechanism?
-
-### 8. Test Quality
-
-* Is the new test meaningful and maintainable?
-* Are assertions sufficient?
-* Does checkoutCompleted() actually verify successful completion?
-* Are negative or missing-credential cases relevant?
-* Is the test validating behavior rather than merely executing actions?
-
-### 9. Missing Implementation Details
-
-* Identify any file that should be changed but is absent from Relevant Files.
-* Identify any file listed in Relevant Files that is unnecessary.
-* Identify missing methods, constructors, imports, fixtures, or dependencies.
-* Identify assumptions that must be verified by running the test.
-
----
-
-# Review Decision Rules
-
-Choose the overall assessment using these rules:
-
-### APPROVE
-
-Use when:
-
-* The implementation plan is technically sound.
-* No REQUIRED FIX exists.
-* Existing architecture is correctly respected.
-* Remaining items are only verification or optional improvements.
-
-### APPROVE_WITH_CHANGES
-
-Use when:
-
-* The overall approach is correct.
-* One or more concrete REQUIRED FIXES exist.
-* The implementation can proceed after applying those fixes.
-
-### REJECT
-
-Use only when:
-
-* The proposed approach is fundamentally incorrect,
-* violates the existing architecture,
-* cannot satisfy the requirement,
-* or requires substantial redesign before implementation.
-
-Do NOT use REJECT for minor issues.
-
----
-
-# Output Format
-
-Return the review using exactly this structure:
-
-# Independent Code Review
-
-## Overall Assessment
-
-Choose exactly one:
-
-* APPROVE
-* APPROVE_WITH_CHANGES
-* REJECT
-
-Explain the decision briefly.
-
-## Required Fixes
-
-List ALL concrete changes that must be made before implementation.
-
-For each required fix:
-
-### [SEVERITY] Finding title
-
-* Type: REQUIRED FIX
-* File:
-* Problem:
-* Why it matters:
-* Required action:
-
-Severity must be one of:
-
-* CRITICAL
-* HIGH
-* MEDIUM
-* LOW
-
-Do not ask questions in this section.
-State the required change directly.
-
-If there are no required fixes, write:
-
-"NO REQUIRED FIXES"
-
-## Recommended Improvements
-
-List optional improvements that are useful but are NOT required to implement
-the requested feature.
-
-For each:
-
-### [SEVERITY] Improvement title
-
-* Type: RECOMMENDED IMPROVEMENT
-* File:
-* Observation:
-* Recommendation:
-
-If none:
-
-"NO RECOMMENDED IMPROVEMENTS"
-
-## No Change Required
-
-Explicitly list important areas where the implementation plan is already correct
-and no modification is required.
-
-Example:
-
-* Component.click() already uses the existing self-healing mechanism.
-* LoginComponent is already the correct reusable component.
-* Existing page object structure is compatible.
-
-If there are no such items:
-
-"NONE"
-
-## Missing Files or Dependencies
-
-List any relevant files or dependencies that should be reviewed or modified.
-
-Separate:
-
-* REQUIRED
-* OPTIONAL
-* NONE
-
-## Assumptions
-
-List only assumptions that materially affect implementation.
-
-Do not ask questions here.
-
-If none:
-
-"NONE"
-
-## Validation Checklist
-
-List concrete commands or checks that should be performed after implementation.
-
-Examples:
-
-* yarn tsc --noEmit
-* Run the specific Playwright test.
-* Run the affected smoke test.
-* Verify redirect URL.
-* Verify checkout completion assertion.
-* Verify self-healing behavior is still active.
-
-Only include checks relevant to this implementation.
-
-## Final Recommendation
-
-Use exactly one of:
-
-* PROCEED
-* PROCEED AFTER REQUIRED FIXES
-* DO NOT PROCEED
-
-Then provide a concise summary of what the implementer should do next.
-
----
-
-## Important Final Rules
-
-* Complete the review in ONE PASS.
-* Identify ALL known REQUIRED FIXES now.
-* Do not ask follow-up questions unless the missing information is genuinely blocking
-  implementation.
-* Do not ask for confirmation of decisions already established by the implementation
-  plan or existing source code.
-* Do not repeatedly restate what Claude already identified as correct.
-* Do not invent problems without evidence from the source code, requirements, or plan.
-* Do not propose refactoring merely because you prefer another architecture.
-* Focus on concrete implementation correctness and actionable changes.
-* The output must be actionable by another coding agent without requiring a
-  conversational clarification step.
+1. Requirement coverage — every AC<n> and E<n> has a Traceability row, the planned test and
+   assertion actually prove it, and "Not automated" reasons are valid.
+2. Architecture and layers — Spec → TestFlow → Page Object → Component responsibilities as defined
+   in the rules; no raw Playwright API where the rules forbid it; global component accessors not duplicated.
+3. Reuse and existence — every class, method, property and file the plan cites as existing really exists
+   in the provided source with that name and signature; no duplication of existing functionality.
+4. TypeScript correctness — imports with .js extensions, constructor and method signatures,
+   async/await, return types, compile errors.
+5. Playwright correctness — locator priority and validity, waits and navigation (no waitForTimeout as a
+   substitute), web-first assertions, flakiness risks, route/interception usage if any.
+6. Self-healing compatibility — CSS/XPath interactions through withHealing(); no new path that bypasses it;
+   locators as class properties; dynamic<Name> templates for runtime values.
+7. Test data and environment — data through TestDataProvider, nothing hardcoded that belongs in test data
+   or env, no secrets.
+8. Test independence and regression — each test starts from a known state; changes to shared code do
+   not break existing specs listed in Relevant Files.
+9. Plan completeness — files that must change but are missing from Relevant Files, unnecessary entries,
+   Verification commands that would actually prove the change.
+
+## Decision Rules
+
+* APPROVE — no REQUIRED_FIX.
+* APPROVE_WITH_CHANGES — the approach is right but at least one REQUIRED_FIX exists.
+* REJECT — the approach is fundamentally wrong or violates the architecture; not for minor issues.
+
+## Output
+
+Return JSON matching the provided schema:
+* findings: ids F1, F2, ... in order, most severe first; "file" is the project-relative path the finding
+  is about (use the plan path for plan-only issues); "action" states the concrete change to the plan;
+  "requirementIds" lists the affected AC<n>/E<n> (empty if none).
+* summary: two to four sentences on the overall assessment.
+* validationChecklist: concrete commands or checks to run after implementation, relevant to this plan only.
 `;
 }
 
 async function runReview(): Promise<void> {
+    if (MODE !== "plan") {
+        throw new Error(`--mode ${MODE} is not supported yet (code review comes with harness Slice B). Use --mode plan.`);
+    }
+
+    const contextFiles = await collectContextFiles();
+    const projectContext = buildProjectContext(contextFiles);
+    const planName = path.basename(PLAN_FILE, ".md");
+    const jsonOutput = path.join(REVIEW_OUTPUT_DIR, `${planName}.plan.json`);
+    const markdownOutput = path.join(REVIEW_OUTPUT_DIR, `${planName}.plan.md`);
+
+    if (DRY_RUN) {
+        console.log(`Dry run — context for ${path.relative(PROJECT_ROOT, PLAN_FILE)} (${projectContext.length} chars):`);
+        for (const file of contextFiles) {
+            console.log(`  [${file.label}] ${file.path} (${file.content.length} chars)`);
+        }
+        console.log(`Would write: ${path.relative(PROJECT_ROOT, jsonOutput)}, ${path.relative(PROJECT_ROOT, markdownOutput)}`);
+        return;
+    }
+
     ensureEnvironment();
 
-    const projectContext = await collectProjectContext();
-    const reviewInstructions = buildReviewInstructions();
+    const client = new OpenAI({
+        apiKey: process.env.OPEN_API_KEY,
+    });
+    const model = process.env.OPEN_REVIEW_MODEL!;
 
     const response = await client.responses.create({
-        model: process.env.OPEN_REVIEW_MODEL!,
-        instructions: reviewInstructions,
+        model,
+        instructions: buildReviewInstructions(),
         input: projectContext,
+        text: {
+            format: {
+                type: "json_schema",
+                name: "plan_review",
+                strict: true,
+                schema: PLAN_REVIEW_JSON_SCHEMA as unknown as Record<string, unknown>,
+            },
+        },
     });
 
     const reviewContent = response.output_text;
@@ -507,22 +311,19 @@ async function runReview(): Promise<void> {
         throw new Error("The AI reviewer returned an empty response.");
     }
 
-    await fs.mkdir(path.dirname(REVIEW_OUTPUT_FILE), {
-        recursive: true,
-    });
+    const review: PlanReview = JSON.parse(reviewContent);
+    const planRelativePath = path.relative(PROJECT_ROOT, PLAN_FILE);
 
-    await fs.writeFile(
-        REVIEW_OUTPUT_FILE,
-        reviewContent,
-        "utf8"
-    );
+    await fs.mkdir(REVIEW_OUTPUT_DIR, { recursive: true });
+    await fs.writeFile(jsonOutput, JSON.stringify(review, null, 2) + "\n", "utf8");
+    await fs.writeFile(markdownOutput, renderPlanReviewMarkdown(review, planRelativePath, model), "utf8");
 
-    console.log(
-        `Review completed successfully: ${path.relative(
-            PROJECT_ROOT,
-            REVIEW_OUTPUT_FILE
-        )}`
-    );
+    const counts = ["REQUIRED_FIX", "RECOMMENDED", "VERIFICATION"]
+        .map((type) => `${type} ${review.findings.filter((finding) => finding.type === type).length}`)
+        .join(", ");
+    console.log(`Review completed: ${review.verdict} (${counts})`);
+    console.log(`  ${path.relative(PROJECT_ROOT, jsonOutput)}`);
+    console.log(`  ${path.relative(PROJECT_ROOT, markdownOutput)}`);
 }
 
 runReview().catch((error: unknown) => {

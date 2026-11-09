@@ -123,7 +123,7 @@ Prefer in this order:
 
 - Environment-specific test data lives in `test-data/{env}/` (`test-data/sit/`, `test-data/uat/`) as JSON files.
 - Shared, non-environment files stay in `test-data/`: `model/` (types). The page registry is app configuration, not test data, and lives in `config/pages.json`.
-- Specs and flows read environment data only through `test-data/TestDataProvider.ts` (`testData.login`, `testData.standardComputer`, …), which statically imports each environment's JSON (`with { type: "json" }`) and selects the set for `TEST_ENV`. Adding a data file means adding it under every environment folder and registering it in `TestDataProvider.ts`.
+- Specs and flows read environment data only through `test-data/TestDataProvider.ts` (`testData.login`, `testData.standardComputer`, …), which statically imports each environment's JSON (`with { type: "json" }`) and selects the set for `TEST_ENV`. Adding a data file means adding it under `test-data/sit/` and registering it in `sitData` in `TestDataProvider.ts`; UAT has no dataset yet (`dataSets.uat` is `undefined`), so UAT files are added only when UAT is activated.
 - Do not import `test-data/{env}/*.json` directly, use `require()`, or hardcode data inline.
 - Never hardcode credentials, emails, card numbers, addresses, or API keys in source files.
 - `OPEN_API_KEY` is read from environment only (`process.env.OPEN_API_KEY`) — never hardcode it.
@@ -173,11 +173,12 @@ The agentic pipeline (`implementation-plans/agent-harness.md`) chains stages thr
 
 `ai/review.ts` is a standalone CLI tool — it is **not** part of the self-healing pipeline.
 
-- Reads the plan passed as its argument, `CLAUDE.md`, and files listed under `## Relevant Files` in the plan. All implementation plans live in `implementation-plans/` as `<topic>.md`.
-- Sends them to OpenAI for an independent code review
-- Writes output to `implementation-review/openai-review.md`
+- Reads the plan passed as its argument, `CLAUDE.md`, the matching `.claude/rules/` file when Relevant Files touch the self-healing pipeline or CI, the requirement named on the plan's `Requirement:` line, and the files under `## Relevant Files` (`(new)` entries are sent as "new file", not read). All implementation plans live in `implementation-plans/` as `<topic>.md`.
+- Sends them to OpenAI for an independent one-pass plan review; human `→ A:` answers to Open Questions are treated as binding.
+- Returns structured output (schema in `ai/ReviewSchema.ts`): `verdict` (`APPROVE` | `APPROVE_WITH_CHANGES` | `REJECT`) and findings `F<n>` (`REQUIRED_FIX` | `RECOMMENDED` | `VERIFICATION`, severity, file, problem, action, requirement ids).
+- Writes `implementation-review/<plan-name>.plan.json` and a rendered `implementation-review/<plan-name>.plan.md`. When the JSON exists, `yarn harness:check-plan` requires `## Review Resolution` to answer every finding as `- F<n> Accepted|Rejected: ...` from `Awaiting Human Review` on.
 - Uses `OPEN_API_KEY` and `OPEN_REVIEW_MODEL` from `.env` (currently `gpt-5.3-codex`; configurable via env, not hardcoded)
-- Run via: `yarn ai:review implementation-plans/<topic>.md` (runs `tsx ai/review.ts`)
+- Run via: `yarn ai:review implementation-plans/<topic>.md [--dry-run]` (runs `tsx ai/review.ts`; `--dry-run` lists the context without calling OpenAI). `--mode code` (review of generated code) is not implemented yet (harness Slice B).
 
 Do not integrate `ai/review.ts` into `HealingEngine`, `Component`, or any test fixture.
 

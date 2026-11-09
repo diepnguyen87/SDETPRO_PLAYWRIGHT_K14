@@ -1,0 +1,49 @@
+# Plan Review: implementation-plans/REQ-001-remove-cart-items.md
+
+- Verdict: **APPROVE_WITH_CHANGES**
+- Model: gpt-5.3-codex
+- Findings: REQUIRED_FIX 4, RECOMMENDED 0, VERIFICATION 0
+
+## Summary
+
+The plan is largely aligned with the requirement and existing project architecture, and it correctly reuses the current flow/page/component structure. However, there are a few concrete gaps that would cause implementation or validation issues: one non-existent method reference, incomplete environment test-data registration, and a fragile/incorrect E3 handling sequence. Fixing these in the plan should make it implementation-ready.
+
+## Findings
+
+### F1 [HIGH] REQUIRED_FIX (E3)
+
+- File: `implementation-plans/REQ-001-remove-cart-items.md`
+- Problem: The flow plan references `shoppingCartPage.returnToCartAfterFailedUpdate()` after `clickOnUpdateCartBtn()` for E3, but an aborted POST + possible navigation failure can cause `clickOnUpdateCartBtn()` to throw before subsequent lines execute. The plan itself flags this uncertainty in Risks, so the current step sequence is not robust enough to guarantee E3 verification runs.
+- Action: Update the E3 flow step to explicitly wrap the update click in try/catch (or equivalent resilient handling) so execution always continues to recovery/navigation and assertions. Example plan change: call `failNextUpdateCartRequest()`, attempt `clickOnUpdateCartBtn()` with tolerated failure, then recover to `/cart` and assert unchanged rows/header/subtotal.
+
+### F2 [HIGH] REQUIRED_FIX
+
+- File: `implementation-plans/REQ-001-remove-cart-items.md`
+- Problem: The plan adds `testData.shoppingCart` usage in `OrderTestFlow.verifyEmptyShoppingCart()` and says TestDataProvider will register only SIT (`shoppingCart` in `sitData`, UAT undefined). This changes the `TestData` shape and must still satisfy the project rule that adding a data file requires adding it under every environment folder and registering it in `TestDataProvider.ts`. As written, UAT registration for the new key is not planned.
+- Action: Amend the Test Data section to include `test-data/uat/cart/ShoppingCartData.json` (or another explicit UAT placeholder strategy consistent with existing fail-fast behavior) and register `shoppingCart` in the UAT dataset shape as well, so the provider remains structurally complete per project rules.
+
+### F3 [MEDIUM] REQUIRED_FIX (AC1)
+
+- File: `implementation-plans/REQ-001-remove-cart-items.md`
+- Problem: AC1 traceability references `expect(shoppingCartPage.cartItemRows()).toHaveCount(before - 1)`, but there is no `before` variable defined in the assertion description, making the planned proof ambiguous/incomplete.
+- Action: Clarify AC1 assertion in the plan to include explicit pre-capture of row count (e.g., `const beforeCount = ...`) and then assert `toHaveCount(beforeCount - 1)`.
+
+### F4 [MEDIUM] REQUIRED_FIX
+
+- File: `implementation-plans/REQ-001-remove-cart-items.md`
+- Problem: The Spec section states assertions live in flow steps and the new spec imports only `test` from fixtures. Existing specs in this project use fixture exports (`test`, and optionally `expect`) and place assertions in flows already, but E3 and other checks are flow-side only; this is acceptable. The concrete issue is in the Verification section: step 2 says `--list` should show five new tests and test data loads, but if `testData.shoppingCart` is added and not fully registered/type-safe, `--list` will fail before listing tests.
+- Action: After fixing TestDataProvider/UAT registration in the plan, keep `--list` as verification. Also explicitly mention that compile/loading must succeed with the new `shoppingCart` key (no TS/runtime load errors) as part of step 2 acceptance.
+
+## Assumptions
+
+- `OrderTestFlow` is an acceptable place for removal scenarios because Open Questions Q1 resolved this and existing code already centralizes cart/order orchestration there.
+- Using page.route interception for E3 is explicitly approved by Open Questions Q3 and therefore should be implemented at page layer as planned.
+- `ShoppingCartPage` is already registered in `config/pages.json`, so no registry update is required.
+
+## Validation Checklist
+
+- yarn harness:check-plan implementation-plans/REQ-001-remove-cart-items.md
+- yarn tsc --noEmit
+- yarn playwright test --list --config=playwright.config.web.js
+- yarn playwright test tests/web/Day25/TestRemoveCartItems.spec.ts --config=playwright.config.web.js
+- yarn playwright test tests/web/Day25/TestStandardComponent.spec.ts tests/web/Day25/TestComponentWithLogin.spec.ts --config=playwright.config.web.js

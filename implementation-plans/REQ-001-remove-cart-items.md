@@ -1,6 +1,6 @@
 # Implementation Plan: Remove One or Multiple Items from the Shopping Cart
 
-Status: Draft
+Status: Awaiting Human Review
 Requirement: requirements/REQ-001-remove-cart-items.md
 
 ## Objective
@@ -11,7 +11,7 @@ Add a guest-cart removal spec in `tests/web/Day25/` that builds Build Your Own C
 
 | ID | Covered by (spec › flow step) | Assertion |
 |---|---|---|
-| AC1 | `Remove single item from cart` and `Remove one of two items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0])` | `expect(shoppingCartPage.cartItemRows()).toHaveCount(before - 1)` |
+| AC1 | `Remove single item from cart` and `Remove one of two items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0])` | `const beforeCount = (await shoppingCartPage.cartItemRowCompList()).length` captured before removal, then `expect(shoppingCartPage.cartItemRows()).toHaveCount(beforeCount - 1)` |
 | AC2 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect(afterSnapshots).toEqual(remainingSnapshots)` (product name, attributes, unit price, quantity, row total) |
 | AC3 | `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0, 1])` | `expect(shoppingCartPage.cartItemRows()).toHaveCount(1)` |
 | AC4 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect.poll(() => headerComp().getCartQty()).toBe(sum of remaining quantities)` |
@@ -65,7 +65,7 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 - `public async removeCartItemsAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, `selectRemove()` on each index, `shoppingCartPage.clickOnUpdateCartBtn()`, `expect(cartItemRows()).toHaveCount(remaining)` (synchronises with the postback reload, since the URL stays `/cart`). If no rows remain → `verifyEmptyShoppingCart()`. Otherwise: compare remaining snapshots (AC2), removed attributes absent (AC8), `hasRemoveButton()` false per row (AC9), `expect.poll(getCartQty)` = sum of remaining quantities (AC4), `priceCategories()` Sub-Total = sum of remaining row totals and Sub-Total + Shipping + Tax = Total via `toBeCloseTo(…, 2)` (AC5).
 - `public async selectRemoveWithoutUpdateAndVerify(rowIndexes: number[]): Promise<void>` — snapshot + header quantity, `selectRemove()` on each index, `navigateToShoppingCartPage()`, `expect.poll(() => rows[i].isRemoveSelected()).toBe(false)` (reload done, selection discarded), row count, snapshots and header quantity unchanged (E1).
 - `public async verifyEmptyShoppingCart(): Promise<void>` — empty message equals `testData.shoppingCart.emptyCartMessage`, `cartItemRows()` count 0, `updateCartBtn()` hidden, `expect.poll(getShoppingCartLinkText).toEqual(testData.shoppingCart.emptyCartHeaderText)` (AC6, AC7, E2).
-- `public async removeCartItemsWithFailedUpdateAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, header quantity and Sub-Total; `selectRemove()` on each index; `shoppingCartPage.failNextUpdateCartRequest()`; `clickOnUpdateCartBtn()`; `shoppingCartPage.returnToCartAfterFailedUpdate()`; `navigateToShoppingCartPage()` (fresh server state); row count, snapshots, header quantity and Sub-Total unchanged (E3). No raw Playwright API in the flow — interception lives in the page.
+- `public async removeCartItemsWithFailedUpdateAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, header quantity and Sub-Total; `selectRemove()` on each index; `shoppingCartPage.submitUpdateCartWithFailedRequest()`; `navigateToShoppingCartPage()` (fresh server state); row count, snapshots, header quantity and Sub-Total unchanged (E3). No raw Playwright API in the flow — interception lives in the page.
 
 ### Page Object
 `models/pages/ShoppingCartPage.ts`:
@@ -75,9 +75,8 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 - `public async clickOnUpdateCartBtn(): Promise<void>` → `await this.updateCartBtn().click()`; `removeAllItems()` calls it instead of its inline locator (same behaviour).
 - `public async getEmptyCartMessage(): Promise<string>` → `(await this.withHealing(this.emptyCartMessageSel, l => l.innerText())).trim()`.
 - `private readonly updateCartRequestUrl = "**/cart"` (the cart form posts to `/cart`: `<form action="/cart" method="post">` in `artifacts/**/dom.html`).
-- `public async failNextUpdateCartRequest(): Promise<void>` → `this.page.route(this.updateCartRequestUrl, route => route.request().method() === "POST" ? route.abort("failed") : route.fallback(), { times: 1 })` — simulates the removal failure for E3 (human decision Q3: interception is allowed, encapsulated in the page).
-- `public async returnToCartAfterFailedUpdate(): Promise<void>` → `this.page.unroute(this.updateCartRequestUrl)`, `this.page.goBack()`, then `ensureLoaded()` — leaves the browser error page so the header is available again.
-- New async public methods call `await this.ensureLoaded()` first (page reached by the header link), except `failNextUpdateCartRequest()` which only arms the route. Existing methods are left unchanged.
+- `public async submitUpdateCartWithFailedRequest(): Promise<void>` — simulates the removal failure for E3 (human decision Q3: interception is allowed, encapsulated in the page). In order: `ensureLoaded()`; `this.page.route(this.updateCartRequestUrl, route => route.request().method() === "POST" ? route.abort("failed") : route.fallback(), { times: 1 })`; `await Promise.all([this.page.waitForEvent("requestfailed", request => request.method() === "POST"), this.updateCartBtn().click()])` so the step continues only once the POST has really failed, without swallowing other errors; `this.page.unroute(this.updateCartRequestUrl)`; `this.page.goBack()` to leave the browser error page; `ensureLoaded()`.
+- New async public methods call `await this.ensureLoaded()` first (page reached by the header link). Existing methods are left unchanged.
 
 ### Component
 `models/components/cart/CartItemRowComponent.ts`:
@@ -108,7 +107,7 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 - `cartItemRowCompList()` uses `locator.all()`, which does not auto-wait; new methods call `ensureLoaded()` first and the flow waits with `toHaveCount()` after Update, before reading rows again.
 - Row components from `.all()` are `nth()` locators; after the postback they point to the new DOM order, so the flow re-reads the row list after Update instead of reusing the old components.
 - Each scenario builds 1–3 computers (≈1 s fixed wait per build in the existing flow), so the spec adds runtime; tagged `@Regression`, not `@Smoke`.
-- E3: an aborted form POST leaves the browser on an error page; whether `clickOnUpdateCartBtn()` resolves or throws on the aborted navigation must be confirmed when implementing (`returnToCartAfterFailedUpdate()` absorbs it with `goBack()`).
+- E3: an aborted form POST leaves the browser on an error page; `submitUpdateCartWithFailedRequest()` synchronises on the `requestfailed` event instead of tolerating a click error; if the click itself rejects on the aborted navigation in Chromium, handle it inside this page method only and confirm when implementing.
 - `getShoppingCartLinkText()` depends on the rendered whitespace between `Shopping cart` and `(0)`; it is normalised before comparing.
 - Floating-point sums of prices use `toBeCloseTo(…, 2)` rather than `toEqual`.
 - Assertions on `cartItemRows()` / `updateCartBtn()` locators do not go through `withHealing()`; a failure there routes to assertion healing in `base.ts`, as for other web-first assertions.
@@ -127,11 +126,18 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 ## Verification
 
 1. `yarn tsc --noEmit` → 0 errors.
-2. `yarn playwright test --list --config=playwright.config.web.js` → the five new tests are listed and test data loads.
+2. `yarn playwright test --list --config=playwright.config.web.js` → the five new tests are listed; `TestDataProvider` loads with the new `shoppingCart` key (no TypeScript or runtime load error).
 3. `yarn playwright test tests/web/Day25/TestRemoveCartItems.spec.ts --config=playwright.config.web.js` (Desktop Chromium) → 5 passed.
 4. Regression on touched code: `yarn playwright test tests/web/Day25/TestStandardComponent.spec.ts tests/web/Day25/TestComponentWithLogin.spec.ts --config=playwright.config.web.js` → pass (uses `verifyShoppingCart()` and `removeAllItems()` / `clearShoppingCart()`).
 
 ## Review Resolution
+
+OpenAI review: `implementation-review/REQ-001-remove-cart-items.plan.md` (APPROVE_WITH_CHANGES, 4 required fixes).
+
+- F1 Accepted: E3 is now one page method, `ShoppingCartPage.submitUpdateCartWithFailedRequest()`, which waits for the `requestfailed` event of the POST together with the click, then unroutes and goes back to the cart. No try/catch in the flow, because swallowing errors there could hide real failures.
+- F2 Rejected: UAT has no dataset yet. `dataSets.uat` is `undefined`, `test-data/uat/` only has `sample.json`, and `TestData` is derived from `sitData`. The `/add-test-data` skill says not to create or register UAT files, and existing keys (e.g. `orderCompleted`) follow the same rule. `test-data/uat/cart/ShoppingCartData.json` is added when UAT is activated.
+- F3 Accepted: AC1 captures `beforeCount` from `cartItemRowCompList()` before removal and asserts `toHaveCount(beforeCount - 1)`.
+- F4 Accepted: Verification step 2 now says `TestDataProvider` must load with the new `shoppingCart` key (no TypeScript or runtime load error).
 
 ## Relevant Files
 

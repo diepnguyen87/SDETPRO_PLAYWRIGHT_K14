@@ -157,6 +157,15 @@ export function checkPlan(filePath: string): Issue[] | null {
         add(`Status "${status}" requires a filled "Review Resolution" section`);
     }
 
+    // Every OpenAI finding (yarn ai:review output) must be answered by id in Review Resolution
+    const reviewJson = path.join(PROJECT_ROOT, "implementation-review", `${path.basename(filePath, ".md")}.plan.json`);
+    if (statusIndex >= REVIEW_RESOLVED_FROM && status !== "Changes Requested" && fs.existsSync(reviewJson)) {
+        const findingIds: string[] = (JSON.parse(fs.readFileSync(reviewJson, "utf8")).findings ?? []).map((finding: { id: string }) => finding.id);
+        const resolution = doc.sections.get("Review Resolution") ?? "";
+        const unresolved = findingIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Accepted|Rejected)\\b`, "m").test(resolution));
+        if (unresolved.length > 0) add(`Review Resolution must answer each finding of ${relative(reviewJson)} as "- F<n> Accepted|Rejected: ...": missing ${unresolved.join(", ")}`);
+    }
+
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {
         const unanswered = unansweredQuestions(doc.sections.get("Open Questions") ?? "");
         if (unanswered.length > 0) add(`Status "${status}" requires an "→ A:" answer for: ${unanswered.join(", ")}`);
