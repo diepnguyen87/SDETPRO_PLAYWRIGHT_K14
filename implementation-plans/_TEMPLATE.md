@@ -44,6 +44,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 
 ## Risks
 
+## Open Questions
+
+<One `- Q<n>: ...` per unknown; the human answers on the next line with `→ A: ...`. Write `- None` if there are none. The plan cannot be Approved while a question is unanswered.>
+
 ## Verification
 
 <Typecheck, `--list`, the specs to run and the project (Desktop Chromium by default).>

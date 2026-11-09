@@ -17,6 +17,8 @@ export const STATUSES = [
 
 // From this status on, the OpenAI findings must have been answered
 const REVIEW_RESOLVED_FROM = STATUSES.indexOf("Awaiting Human Review");
+// From this status on, every open question must have been answered by the human
+const QUESTIONS_ANSWERED_FROM = STATUSES.indexOf("Approved");
 
 const REQUIRED_SECTIONS = [
     "Objective",
@@ -59,6 +61,23 @@ function traceabilityIds(body: string): Map<string, string> {
         rows.set(cells[1], cells[2]);
     }
     return rows;
+}
+
+// "- Q1: ..." is answered by a later "→ A: ..." line before the next question
+function unansweredQuestions(body: string): string[] {
+    const unanswered: string[] = [];
+    let current: string | null = null;
+    for (const line of body.split("\n")) {
+        const question = /^\s*-\s*(Q\d+):/.exec(line);
+        if (question) {
+            if (current) unanswered.push(current);
+            current = question[1];
+        } else if (current && /^\s*(?:-\s*)?(?:→|->)\s*A:\s*\S/.test(line)) {
+            current = null;
+        }
+    }
+    if (current) unanswered.push(current);
+    return unanswered;
 }
 
 export function checkPlan(filePath: string): Issue[] | null {
@@ -136,6 +155,11 @@ export function checkPlan(filePath: string): Issue[] | null {
     const statusIndex = STATUSES.indexOf(status as typeof STATUSES[number]);
     if (statusIndex >= REVIEW_RESOLVED_FROM && status !== "Changes Requested" && !hasContent(doc.sections.get("Review Resolution"))) {
         add(`Status "${status}" requires a filled "Review Resolution" section`);
+    }
+
+    if (statusIndex >= QUESTIONS_ANSWERED_FROM) {
+        const unanswered = unansweredQuestions(doc.sections.get("Open Questions") ?? "");
+        if (unanswered.length > 0) add(`Status "${status}" requires an "→ A:" answer for: ${unanswered.join(", ")}`);
     }
 
     return issues;
