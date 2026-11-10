@@ -18,6 +18,7 @@
     "ai:review": "tsx ai/review.ts",
     "harness:check-req": "tsx harness/checks/requirement-check.ts",
     "harness:check-plan": "tsx harness/checks/plan-check.ts",
+    "agent:plan": "tsx harness/agent/plan.ts",
     "mcp:playwright": "playwright-mcp"
   },
   "dependencies": {

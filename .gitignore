@@ -26,3 +26,4 @@ artifacts
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+harness-results

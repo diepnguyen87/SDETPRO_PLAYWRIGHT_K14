@@ -11,18 +11,18 @@ Add a guest-cart removal spec in `tests/web/Day25/` that builds Build Your Own C
 
 | ID | Covered by (spec › flow step) | Assertion |
 |---|---|---|
-| AC1 | `Remove single item from cart` and `Remove one of two items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0])` | `const beforeCount = (await shoppingCartPage.cartItemRowCompList()).length` captured before removal, then `expect(shoppingCartPage.cartItemRows()).toHaveCount(beforeCount - 1)` |
+| AC1 | `Remove single item from cart` and `Remove one of two items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0])` | `const beforeCount = (await shoppingCartPage.cartItemRowCompList()).length` captured before removal, then `expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(beforeCount - 1)` |
 | AC2 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect(afterSnapshots).toEqual(remainingSnapshots)` (product name, attributes, unit price, quantity, row total) |
-| AC3 | `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0, 1])` | `expect(shoppingCartPage.cartItemRows()).toHaveCount(1)` |
+| AC3 | `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify([0, 1])` | `expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(1)` |
 | AC4 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect.poll(() => headerComp().getCartQty()).toBe(sum of remaining quantities)` |
 | AC5 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect(subTotal).toBeCloseTo(sum of remaining row totals, 2)` and `expect(subTotal + shipping + tax).toBeCloseTo(total, 2)` |
-| AC6 | `Remove single item from cart`, `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.verifyEmptyShoppingCart()` | `expect(await shoppingCartPage.getEmptyCartMessage()).toEqual(shoppingCartData.emptyCartMessage)`; `expect(cartItemRows()).toHaveCount(0)`; `expect(updateCartBtn()).toBeHidden()` |
+| AC6 | `Remove single item from cart`, `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.verifyEmptyShoppingCart()` | `expect(await shoppingCartPage.getEmptyCartMessage()).toEqual(shoppingCartData.emptyCartMessage)`; `expect.poll(getCartItemRowCount).toBe(0)`; `expect(updateCartBtn()).toBeHidden()` |
 | AC7 | `Remove single item from cart`, `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.verifyEmptyShoppingCart()` | `expect.poll(() => headerComp().getShoppingCartLinkText()).toEqual(shoppingCartData.emptyCartHeaderText)` (`Shopping cart (0)`) |
 | AC8 | `Remove one of two items from cart`, `Remove multiple items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect(afterAttributes).not.toContain(removedAttributes)` per removed row; removed row total excluded from Sub-Total (AC5 check) |
 | AC9 | `Remove one of two items from cart` › `OrderTestFlow.removeCartItemsAndVerify()` | `expect(await row.hasRemoveButton()).toBe(false)` for every remaining row |
-| E1 | `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.selectRemoveWithoutUpdateAndVerify([0])` | `expect.poll(() => row.isRemoveSelected()).toBe(false)` after reopening the cart; `expect(cartItemRows()).toHaveCount(2)`; snapshots unchanged; header quantity unchanged |
-| E2 | `Remove single item from cart`, `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.verifyEmptyShoppingCart()` | `expect(cartItemRows()).toHaveCount(0)` (no Remove checkbox) and `expect(updateCartBtn()).toBeHidden()` |
-| E3 | `Cart stays unchanged when the update request fails` › `OrderTestFlow.removeCartItemsWithFailedUpdateAndVerify([0])` | after reopening the cart: `expect(cartItemRows()).toHaveCount(before)`; snapshots unchanged; `expect.poll(getCartQty).toBe(before)`; Sub-Total unchanged |
+| E1 | `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.selectRemoveWithoutUpdateAndVerify([0])` | `expect.poll(() => row.isRemoveSelected()).toBe(false)` after reopening the cart; `expect.poll(getCartItemRowCount).toBe(2)`; snapshots unchanged; header quantity unchanged |
+| E2 | `Remove single item from cart`, `Keep items when Update is not clicked, then remove all` › `OrderTestFlow.verifyEmptyShoppingCart()` | `expect.poll(getCartItemRowCount).toBe(0)` (no Remove checkbox) and `expect(updateCartBtn()).toBeHidden()` |
+| E3 | `Cart stays unchanged when the update request fails` › `OrderTestFlow.removeCartItemsWithFailedUpdateAndVerify([0])` | after reopening the cart: `expect.poll(getCartItemRowCount).toBe(before)`; snapshots unchanged; `expect.poll(getCartQty).toBe(before)`; Sub-Total unchanged |
 
 ## Scenarios
 
@@ -62,15 +62,15 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 ### TestFlow
 `test-flows/computer/OrderTestFlow.ts` (extend; it already owns build + cart steps):
 - Private type `CartItemSnapshot = { name: string; attributes: string; unitPrice: number; quantity: number; subTotal: number }` and private `snapshotCartItems(rows: CartItemRowComponent[]): Promise<CartItemSnapshot[]>`.
-- `public async removeCartItemsAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, `selectRemove()` on each index, `shoppingCartPage.clickOnUpdateCartBtn()`, `expect(cartItemRows()).toHaveCount(remaining)` (synchronises with the postback reload, since the URL stays `/cart`). If no rows remain → `verifyEmptyShoppingCart()`. Otherwise: compare remaining snapshots (AC2), removed attributes absent (AC8), `hasRemoveButton()` false per row (AC9), `expect.poll(getCartQty)` = sum of remaining quantities (AC4), `priceCategories()` Sub-Total = sum of remaining row totals and Sub-Total + Shipping + Tax = Total via `toBeCloseTo(…, 2)` (AC5).
+- `public async removeCartItemsAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, `selectRemove()` on each index, `shoppingCartPage.clickOnUpdateCartBtn()`, `expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(remaining)` (retries until the postback reload has removed the rows, since the URL stays `/cart`). If no rows remain → `verifyEmptyShoppingCart()`. Otherwise: compare remaining snapshots (AC2), removed attributes absent (AC8), `hasRemoveButton()` false per row (AC9), `expect.poll(getCartQty)` = sum of remaining quantities (AC4), `priceCategories()` Sub-Total = sum of remaining row totals and Sub-Total + Shipping + Tax = Total via `toBeCloseTo(…, 2)` (AC5).
 - `public async selectRemoveWithoutUpdateAndVerify(rowIndexes: number[]): Promise<void>` — snapshot + header quantity, `selectRemove()` on each index, `navigateToShoppingCartPage()`, `expect.poll(() => rows[i].isRemoveSelected()).toBe(false)` (reload done, selection discarded), row count, snapshots and header quantity unchanged (E1).
-- `public async verifyEmptyShoppingCart(): Promise<void>` — empty message equals `testData.shoppingCart.emptyCartMessage`, `cartItemRows()` count 0, `updateCartBtn()` hidden, `expect.poll(getShoppingCartLinkText).toEqual(testData.shoppingCart.emptyCartHeaderText)` (AC6, AC7, E2).
+- `public async verifyEmptyShoppingCart(): Promise<void>` — empty message equals `testData.shoppingCart.emptyCartMessage`, `expect.poll(getCartItemRowCount).toBe(0)`, `updateCartBtn()` hidden, `expect.poll(getShoppingCartLinkText).toEqual(testData.shoppingCart.emptyCartHeaderText)` (AC6, AC7, E2).
 - `public async removeCartItemsWithFailedUpdateAndVerify(rowIndexes: number[]): Promise<void>` — snapshot rows, header quantity and Sub-Total; `selectRemove()` on each index; `shoppingCartPage.submitUpdateCartWithFailedRequest()`; `navigateToShoppingCartPage()` (fresh server state); row count, snapshots, header quantity and Sub-Total unchanged (E3). No raw Playwright API in the flow — interception lives in the page.
 
 ### Page Object
 `models/pages/ShoppingCartPage.ts`:
 - `private readonly emptyCartMessageSel = ".order-summary-content"` (confirmed on the live empty `/cart`: element text `Your Shopping Cart is empty!`).
-- `public cartItemRows(): Locator` → `this.page.locator(CartItemRowComponent.selectorValue)` (assertion only, no interaction).
+- `public async getCartItemRowCount(): Promise<number>` → `ensureLoaded()`, then `this.withHealing(CartItemRowComponent.selectorValue, l => l.count())` (H1: no CSS `Locator` getter; reuses the row component's root selector instead of duplicating it). `count()` does not auto-wait, so every caller asserts with `expect.poll()`.
 - `public updateCartBtn(): Locator` → `this.page.getByRole("button", { name: this.updateCartBtnName })`.
 - `public async clickOnUpdateCartBtn(): Promise<void>` → `await this.updateCartBtn().click()`; `removeAllItems()` calls it instead of its inline locator (same behaviour).
 - `public async getEmptyCartMessage(): Promise<string>` → `(await this.withHealing(this.emptyCartMessageSel, l => l.innerText())).trim()`.
@@ -104,13 +104,13 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
 
 ## Risks
 
-- `cartItemRowCompList()` uses `locator.all()`, which does not auto-wait; new methods call `ensureLoaded()` first and the flow waits with `toHaveCount()` after Update, before reading rows again.
+- `cartItemRowCompList()` uses `locator.all()`, which does not auto-wait; new methods call `ensureLoaded()` first and the flow waits with `expect.poll(getCartItemRowCount)` after Update, before reading rows again.
 - Row components from `.all()` are `nth()` locators; after the postback they point to the new DOM order, so the flow re-reads the row list after Update instead of reusing the old components.
 - Each scenario builds 1–3 computers (≈1 s fixed wait per build in the existing flow), so the spec adds runtime; tagged `@Regression`, not `@Smoke`.
 - E3: an aborted form POST leaves the browser on an error page; `submitUpdateCartWithFailedRequest()` synchronises on the `requestfailed` event instead of tolerating a click error; if the click itself rejects on the aborted navigation in Chromium, handle it inside this page method only and confirm when implementing.
 - `getShoppingCartLinkText()` depends on the rendered whitespace between `Shopping cart` and `(0)`; it is normalised before comparing.
 - Floating-point sums of prices use `toBeCloseTo(…, 2)` rather than `toEqual`.
-- Assertions on `cartItemRows()` / `updateCartBtn()` locators do not go through `withHealing()`; a failure there routes to assertion healing in `base.ts`, as for other web-first assertions.
+- Row counts are read through `withHealing()` (`getCartItemRowCount()`); `count()` never throws, so a wrong row selector shows up as a failed `expect.poll()` (assertion healing in `base.ts`), not as action healing. Only the `getByRole` locator `updateCartBtn()` is asserted directly, which CLAUDE.md allows.
 
 ## Open Questions
 
@@ -122,6 +122,10 @@ All tests run as guest: each test gets a fresh browser context, so the cart star
   → A: Request interception is accepted so that E3 is automated.
 - Q4: AC4 asserts the numeric header quantity via `getCartQty()`; is that enough for AC7, or should the exact header text `Shopping cart (0)` be asserted (would need a new header read method)?
   → A: Assert the exact header text `Shopping cart (0)` (as written in the requirement).
+
+## Human Review Notes
+
+- H1: Replace the CSS Locator getter `ShoppingCartPage.cartItemRows()` (`this.page.locator(CartItemRowComponent.selectorValue)`) with a withHealing wait/read method per CLAUDE.md (Components: never expose a CSS/XPath locator through a getter) and update every assertion that uses it.
 
 ## Verification
 
@@ -138,6 +142,7 @@ OpenAI review: `implementation-review/REQ-001-remove-cart-items.plan.md` (APPROV
 - F2 Rejected: UAT has no dataset yet. `dataSets.uat` is `undefined`, `test-data/uat/` only has `sample.json`, and `TestData` is derived from `sitData`. The `/add-test-data` skill says not to create or register UAT files, and existing keys (e.g. `orderCompleted`) follow the same rule. `test-data/uat/cart/ShoppingCartData.json` is added when UAT is activated.
 - F3 Accepted: AC1 captures `beforeCount` from `cartItemRowCompList()` before removal and asserts `toHaveCount(beforeCount - 1)`.
 - F4 Accepted: Verification step 2 now says `TestDataProvider` must load with the new `shoppingCart` key (no TypeScript or runtime load error).
+- H1 Done: `ShoppingCartPage.cartItemRows(): Locator` is replaced by `getCartItemRowCount(): Promise<number>` (`ensureLoaded()`, then `withHealing(CartItemRowComponent.selectorValue, l => l.count())`). Every row-count assertion (AC1, AC3, AC6, E1, E2, E3, `removeCartItemsAndVerify`, `verifyEmptyShoppingCart`) now uses `expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(n)`; Risks updated. `updateCartBtn()` stays a getter because it is a `getByRole` locator.
 
 ## Relevant Files
 

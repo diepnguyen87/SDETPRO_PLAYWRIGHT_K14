@@ -204,7 +204,9 @@ This is a ONE-PASS review, not a conversation. Report every concrete issue now.
 * PROJECT RULES — binding architecture and coding rules.
 * REQUIREMENT — acceptance criteria (AC<n>) and error cases (E<n>). May be absent for older plans.
 * IMPLEMENTATION PLAN UNDER REVIEW — follows the project plan template.
-* SOURCE — current content of files the plan reads or changes.
+* SOURCE — current content of files listed under the plan's Relevant Files. By the plan contract,
+  Relevant Files lists every file read for the design OR changed, so a listed file without planned
+  edits is intentional context, not an error.
 * NEW FILE — files the plan will create; they do not exist yet. Do not report them as missing.
 
 ## Review Principles
@@ -239,13 +241,15 @@ This is a ONE-PASS review, not a conversation. Report every concrete issue now.
 5. Playwright correctness — locator priority and validity, waits and navigation (no waitForTimeout as a
    substitute), web-first assertions, flakiness risks, route/interception usage if any.
 6. Self-healing compatibility — CSS/XPath interactions through withHealing(); no new path that bypasses it;
+   no getter that exposes a CSS/XPath locator (\`foo(): Locator\`), even "for assertions only" — use a
+   wait/read method through withHealing() instead (getByRole/getByLabel locators may be exposed);
    locators as class properties; dynamic<Name> templates for runtime values.
 7. Test data and environment — data through TestDataProvider, nothing hardcoded that belongs in test data
    or env, no secrets.
 8. Test independence and regression — each test starts from a known state; changes to shared code do
    not break existing specs listed in Relevant Files.
-9. Plan completeness — files that must change but are missing from Relevant Files, unnecessary entries,
-   Verification commands that would actually prove the change.
+9. Plan completeness — files that must change but are missing from Relevant Files, and Verification
+   commands that would actually prove the change. Do not report listed files that are only read.
 
 ## Decision Rules
 

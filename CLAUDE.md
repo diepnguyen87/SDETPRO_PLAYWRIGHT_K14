@@ -86,6 +86,7 @@ Test Spec
 - All CSS/XPath-based interactions must go through `Component.withHealing(selectorStr, action)` — this is the single self-healing entry point for all action types (`click`, `fill`, `selectOption`, `check`, `uncheck`, etc.), for both components and pages (via `BasePage`).
 - `getByRole()` and `getByLabel()` locators may call `.click()` directly — they are inherently stable and do not require self-healing.
 - Never call `locator.click()`, `locator.fill()`, or any other interaction directly on a CSS/XPath locator — this bypasses self-healing.
+- Never expose a CSS/XPath locator through a getter (`foo(): Locator`) on a component or page, not even "for assertions only" — an assertion on it bypasses `withHealing()`. Expose a wait or read method that goes through `withHealing()` instead (e.g. `waitForConfirmStep()` → `this.withHealing(this.confirmBtnSel, l => l.waitFor())`, `getRowCount()` → `this.withHealing(sel, l => l.count())`) and assert on its result, with `expect.poll()` when the value needs retrying. `getByRole()` / `getByLabel()` locators may be exposed for web-first assertions.
 - Naming convention: `*Component.ts` in `models/components/`.
 
 ---
@@ -165,6 +166,7 @@ The agentic pipeline (`implementation-plans/agent-harness.md`) chains stages thr
 
 - **Requirements** live in `requirements/REQ-<nnn>-<slug>.md`, following `requirements/_TEMPLATE.md`. Every acceptance criterion is `- [ ] AC<n>: ...` and every error case `- E<n>: ...`. No secrets in the file. Copilot Chat writes them with `.github/prompts/write-requirement.prompt.md`. Validate with `yarn harness:check-req <file>`.
 - **Pipeline plans** follow `implementation-plans/_TEMPLATE.md`: a `Status:` and a `Requirement:` line under the title, an Acceptance Criteria Traceability row for every `AC<n>` / `E<n>` (or `Not automated: <reason>`), a `## Review Resolution` answering each OpenAI finding, and `## Relevant Files` with new files marked `(new)`. Validate with `yarn harness:check-plan <file>`; plans without `Status:` / `Requirement:` (written before the contract) are skipped.
+- **Runner:** `yarn agent:plan requirements/REQ-<nnn>-<slug>.md` runs `check-req` → `claude -p /write-plan` → `check-plan` → `yarn ai:review` → `claude -p /revise-plan` → `check-plan` and stops at `Awaiting Human Review` (log in `harness-results/agent-plan/`, gitignored). Each Claude stage may only change `implementation-plans/` / `implementation-review/`; any other change fails the run. To send a plan back, add `- H<n>: ...` notes under `## Human Review Notes`, set `Status: Changes Requested` and run `yarn agent:plan --revise implementation-plans/<plan>.md` (no new OpenAI review); every `H<n>` is answered `Done` / `Declined` in Review Resolution.
 - **Status lifecycle:** `Draft → Plan Reviewed → Awaiting Human Review → Approved → Implemented → Code Reviewed → Awaiting Human Code Review → Accepted`, plus `Changes Requested`. Only the human sets `Approved`, `Changes Requested` and `Accepted`; never implement a plan that is not `Approved`.
 
 ---
@@ -222,7 +224,7 @@ The project type-checks with zero errors (`tsc --noEmit`; `artifacts/` is exclud
 
 ## Claude Code Tooling
 
-- Skills (`.claude/skills/`): `/add-page` (new Page Object + Components + `pages.json` entry), `/add-test-data` (new SIT data file + `TestDataProvider` registration), `/debug-failure` (artifacts → logs → data → component → app → env/config, root cause before fixing), `/write-plan` (requirement → `implementation-plans/REQ-<nnn>-<slug>.md` with `Status: Draft`, no code edits, open questions instead of asking).
+- Skills (`.claude/skills/`): `/add-page` (new Page Object + Components + `pages.json` entry), `/add-test-data` (new SIT data file + `TestDataProvider` registration), `/debug-failure` (artifacts → logs → data → component → app → env/config, root cause before fixing), `/write-plan` (requirement → `implementation-plans/REQ-<nnn>-<slug>.md` with `Status: Draft`, no code edits, open questions instead of asking), `/revise-plan` (answers every OpenAI finding `F<n>` or human note `H<n>` in Review Resolution, sets `Awaiting Human Review`).
 - Agent (`.claude/agents/code-reviewer.md`): read-only review of the current diff or a folder against these rules.
 - MCP: `playwright` server in `.mcp.json` (runs the `@playwright/mcp` devDependency via `yarn playwright-mcp --isolated --output-dir .playwright-mcp`, output dir gitignored; same binary as `yarn mcp:playwright` and `.vscode/mcp.json`). Use it only to inspect real pages (accessibility snapshot) for roles/labels when writing locators — never as a substitute for running the tests, and never to log in with real credentials from `.env.*`. `browser_navigate`, `browser_snapshot` and `browser_close` are allowed in `.claude/settings.json`; interactive tools still prompt.
 

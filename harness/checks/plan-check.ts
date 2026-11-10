@@ -63,6 +63,10 @@ function traceabilityIds(body: string): Map<string, string> {
     return rows;
 }
 
+function idsOf(body: string, pattern: RegExp): string[] {
+    return [...body.matchAll(pattern)].map(match => match[1]);
+}
+
 // "- Q1: ..." is answered by a later "→ A: ..." line before the next question
 function unansweredQuestions(body: string): string[] {
     const unanswered: string[] = [];
@@ -164,6 +168,14 @@ export function checkPlan(filePath: string): Issue[] | null {
         const resolution = doc.sections.get("Review Resolution") ?? "";
         const unresolved = findingIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Accepted|Rejected)\\b`, "m").test(resolution));
         if (unresolved.length > 0) add(`Review Resolution must answer each finding of ${relative(reviewJson)} as "- F<n> Accepted|Rejected: ...": missing ${unresolved.join(", ")}`);
+    }
+
+    // Every human review note must be answered once the plan is handed back to the human
+    if (statusIndex >= REVIEW_RESOLVED_FROM && status !== "Changes Requested") {
+        const noteIds = idsOf(doc.sections.get("Human Review Notes") ?? "", /^\s*-\s*(H\d+):/gm);
+        const resolution = doc.sections.get("Review Resolution") ?? "";
+        const unresolvedNotes = noteIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Done|Declined)\\b`, "m").test(resolution));
+        if (unresolvedNotes.length > 0) add(`Review Resolution must answer each human note as "- H<n> Done|Declined: ...": missing ${unresolvedNotes.join(", ")}`);
     }
 
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {

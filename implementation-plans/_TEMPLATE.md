@@ -48,6 +48,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 
 <One `- Q<n>: ...` per unknown; the human answers on the next line with `→ A: ...`. Write `- None` if there are none. The plan cannot be Approved while a question is unanswered.>
 
+## Human Review Notes
+
+<Optional, written by the human before setting Status: Changes Requested — one `- H<n>: ...` per requested change. Each is answered in Review Resolution as `- H<n> Done: ...` or `- H<n> Declined: ...`.>
+
 ## Verification
 
 <Typecheck, `--list`, the specs to run and the project (Desktop Chromium by default).>

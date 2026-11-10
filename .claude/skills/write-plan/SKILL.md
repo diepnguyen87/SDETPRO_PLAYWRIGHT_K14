@@ -30,6 +30,7 @@ Only with the Playwright MCP, only `browser_navigate` + `browser_snapshot` on pa
 ## 5. Design
 - Layer order: Spec → TestFlow → Page Object → Component. Specs only `page.goto()`, call flow steps and assert; flows call page objects only; CSS/XPath interactions go through `withHealing()`.
 - Locator priority: getByRole > getByLabel > getByPlaceholder > getByTestId > CSS > XPath; class-property locators; `dynamic<Name>` templates for runtime values.
+- Never plan a getter that returns a CSS/XPath `Locator` (`foo(): Locator`), not even "for assertions only". Plan a wait/read method through `withHealing()` (e.g. `waitForConfirmStep()` → `l => l.waitFor()`, `getRowCount()` → `l => l.count()`) and assert on its result, with `expect.poll()` when it needs retrying. Only `getByRole()` / `getByLabel()` locators may be exposed for web-first assertions.
 - New page → `config/pages.json`; new data → `test-data/sit/**/<Name>Data.json` + `test-data/TestDataProvider.ts`; tags from `TAG`; specs import `test` from `tests/fixtures/base.ts`.
 - Tests are independent: say how each test starts from a known state (e.g. empty cart).
 - Every AC/E gets a web-first assertion, or `Not automated: <reason>` in Traceability.
