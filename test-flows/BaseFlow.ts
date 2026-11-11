@@ -1,6 +1,5 @@
 import { Page, TestInfo, expect } from "@playwright/test";
 import BasePage from "../models/pages/BasePage.js";
-import HeaderComponent from "../models/components/global/header/HeaderComponent.js";
 import ShoppingCartPage from "../models/pages/ShoppingCartPage.js";
 import LoggerManager from "../utils/LoggerManager.js";
 import pages from "../config/pages.json" with { type: "json" };
@@ -29,7 +28,6 @@ export default class BaseFlow {
         }
     }
 
-
     public async getClassNameBySlug(slug: string): Promise<string> {
         const pageObj = pages.find(p => p.slug === slug)
         if (!pageObj) {
@@ -39,7 +37,7 @@ export default class BaseFlow {
     }
 
     public async navigateToShoppingCartPage(): Promise<void> {
-        await new HeaderComponent(this.page, this.page.locator(HeaderComponent.selectorValue), this.testInfo).navigateToShoppingCartLink()
+        await new BasePage(this.page, this.testInfo).headerComp().navigateToShoppingCartLink()
     }
 
     public async clearShoppingCart(): Promise<void> {
