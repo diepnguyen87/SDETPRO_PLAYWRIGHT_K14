@@ -23,8 +23,6 @@ test(`${TAG.smoke} | Test Credit Card Checkout`, async ({ page, browser }, testI
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('Visa'))
     await orderTestFlow.confirmOrder()
     await orderTestFlow.checkoutCompleted()
-
-    await page.waitForTimeout(2 * 1000)
 });
 
 test(`${TAG.smoke} | Test Cash On Delivery Checkout`, async ({ page, browser }, testInfo) => {

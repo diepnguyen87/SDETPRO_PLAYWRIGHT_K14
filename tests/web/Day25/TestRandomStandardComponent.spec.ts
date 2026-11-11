@@ -23,6 +23,4 @@ test(`${TAG.regression} | Test Random Standard Component`, async ({ page }, test
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('AmericanExpress'))
     await orderTestFlow.confirmOrder()
     await orderTestFlow.checkoutCompleted()
-
-    await page.waitForTimeout(2 * 1000)
 });

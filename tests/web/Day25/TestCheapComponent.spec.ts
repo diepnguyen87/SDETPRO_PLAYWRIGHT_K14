@@ -22,6 +22,4 @@ test(`${TAG.regression} | Test Cheap Component`, async ({ page }, testInfo) => {
     await orderTestFlow.inputPaymentInfo(await getCreditCardNumber('Mastercard'))
     await orderTestFlow.confirmOrder()
     await orderTestFlow.checkoutCompleted()
-
-    await page.waitForTimeout(2 * 1000)
 });
