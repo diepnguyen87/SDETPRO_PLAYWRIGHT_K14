@@ -6,6 +6,6 @@ export default abstract class CheckoutStepComponent extends Component {
 
     public async clickOnContinueBtn(): Promise<void> {
         await this.withHealing(this.continueBtnSel, l => l.click());
-        await this.componentLocator.locator(this.continueBtnSel).waitFor({ state: "hidden" });
+        await this.withHealing(this.continueBtnSel, l => l.waitFor({ state: "hidden" }));
     }
 }

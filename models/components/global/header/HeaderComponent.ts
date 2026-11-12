@@ -33,7 +33,7 @@ export default class HeaderComponent extends Component {
     }
 
     public async isLogoutVisible(): Promise<boolean> {
-        return await this.componentLocator.locator(this.logoutLinkSel).isVisible();
+        return await this.withHealing(this.logoutLinkSel, l => l.isVisible());
     }
 
     public async logout(): Promise<void> {

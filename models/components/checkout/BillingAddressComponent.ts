@@ -18,7 +18,6 @@ export default class BillingAddressComponent extends CheckoutStepComponent {
     private address1InputSel = "#BillingNewAddress_Address1"
     private zipPostalCodeInputSel = "#BillingNewAddress_ZipPostalCode"
     private phoneNumberInputSel = "#BillingNewAddress_PhoneNumber"
-    private savedAddressWaitMs = 3000
 
     constructor(page: Page, componentLocator: Locator, testInfo: TestInfo) {
         super(page, componentLocator, testInfo);
@@ -26,19 +25,12 @@ export default class BillingAddressComponent extends CheckoutStepComponent {
     }
 
     public async hasSavedAddress(): Promise<boolean> {
-        try {
-            await this.componentLocator
-                .locator(this.buildingAddressDropdownSel)
-                .waitFor({ state: 'visible', timeout: this.savedAddressWaitMs });
-            return true;
-        } catch {
-            return false;
-        }
+        await this.withHealing(this.continueBtnSel, l => l.waitFor());
+        return await this.withHealing(this.buildingAddressDropdownSel, l => l.count()) > 0;
     }
 
     public async selectNewAdressIfExist(): Promise<void> {
-        const dropdown = this.componentLocator.locator(this.buildingAddressDropdownSel);
-        if (await dropdown.count() > 0) {
+        if (await this.withHealing(this.buildingAddressDropdownSel, l => l.count()) > 0) {
             await this.withHealing(this.buildingAddressDropdownSel, l => l.selectOption({ label: "New Address" }));
         }
     }

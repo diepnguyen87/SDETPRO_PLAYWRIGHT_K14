@@ -24,7 +24,6 @@ const orderCompletedData = testData.orderCompleted;
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
-import FooterComponent from "../../models/components/global/footer/FooterComponent.js";
 import LoggerManager from "../../utils/LoggerManager.js";
 
 export default class OrderTestFlow extends BaseFlow {
@@ -149,8 +148,6 @@ export default class OrderTestFlow extends BaseFlow {
             const unitTotal = await cartItemRowComp.getProductSubTotal();
             expect(unitPrice * unitQuantity).toEqual(unitTotal)
         }
-        const footerComponent: FooterComponent = shoppingCartPage.footerComp();
-        await footerComponent.scrollToFooter();
 
         let priceCategories: any = await shoppingCartPage.totalComp().priceCategories()
         let subTotal = priceCategories["Sub-Total:"]

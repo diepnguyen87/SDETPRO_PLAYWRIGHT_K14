@@ -13,10 +13,6 @@ export default class FooterComponent extends Component {
         super(page, componentLocator, testInfo)
     }
 
-    public async scrollToFooter() {
-        await this.componentLocator.scrollIntoViewIfNeeded();
-    }
-
     public informationColumnComp(): InformationColumnComponent {
         return new InformationColumnComponent(this.page, this.componentLocator.locator(InformationColumnComponent.selectorValue), this.testInfo)
     }
