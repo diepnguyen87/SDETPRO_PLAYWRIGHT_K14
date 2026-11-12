@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { test } from "@playwright/test";
+import { test } from "../fixtures/base.js";
 import LoginTestFlow from "../../test-flows/LoginTestFlow.js";
 import { testData } from "../../test-data/TestDataProvider.js";
 import { TAG } from "../../constant/Tag.js";

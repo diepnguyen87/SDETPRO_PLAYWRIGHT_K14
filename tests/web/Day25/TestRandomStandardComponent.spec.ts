@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "../../fixtures/base.js";
 import StandardComputerComponent from "../../../models/components/computer/StandardComputerComponent.js";
 import OrderTestFlow from "../../../test-flows/computer/OrderTestFlow.js";
 import { testData } from "../../../test-data/TestDataProvider.js";

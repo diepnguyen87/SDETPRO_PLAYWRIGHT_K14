@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test } from "../../fixtures/base.js";
 import paymentMethods from "../../../constant/PaymentMethod.js";
 import CheapComputerComponent from "../../../models/components/computer/CheapComputerComponent.js";
 import { testData } from "../../../test-data/TestDataProvider.js";
