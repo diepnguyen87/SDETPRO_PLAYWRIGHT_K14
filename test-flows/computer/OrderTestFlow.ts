@@ -81,16 +81,7 @@ export default class OrderTestFlow extends BaseFlow {
             computerComponent
         )
 
-        const addToCartResponse = this.page.waitForResponse(response =>
-            response.url().includes('/addproducttocart/details/') &&
-            response.request().method() === 'POST' &&
-            response.ok()
-        );
-
         await computerComponent.clickOnAddToCartBtn();
-
-        const response = await addToCartResponse;
-        expect(response.ok()).toBeTruthy();
 
         await expect(
             await computerDetailPage.notificationComp().getContentMessage(),
@@ -100,10 +91,10 @@ export default class OrderTestFlow extends BaseFlow {
         await expect.poll(async () => {
             return await computerDetailPage.headerComp().getCartQty();
         }).toBe(beforeCardQty + 1);
+        await computerDetailPage.notificationComp().close();
 
         // unselect software checkbox
         await computerComponent.unselectSoftwareByName(computerData.software);
-        await this.page.waitForTimeout(1 * 1000)
     }
 
     public async buildRandomComputerDetailListAndAddToCart(pcBuilds: number) {
@@ -114,6 +105,7 @@ export default class OrderTestFlow extends BaseFlow {
 
     private async buildRandomComputerDetailAndAddToCart() {
         const computerDetailPage: ComputerDetailPage = new ComputerDetailPage(this.page, this.testInfo);
+        const beforeCardQty = await computerDetailPage.headerComp().getCartQty();
         const computerComponent: ComputerEssentialComponent = computerDetailPage.computerComponent(this.computerComponentClass);
         await computerComponent.unselectDefaultCheckbox();
 
@@ -136,7 +128,10 @@ export default class OrderTestFlow extends BaseFlow {
         if (contentMsg !== "The product has been added to your shopping cart") {
             throw new Error("Add to cart failed");
         }
-        await this.page.waitForTimeout(2 * 1000)
+        await expect.poll(async () => {
+            return await computerDetailPage.headerComp().getCartQty();
+        }).toBe(beforeCardQty + 1);
+        await computerDetailPage.notificationComp().close();
     }
 
     public async verifyShoppingCart(): Promise<void> {
@@ -314,7 +309,6 @@ export default class OrderTestFlow extends BaseFlow {
         } else {
             expect(subTotal + shipping + tax).toEqual(finalPrice)
         }
-        await this.page.waitForTimeout(3 * 1000)
         await confirmOrderComp.clickOnConfirmBtn()
     }
 
