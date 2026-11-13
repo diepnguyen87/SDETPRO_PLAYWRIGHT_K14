@@ -1,0 +1,8 @@
+// expect: R1, R4, R4b, R6, R8, R9
+import { test } from "@playwright/test";
+test.only("@Smoke | Bad", async ({ page, browser }) => {
+    await page.goto("/")
+    await page.locator("#x").textContent()
+    console.log(browser.version())
+    const cart = new ShoppingCartPage(page, testInfo)
+});

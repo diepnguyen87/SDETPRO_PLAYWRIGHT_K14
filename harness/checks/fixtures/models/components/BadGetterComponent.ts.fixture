@@ -1,0 +1,7 @@
+// expect: R2
+export default class BadGetterComponent extends Component {
+    private rowSel = ".row"
+    public rows(): Locator {
+        return this.componentLocator.locator(this.rowSel)
+    }
+}

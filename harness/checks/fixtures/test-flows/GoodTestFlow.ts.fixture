@@ -1,0 +1,8 @@
+// expect: none
+import { testData } from "../test-data/TestDataProvider.js";
+export default class GoodTestFlow extends BaseFlow {
+    public async run(): Promise<void> {
+        await new BasePage(this.page, this.testInfo).headerComp().navigateToShoppingCartLink()
+        await expect(this.page).toHaveURL(/\/cart$/)
+    }
+}

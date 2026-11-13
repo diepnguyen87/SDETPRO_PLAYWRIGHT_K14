@@ -1,0 +1,10 @@
+// expect: R3, R5, R7
+import data from "../test-data/sit/LoginData.json" with { type: "json" };
+export default class BadTestFlow extends BaseFlow {
+    public async run(): Promise<void> {
+        await this.page.click("#x")
+        await this.page.waitForResponse(r => r.ok())
+        await this.page.waitForTimeout(1000)
+        const other = require("../test-data/sit/RegisterData.json")
+    }
+}

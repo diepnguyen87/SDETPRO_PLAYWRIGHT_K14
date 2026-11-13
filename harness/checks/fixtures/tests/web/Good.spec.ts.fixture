@@ -1,0 +1,10 @@
+// expect: none
+import { test } from "../fixtures/base.js";
+import { TAG } from "../../constant/Tag.js";
+test.use({ loggedIn: true });
+test.skip(({ credential }) => !credential, "no credential");
+test(`${TAG.regression} | Good`, async ({ page }, testInfo) => {
+    await page.goto("/build-your-own-computer")
+    const flow = new OrderTestFlow(page, StandardComputerComponent, undefined, testData.standardComputer, testInfo)
+    await flow.checkoutCompleted()
+});

@@ -1,0 +1,10 @@
+// expect: R1
+export default class BadActionComponent extends Component {
+    private btnSel = "#go"
+    public async go(): Promise<void> {
+        const button = this.componentLocator.locator(this.btnSel)
+        await button.click()
+        await this.componentLocator.locator(this.btnSel).first().isVisible()
+        await expect(this.componentLocator.locator(this.btnSel)).toBeVisible()
+    }
+}

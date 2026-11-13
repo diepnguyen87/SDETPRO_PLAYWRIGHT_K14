@@ -1,0 +1,14 @@
+// expect: none
+export default class GoodActionComponent extends Component {
+    private btnSel = "#go"
+    private btnName = "Go"
+    public async go(): Promise<void> {
+        await this.withHealing(this.btnSel, l => l.click())
+        await this.withHealing(this.btnSel, async l => { await l.waitFor(); return l.count() })
+        await this.componentLocator.getByRole("button", { name: this.btnName }).click()
+        const rows = await this.componentLocator.locator(this.btnSel).all()
+    }
+    public goButton(): Locator {
+        return this.componentLocator.getByRole("button", { name: this.btnName })
+    }
+}

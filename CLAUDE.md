@@ -169,6 +169,13 @@ The agentic pipeline (`implementation-plans/agent-harness.md`) chains stages thr
 - **Runner:** `yarn agent:plan requirements/REQ-<nnn>-<slug>.md` runs `check-req` → `claude -p /write-plan` → `check-plan` → `yarn ai:review` → `claude -p /revise-plan` → `check-plan` and stops at `Awaiting Human Review` (log in `harness-results/agent-plan/`, gitignored). Each Claude stage may only change `implementation-plans/` / `implementation-review/`; any other change fails the run. To send a plan back, add `- H<n>: ...` notes under `## Human Review Notes`, set `Status: Changes Requested` and run `yarn agent:plan --revise implementation-plans/<plan>.md` (no new OpenAI review); every `H<n>` is answered `Done` / `Declined` in Review Resolution.
 - **Status lifecycle:** `Draft → Plan Reviewed → Awaiting Human Review → Approved → Implemented → Code Reviewed → Awaiting Human Code Review → Accepted`, plus `Changes Requested`. Only the human sets `Approved`, `Changes Requested` and `Accepted`; never implement a plan that is not `Approved`.
 
+### Gates and Guardrails
+
+- `yarn harness:check-arch [files...] [--all]` — the machine-checkable rules of this file (R1 no CSS/XPath action, read or `expect()` outside `withHealing()`; R2 no CSS/XPath `Locator` getter; R3 no `this.page.*()` in flows; R4 only `page.goto()` on fixtures in specs; R4b no page/component instances in specs; R5 no `waitForTimeout`; R6 specs import `test` from `tests/fixtures/base.ts`; R7 data only through `TestDataProvider`; R8 no `test.only`; R9 tags from `TAG`; R10 pages registered in `config/pages.json`). Default scope: `.ts` files changed vs `HEAD`. Pre-existing violations are recorded in `harness/checks/arch-baseline.json`; only new ones fail. Only a human runs `--update-baseline`.
+- `yarn harness:check-scope <plan>` — every file changed vs `HEAD` must be listed in the plan's Relevant Files (a `folder/` entry covers the folder), be the plan itself or be under `implementation-review/`.
+- `yarn harness:test` — regression tests of the arch-check rules (`harness/checks/fixtures/*.fixture`, first line `// expect: R1, R5` or `// expect: none`). Add a fixture when a rule changes.
+- The PostToolUse hook runs `arch-check` on each edited file after `tsc`. The PreToolUse hook `.claude/hooks/guard.mjs` denies reading or editing `.env*` / `.auth/` (also through Bash) and asks before editing self-healing pipeline files.
+
 ---
 
 ## AI Review Tool (Standalone)

@@ -1,0 +1,2 @@
+// expect: R10
+export default class UnregisteredPage extends BasePage {}
