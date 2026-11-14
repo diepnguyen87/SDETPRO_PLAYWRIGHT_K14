@@ -24,6 +24,7 @@ export default class HealingEngine {
      * Guarantees:
      * - Never throws. Always returns a HealingResult.
      * - Never hides the original test failure — callers must re-throw on non-HEALED status.
+     * - Skips healing when SELF_HEALING_DISABLED=true.
      * - Prevents recursive healing when running inside a healing rerun.
      * - Acquires a file-system lock before modifying any source file.
      */
@@ -31,6 +32,12 @@ export default class HealingEngine {
         context: FailureContext,
         testInfo: TestInfo
     ): Promise<HealingResult> {
+
+        // Guard: self-healing explicitly disabled for this run (e.g. agent test runs)
+        if (process.env.SELF_HEALING_DISABLED === "true") {
+            console.log("[HealingEngine] Skipping — self-healing disabled for this run.");
+            return { status: "SKIPPED", reason: "Self-healing disabled for this run", retryCount: 0 };
+        }
 
         // Guard: do not heal inside a healing rerun process
         if (process.env.HEALING_RERUN === "true") {

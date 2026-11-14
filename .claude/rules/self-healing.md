@@ -70,7 +70,10 @@ workflow. Neither `Component.ts` nor `base.ts` contains any healing logic beyond
 this method.
 
 On each call:
-1. **Rerun guard** — if `HEALING_RERUN === "true"` (child process), return `SKIPPED` immediately
+1. **Guards** — return `SKIPPED` immediately (before lock, timeout extension and retry loop):
+   - **Disabled guard** — if `SELF_HEALING_DISABLED === "true"` (set by `yarn harness:run-tests` for agent test runs),
+     reason `"Self-healing disabled for this run"`
+   - **Rerun guard** — if `HEALING_RERUN === "true"` (child process), reason `"Recursive healing prevented"`
 2. **Lock** — `HealingLock.acquire(sourceFile)` — atomic cross-process file lock.
    If already locked by another worker: return `SKIPPED`.
    Stale locks older than 5 minutes are removed automatically.
@@ -163,6 +166,8 @@ retryCount:           number
   rollback mechanism if a patch or rerun fails.
 - **Never remove** `PatchVerifier.verify()` — post-patch safety check.
 - **Never remove** the `HEALING_RERUN` guard at the start of `HealingEngine.handle()`.
+- **Never remove** the `SELF_HEALING_DISABLED` guard at the start of `HealingEngine.handle()` — agent test runs rely
+  on it so failures surface instead of being patched. Do not reuse `HEALING_RERUN` to disable healing.
 - **Never change** the stale lock timeout in `HealingLock` (currently 5 minutes) without explicit instruction.
 - The healing timeout extension lives only in `HealingEngine.handle()` (value from
   `frameworkConfig.healingTimeoutPerRetryMs`) — do not add `testInfo.setTimeout()` for healing
