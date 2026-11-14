@@ -21,6 +21,7 @@
     "harness:check-arch": "tsx harness/checks/arch-check.ts",
     "harness:check-scope": "tsx harness/checks/scope-check.ts",
     "harness:test": "tsx harness/checks/run-fixtures.ts",
+    "harness:run-tests": "tsx harness/agent/run-tests.ts",
     "agent:plan": "tsx harness/agent/plan.ts",
     "mcp:playwright": "playwright-mcp"
   },

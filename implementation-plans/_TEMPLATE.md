@@ -60,6 +60,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 
 <Filled after the OpenAI review: one line per finding — Accepted (what changed) or Rejected (why).>
 
+## Implementation Notes
+
+<Filled by /implement-plan: Deviations (- D<n>: ...), Gates, Tests (spec, result, harness-results/tests/<timestamp>.json), and Blocked: when it had to stop.>
+
 ## Relevant Files
 
 - <existing/file/path.ts>

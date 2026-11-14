@@ -19,6 +19,7 @@ export const STATUSES = [
 const REVIEW_RESOLVED_FROM = STATUSES.indexOf("Awaiting Human Review");
 // From this status on, every open question must have been answered by the human
 const QUESTIONS_ANSWERED_FROM = STATUSES.indexOf("Approved");
+const IMPLEMENTED_FROM = STATUSES.indexOf("Implemented");
 
 const REQUIRED_SECTIONS = [
     "Objective",
@@ -176,6 +177,13 @@ export function checkPlan(filePath: string): Issue[] | null {
         const resolution = doc.sections.get("Review Resolution") ?? "";
         const unresolvedNotes = noteIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Done|Declined)\\b`, "m").test(resolution));
         if (unresolvedNotes.length > 0) add(`Review Resolution must answer each human note as "- H<n> Done|Declined: ...": missing ${unresolvedNotes.join(", ")}`);
+    }
+
+    // Once implemented, the implementer must have recorded what it did and how it was tested
+    if (statusIndex >= IMPLEMENTED_FROM) {
+        const notes = doc.sections.get("Implementation Notes") ?? "";
+        if (!hasContent(notes)) add(`Status "${status}" requires a filled "Implementation Notes" section`);
+        else if (!/Tests:/i.test(notes)) add(`Implementation Notes must include a "Tests:" entry with the test results`);
     }
 
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {

@@ -2,7 +2,14 @@
   "mcpServers": {
     "playwright": {
       "command": "yarn",
-      "args": ["playwright-mcp", "--isolated", "--output-dir", ".playwright-mcp"]
+      "args": [
+        "playwright-mcp",
+        "--isolated",
+        "--allowed-origins",
+        "https://demowebshop.tricentis.com",
+        "--output-dir",
+        ".playwright-mcp"
+      ]
     }
   }
 }
