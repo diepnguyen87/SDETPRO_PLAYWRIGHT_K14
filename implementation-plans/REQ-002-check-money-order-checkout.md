@@ -101,8 +101,11 @@ No `Locator` getters are added to either component (CLAUDE.md, Components: CSS l
 ## Open Questions
 
 - Q1: Location and tag — add the test to `tests/web/Day25/TestStandardComponent.spec.ts` with `TAG.smoke` (planned, like the Credit Card and Cash On Delivery tests), or a separate spec / `TAG.regression`?
+  → A: Keep it in `tests/web/Day25/TestStandardComponent.spec.ts` with `TAG.smoke`.
 - Q2: AC1 adds `toHaveURL(/\/onepagecheckout/)` to the shared `selectTOSandCheckoutAsGuest()` (planned). Is changing this shared step acceptable, or should the URL check live only in the new step path?
+  → A: Accepted, add the URL assertion to the shared `selectTOSandCheckoutAsGuest()`.
 - Q3: AC4 relies on the existing `checkoutCompleted()` check that the order details href equals `/orderdetails/<parsed order number>`. Should an explicit `expect(orderNumber).toMatch(/^\d+$/)` be added to `checkoutCompleted()` as well?
+  → A: No, the existing `/orderdetails/<orderNumber>` href check is enough.
 
 ## Human Review Notes
 - H1: Replace the CSS Locator getters (paymentInfo, cardNumberInput, confirmBtn) with withHealing wait/read methods per CLAUDE.md
