@@ -50,6 +50,8 @@ Run the specs from the plan's *Verification* plus existing specs that use the co
 If a test fails, investigate in the `/debug-failure` order — `artifacts/{browser}/{title}/` (screenshot, `dom.html`,
 `metadata.json`), `logs/`, test data, the component action, the real page (MCP), configuration — fix the cause and rerun.
 - At most **3 fix rounds** (a round = fix + `harness:run-tests`).
+- After each fix, re-run all gates in step 4 before the next `harness:run-tests`; a fix that fails a gate
+  (e.g. a file outside Relevant Files) is fixed first and counts toward the same round.
 - Never bypass `withHealing()`, change an expected value to match wrong behaviour, add `waitForTimeout`, or skip a test.
 
 ## 6. Deviations and stop conditions
@@ -61,7 +63,7 @@ If a test fails, investigate in the `/debug-failure` order — `artifacts/{brows
 ## 7. Implementation Notes and status
 Add `## Implementation Notes` to the plan (before *Relevant Files*) with:
 - `Deviations:` — `- D<n>: <what differs from the plan and why>` (or `- None`).
-- `Gates:` — result of each gate.
+- `Gates:` — result of each gate from the last run, after the final fix.
 - `Tests:` — each spec run, passed / failed, duration, and the `harness-results/tests/<timestamp>.json` path.
 - `Blocked:` — only when stopping: the failure, the evidence and what was tried.
 

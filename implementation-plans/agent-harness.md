@@ -33,19 +33,30 @@ Requirement ─► [1] Claude: analyse → implementation plan
 
 ## Slice A — Stages 1–3 (requirement → plan → OpenAI review → revision → human)
 
-- **A1 Contracts:** requirement template, plan template with `Status` lifecycle, `requirement-check` and `plan-check` scripts.
-- **A2 `/write-plan` skill:** requirement → plan following the template; reuse-first exploration; Playwright MCP snapshot allowed for roles/labels; no code edits.
-- **A3 `ai/review.ts` upgrade:** `--mode plan|code`, per-topic output `implementation-review/<topic>.<mode>.md` + JSON verdict
-  (`APPROVE | CHANGES_REQUIRED`, findings with severity/file/issue/fix); remains a standalone tool.
-- **A4 Revision + runner:** `/revise-plan` step that answers every finding (accepted / rejected + reason) in `## Review Resolution`;
+- **A1 Contracts (done):** requirement template, plan template with `Status` lifecycle, `requirement-check` and `plan-check` scripts.
+- **A2 `/write-plan` skill (done):** requirement → plan following the template; reuse-first exploration; Playwright MCP snapshot allowed for roles/labels; no code edits.
+- **A3 `ai/review.ts` upgrade (done):** one-pass plan review, output `implementation-review/<plan>.plan.json|md` (schema in
+  `ai/ReviewSchema.ts`): verdict `APPROVE | APPROVE_WITH_CHANGES | REJECT`, findings `F<n>` (`REQUIRED_FIX | RECOMMENDED |
+  VERIFICATION`, severity, file, problem, action, requirement ids); remains a standalone tool. `--mode code` comes in B3.
+- **A4 Revision + runner (done):** `/revise-plan` step that answers every finding (accepted / rejected + reason) in `## Review Resolution`;
   `yarn agent:plan requirements/<file>.md` = `claude -p` (/write-plan) → plan-check → review.ts → `claude -p` (/revise-plan) → plan-check →
   `Status: Awaiting Human Review`, then stop. CLI via child process (no new dependency).
 
 ## Slice B — Stages 4–6 (implement → OpenAI code review → revision → human)
 
-Guardrails (PreToolUse: `.env*`, `.auth/`, self-healing pipeline files ask; Stop hook: tsc + arch-check + `--list`),
-`arch-check.ts`, `scope-check` (diff ⊆ approved Relevant Files), `/add-test` skill, `review.ts --mode code`,
-`/revise-code`, `yarn agent:implement <topic>` (runs only when `Status: Approved`).
+Detailed plan: `implementation-plans/harness-b-implement.md`. Gates: `tsc`, `arch-check`, `scope-check`, `--list`,
+the plan's specs. Code stays uncommitted until the human sets `Accepted`.
+
+- **B1 Guardrails and checks (done):** `harness:check-arch` (CLAUDE.md rules, baseline for existing violations),
+  `harness:check-scope` (diff ⊆ Relevant Files), PreToolUse hook (`.env*`, `.auth/` blocked; self-healing pipeline files ask).
+- **B2 `/implement-plan` (done):** implements an `Approved` plan, runs the gates and its specs only through
+  `yarn harness:run-tests` (`SELF_HEALING_DISABLED=true`, results in `harness-results/tests/`), at most 3 fix rounds,
+  `## Implementation Notes`, sets `Implemented`.
+- **B3 `ai/review.ts --mode code`:** plan + requirement + rules + `git diff HEAD` + gate results; findings `C<n>` in
+  `implementation-review/<plan>.code.json|md`; sets `Code Reviewed`.
+- **B4 `/revise-code` + runner:** answers every `C<n>` in `## Code Review Resolution`, re-runs the gates, sets
+  `Awaiting Human Code Review`; `yarn agent:implement` (`--revise` for `Code Changes Requested`), `yarn agent:accept`
+  (requires `Accepted`, re-runs the gates, commits on `main`, no push).
 
 ## Slice C — Stage 7 (execute)
 

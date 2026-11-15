@@ -1,6 +1,6 @@
 # Implementation Plan: Complete Checkout Using Check / Money Order
 
-Status: Awaiting Human Review
+Status: Approved
 Requirement: requirements/REQ-002-check-money-order-checkout.md
 
 ## Objective
