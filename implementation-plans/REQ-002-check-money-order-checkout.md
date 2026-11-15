@@ -5,14 +5,14 @@ Requirement: requirements/REQ-002-check-money-order-checkout.md
 
 ## Objective
 
-Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStandardComponent.spec.ts`, next to the Credit Card and Cash On Delivery tests. The existing `OrderTestFlow` steps already cover building the computers, cart verification, guest checkout, addresses, shipping, total checks on order review, order completion and the payment method on the order details. The change adds one flow step for the Check / Money Order payment information (asserting that no credit card form is shown), an explicit URL assertion when entering guest checkout, a `withHealing()` wait and a `withHealing()` count read in `PaymentInformationComponent`, and a `withHealing()` wait in `ConfirmOrderComponent` (to confirm that order review is reached).
+Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStandardComponent.spec.ts`, next to the Credit Card and Cash On Delivery tests. The existing `OrderTestFlow` steps already cover building the computers, cart verification, guest checkout, addresses, shipping, total checks on order review, order completion and the payment method on the order details. The change adds one flow step for the Check / Money Order payment information (asserting that the Check / Money Order mailing instruction is shown instead of a credit card form), an explicit URL assertion when entering guest checkout, a `getByRole("paragraph")` accessor in `PaymentInformationComponent`, the instruction text as new SIT test data, and a `withHealing()` wait in `ConfirmOrderComponent` (to confirm that order review is reached).
 
 ## Acceptance Criteria Traceability
 
 | ID | Covered by (spec › flow step) | Assertion |
 |---|---|---|
 | AC1 | `Test Check Money Order Checkout` › `OrderTestFlow.verifyShoppingCart()` + `OrderTestFlow.selectTOSandCheckoutAsGuest()` | `expect(subTotal).toEqual(this.rawTotalPrice)` on the cart (configured products present); `await expect(this.page).toHaveURL(/\/onepagecheckout/)` after **Checkout as Guest** (new) |
-| AC2 | `Test Check Money Order Checkout` › `OrderTestFlow.selectCheckMoneyOrderPaymentMethod()` (new) | `await paymentInformationComp.waitForPaymentInfo()` (step loaded); `expect(await paymentInformationComp.getCardNumberInputCount()).toBe(0)` (no card number field); after Continue, `await checkoutPage.confirmOrderComp().waitForConfirmStep()` (order review reached — throws if the Confirm button does not become visible) |
+| AC2 | `Test Check Money Order Checkout` › `OrderTestFlow.selectCheckMoneyOrderPaymentMethod()` (new) | `await expect(paymentInformationComp.paymentInstruction(checkMoneyOrderInstruction)).toBeVisible()` (the step shows the Check / Money Order mailing instruction, not a card form — fails if the card form is shown instead or the step does not load); after Continue, `await checkoutPage.confirmOrderComp().waitForConfirmStep()` (order review reached — throws if the Confirm button does not become visible) |
 | AC3 | `Test Check Money Order Checkout` › `OrderTestFlow.confirmOrder()` | `expect(subTotal).toEqual(this.rawTotalPrice)`; `expect(shipping).toEqual(this.shippingPrice)`; `expect(paymentMethodAdditionalFee ?? 0).toEqual(this.additionalFee)` (Check fee read from the `Check / Money Order (5.00)` label); `expect(subTotal + shipping + paymentMethodAdditionalFee + tax).toEqual(finalPrice)` |
 | AC4 | `Test Check Money Order Checkout` › `OrderTestFlow.checkoutCompleted()` | `expect(getOrderCompletedTitle()).toEqual(orderCompletedData.title)`; `expect(getOrderDetailLinkText()).toEqual(orderCompletedData.orderDetailLinkText)`; `getOrderDetailLinkHref()` equals `/orderdetails/<orderNumber>`, with `orderNumber` parsed as digits from the "Order number" line |
 | AC5 | `Test Check Money Order Checkout` › `OrderTestFlow.verifyOrderDetailsPaymentMethod(paymentMethods.check)` | `expect(await orderDetailsPage.getPaymentMethod()).toContain("Check / Money Order")` |
@@ -29,7 +29,7 @@ Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStand
 | 4 | `checkoutWithoutTOSAndVerifyWarningPopup()` | TOS warning shown, still on `/cart` (kept for parity with the other checkout tests) |
 | 5 | `selectTOSandCheckoutAsGuest()` | URL `/onepagecheckout` (AC1) |
 | 6 | `inputBillingAddress()`, `inputShippingAddress()`, `selectShippingMethod()` | billing data from `testData.billingAddress`, random shipping method |
-| 7 | `selectCheckMoneyOrderPaymentMethod()` | Check / Money Order selected, payment information shows no card number field, Continue, order review step with Confirm button visible (AC2) |
+| 7 | `selectCheckMoneyOrderPaymentMethod()` | Check / Money Order selected, payment information shows the mailing instruction (no card form), Continue, order review step with Confirm button visible (AC2) |
 | 8 | `confirmOrder()` | totals consistent incl. Check fee (AC3), order confirmed |
 | 9 | `checkoutCompleted()` | success title, order number, order details link (AC4) |
 | 10 | `verifyOrderDetailsPaymentMethod(paymentMethods.check)` | order details payment method contains `Check / Money Order` (AC5) |
@@ -39,7 +39,7 @@ Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStand
 - `tests/fixtures/base.ts` — `test` (self-healing guard).
 - `constant/Tag.ts` — `TAG.smoke`.
 - `constant/PaymentMethod.ts` — `paymentMethods.check` (`'Check / Money Order'`).
-- `test-data/TestDataProvider.ts` — `testData.standardComputer`, `billingAddress`, `shippingMethod`, `termsOfServiceWarning`, `orderCompleted` (all already registered).
+- `test-data/TestDataProvider.ts` — `testData.standardComputer`, `billingAddress`, `shippingMethod`, `termsOfServiceWarning`, `orderCompleted` (already registered); `paymentInformation` is added (see Test Data).
 - `models/components/computer/StandardComputerComponent.ts` — passed to `OrderTestFlow`.
 - `test-flows/BaseFlow.ts` — `navigateToShoppingCartPage()`.
 - `test-flows/computer/OrderTestFlow.ts` — `buildComputerDetailListAndAddToCart()`, `verifyShoppingCart()`, `checkoutWithoutTOSAndVerifyWarningPopup()`, `inputBillingAddress()`, `inputShippingAddress()`, `selectShippingMethod()`, `selectPaymentMethod(paymentMethod)` (its `check` branch calls `PaymentMethodComponent.selectCheckMoneyOrder()` and stores the fee in `additionalFee`), `confirmOrder()`, `checkoutCompleted()`, `verifyOrderDetailsPaymentMethod(paymentMethod)`.
@@ -59,7 +59,7 @@ Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStand
 
 ### TestFlow
 `test-flows/computer/OrderTestFlow.ts`:
-- `public async selectCheckMoneyOrderPaymentMethod(): Promise<void>` (new) — `await this.selectPaymentMethod(paymentMethods.check)`; get `checkoutPage.paymentInformationComp()`; `await paymentInformationComp.waitForPaymentInfo()` (the step has loaded, so the next check is not vacuous); `expect(await paymentInformationComp.getCardNumberInputCount()).toBe(0)` (AC2: no credit card information requested — a single read is enough after the wait, `expect.poll()` would not add anything for an expected 0); `await paymentInformationComp.clickOnContinueBtn()`; `await checkoutPage.confirmOrderComp().waitForConfirmStep()` (AC2: order review reached).
+- `public async selectCheckMoneyOrderPaymentMethod(): Promise<void>` (new) — `await this.selectPaymentMethod(paymentMethods.check)`; get `checkoutPage.paymentInformationComp()`; `await expect(paymentInformationComp.paymentInstruction(checkMoneyOrderInstruction)).toBeVisible()` (AC2: the step shows the Check / Money Order instruction instead of a card form; the web-first assertion also waits for the Ajax step to load), with `const { checkMoneyOrderInstruction } = paymentInformationData` and a module-level `const paymentInformationData = testData.paymentInformation` (like the other data constants in the flow); `await paymentInformationComp.clickOnContinueBtn()`; `await checkoutPage.confirmOrderComp().waitForConfirmStep()` (AC2: order review reached).
 - `selectTOSandCheckoutAsGuest()` — after `clickOnCheckoutAsGuestBtn()`, add `await expect(this.page).toHaveURL(/\/onepagecheckout/)` (AC1), the same assertion `selectTOSAndCheckout()` already makes. The Credit Card and Cash On Delivery tests use this step too; the assertion only makes their existing behaviour explicit.
 
 ### Page Object
@@ -67,17 +67,15 @@ Add a guest checkout test with Check / Money Order to `tests/web/Day25/TestStand
 
 ### Component
 `models/components/checkout/PaymentInformationComponent.ts`:
-- `private paymentInfoSel = ".section.payment-info"` (from `artifacts/**/dom.html`: `<div class="section payment-info">` inside `#opc-payment_info`).
-- `public async waitForPaymentInfo(): Promise<void>` → `await this.withHealing(this.paymentInfoSel, l => l.waitFor())`.
-- `public async getCardNumberInputCount(): Promise<number>` → `return await this.withHealing(this.cardNumberInputSel, l => l.count())` (reuses the existing `cardNumberInputSel = "#CardNumber"`).
+- `public paymentInstruction(text: string): Locator` → `this.componentLocator.getByRole("paragraph").filter({ hasText: text })`. Checked with Playwright MCP (guest, billing from `BillingAddressData.json`): after selecting Check / Money Order the step `#opc-payment_info` shows paragraphs, the first being `Mail Personal or Business Check, Cashier's Check or money order to:`, and no card fields. A role-based locator may be exposed for a web-first assertion (CLAUDE.md, Components); it needs no `withHealing()`.
 
 `models/components/checkout/ConfirmOrderComponent.ts`:
 - `public async waitForConfirmStep(): Promise<void>` → `await this.withHealing(this.confirmBtnSel, l => l.waitFor())` (reuses the existing `confirmBtnSel = "input.confirm-order-next-step-button"`; the CLAUDE.md example pattern).
 
-No `Locator` getters are added to either component (CLAUDE.md, Components: CSS locators are never exposed through getters).
+No CSS/XPath `Locator` getters are added (CLAUDE.md, Components); the only new accessor is role-based.
 
 ### Test Data
-- None (all keys exist; payment method name from `constant/PaymentMethod.ts`).
+- `test-data/sit/checkout/PaymentInformationData.json` (new) — `{ "checkMoneyOrderInstruction": "Mail Personal or Business Check, Cashier's Check or money order to:" }` (first instruction paragraph, from the MCP check). Registered as `paymentInformation` in `sitData` in `test-data/TestDataProvider.ts` (`/add-test-data` conventions, SIT only; UAT has no dataset yet). Payment method name stays in `constant/PaymentMethod.ts`.
 
 ### Config
 - None.
@@ -86,15 +84,14 @@ No `Locator` getters are added to either component (CLAUDE.md, Components: CSS l
 
 - Credit Card, Cash On Delivery and Purchase Order checkout (existing tests untouched apart from the shared AC1 URL assertion).
 - Logged-in checkout (`TestComponentWithLogin.spec.ts`).
-- Asserting the Check / Money Order mailing instructions text on the payment information step (not required by the requirement).
+- Asserting the full Check / Money Order mailing instructions (address, notice); only the first instruction paragraph is checked, as the AC2 positive check.
 - Refactoring `selectCashOnDeliveryPaymentMethod()` into a shared step, or removing the `waitForTimeout()` calls in `buildComputerDetailAndAddToCart()` / `confirmOrder()` / the Credit Card test.
 
 ## Risks
 
-- The Check / Money Order payment information content has not been captured in `artifacts/` (the saved DOM shows the Credit Card form). The plan assumes `.section.payment-info` wraps the step content for every payment method, as it does for Credit Card; confirm on the first run and adjust `paymentInfoSel` only if the step uses a different wrapper.
-- `getCardNumberInputCount()` returning 0 would also pass if the card form were present but not yet rendered; the preceding `waitForPaymentInfo()` synchronises on the loaded step. The Ajax step replaces the whole `#checkout-payment-info-load` content at once, so a partly rendered form is not expected.
-- `count()` never throws, so `#CardNumber` is never healed through this read, and a renamed card field would make the absence check pass vacuously. Accepted: the absence of the card form is exactly what AC2 checks, and the Credit Card test still fills `#CardNumber` through `withHealing()`, so a renamed field surfaces there.
-- `waitForPaymentInfo()` / `waitForConfirmStep()` use `Locator.waitFor()`, bounded by `actionTimeout` (5 s in `playwright.config.web.js`). A timeout fails as an action error inside `withHealing()` and goes to component healing (`ComponentFailureCollector`), not assertion healing. If the Ajax step regularly takes longer than 5 s, report it rather than adding a timeout.
+- The instruction text is shop content (the page says "You can edit this text from admin panel"). If the shop changes it, AC2 fails with a clear assertion error; update `PaymentInformationData.json`, not the code. `hasText` is a case-insensitive substring match, so whitespace/markup changes around the paragraph do not break it.
+- `paymentInstruction()` is role-based, so it is not healed by `withHealing()`; a failed `toBeVisible()` goes to assertion healing in the `test` fixture (disabled in `harness:run-tests`).
+- `waitForConfirmStep()` uses `Locator.waitFor()`, bounded by `actionTimeout` (5 s in `playwright.config.web.js`). A timeout fails as an action error inside `withHealing()` and goes to component healing (`ComponentFailureCollector`), not assertion healing. If the Ajax step regularly takes longer than 5 s, report it rather than adding a timeout.
 - The new test builds every `standardComputer` entry and runs the full checkout, adding about the same runtime as the Cash On Delivery test to `@Smoke`.
 - Each run creates a real order on the shared demo shop, as the existing checkout tests do.
 
@@ -109,11 +106,12 @@ No `Locator` getters are added to either component (CLAUDE.md, Components: CSS l
 
 ## Human Review Notes
 - H1: Replace the CSS Locator getters (paymentInfo, cardNumberInput, confirmBtn) with withHealing wait/read methods per CLAUDE.md
+- H2: Rejected the AC2 absence check `getCardNumberInputCount()` = 0: `count()` never throws, so a renamed `#CardNumber` passes vacuously. Assert positively instead. Checked with Playwright MCP (guest, billing from BillingAddressData.json): after selecting Check / Money Order the Payment information step shows paragraphs, the first being "Mail Personal or Business Check, Cashier's Check or money order to:", and no card fields. Put that text in a new SIT data file (test-data/sit/checkout/PaymentInformationData.json, registered in TestDataProvider), add a getByRole("paragraph") accessor filtered by that text to PaymentInformationComponent, assert it with expect(...).toBeVisible() in selectCheckMoneyOrderPaymentMethod(), and drop paymentInfoSel / waitForPaymentInfo() / getCardNumberInputCount(). Keep Continue + waitForConfirmStep().
 
 ## Verification
 
 1. `yarn tsc --noEmit` → 0 errors.
-2. `yarn playwright test --list --config=playwright.config.web.js` → `@Smoke | Test Check Money Order Checkout` is listed.
+2. `yarn playwright test --list --config=playwright.config.web.js` → `@Smoke | Test Check Money Order Checkout` is listed (also proves `PaymentInformationData.json` loads through `TestDataProvider`).
 3. `yarn playwright test tests/web/Day25/TestStandardComponent.spec.ts --config=playwright.config.web.js` (Desktop Chromium) → 3 passed (Credit Card, Cash On Delivery, Check Money Order; the first two also exercise the changed `selectTOSandCheckoutAsGuest()`).
 
 ## Review Resolution
@@ -133,6 +131,7 @@ Review: `implementation-review/REQ-002-check-money-order-checkout.plan.json` —
 - F11 Rejected: same contract. `TestDataProvider.ts` was read to confirm all needed data keys (`standardComputer`, `billingAddress`, `orderCompleted`, …) are already registered.
 - F12 Rejected: same contract. `OrderCompletedData.json` holds the expected title and link text for AC4.
 - H1 Done: replaced the three CSS `Locator` getters with `withHealing()` methods: `PaymentInformationComponent.waitForPaymentInfo()` (`l => l.waitFor()`) and `getCardNumberInputCount()` (`l => l.count()`), `ConfirmOrderComponent.waitForConfirmStep()` (`l => l.waitFor()`). The flow step now awaits the waits and asserts `expect(await getCardNumberInputCount()).toBe(0)`. Updated Objective, Traceability AC2, Changes by Layer (TestFlow + Component), Reuse and Risks (vacuous-count risk, `actionTimeout` bound, action instead of assertion healing). The F1 intent (explicit order-review check) is kept via `waitForConfirmStep()`.
+- H2 Done: replaced the AC2 absence check (`getCardNumberInputCount()` = 0, vacuous when `#CardNumber` is renamed because `count()` never throws) with a positive check: `PaymentInformationComponent.paymentInstruction(text)` (`getByRole("paragraph").filter({ hasText })`) asserted `toBeVisible()` with the instruction text from the new `test-data/sit/checkout/PaymentInformationData.json` (registered as `paymentInformation`). Dropped `paymentInfoSel`, `waitForPaymentInfo()` and `getCardNumberInputCount()`; Continue and `waitForConfirmStep()` unchanged. Updated Objective, Traceability AC2, Scenario step 7, Reuse, Changes by Layer (TestFlow, Component, Test Data), Out of Scope, Risks, Verification and Relevant Files.
 
 ## Relevant Files
 
@@ -155,3 +154,4 @@ Review: `implementation-review/REQ-002-check-money-order-checkout.plan.json` —
 - config/pages.json
 - test-data/TestDataProvider.ts
 - test-data/sit/checkout/OrderCompletedData.json
+- test-data/sit/checkout/PaymentInformationData.json (new)
