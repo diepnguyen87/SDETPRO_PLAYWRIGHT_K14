@@ -41,4 +41,8 @@ export default class PaymentInformationComponent extends CheckoutStepComponent {
     public async inputCardCode(cardCode: string): Promise<void> {
         await this.withHealing(this.cardCodeSel, l => l.fill(cardCode));
     }
+
+    public paymentInstruction(text: string): Locator {
+        return this.componentLocator.getByRole("paragraph").filter({ hasText: text })
+    }
 }

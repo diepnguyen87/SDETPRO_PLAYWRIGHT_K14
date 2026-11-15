@@ -21,6 +21,7 @@ const BillingAddressData = testData.billingAddress;
 const shippingMethodData = testData.shippingMethod;
 const termsOfServiceWarningData = testData.termsOfServiceWarning;
 const orderCompletedData = testData.orderCompleted;
+const paymentInformationData = testData.paymentInformation;
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
@@ -176,6 +177,7 @@ export default class OrderTestFlow extends BaseFlow {
 
         const checkoutAsGuestPage: CheckoutAsGuestPage = new CheckoutAsGuestPage(this.page, this.testInfo)
         await checkoutAsGuestPage.clickOnCheckoutAsGuestBtn();
+        await expect(this.page).toHaveURL(/\/onepagecheckout/)
     }
 
     public async selectTOSandCheckoutWithLogin(email: string, password: string): Promise<void> {
@@ -275,6 +277,16 @@ export default class OrderTestFlow extends BaseFlow {
         const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
         const paymentInformationComp: PaymentInformationComponent = checkoutPage.paymentInformationComp()
         await paymentInformationComp.clickOnContinueBtn()
+    }
+
+    public async selectCheckMoneyOrderPaymentMethod(): Promise<void> {
+        const { checkMoneyOrderInstruction } = paymentInformationData
+        await this.selectPaymentMethod(paymentMethods.check)
+        const checkoutPage: CheckoutPage = new CheckoutPage(this.page, this.testInfo)
+        const paymentInformationComp: PaymentInformationComponent = checkoutPage.paymentInformationComp()
+        await expect(paymentInformationComp.paymentInstruction(checkMoneyOrderInstruction)).toBeVisible()
+        await paymentInformationComp.clickOnContinueBtn()
+        await checkoutPage.confirmOrderComp().waitForConfirmStep()
     }
 
     public async inputPaymentInfo(creditCard: CreditCard) {

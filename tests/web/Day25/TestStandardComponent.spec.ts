@@ -49,3 +49,27 @@ test(`${TAG.smoke} | Test Cash On Delivery Checkout`, async ({ page, browser }, 
     await orderTestFlow.verifyOrderDetailsPaymentMethod(paymentMethods.cashOnDelivery);
 });
 
+test(`${TAG.smoke} | Test Check Money Order Checkout`, async ({ page, browser }, testInfo) => {
+    await page.goto("/build-your-own-computer")
+    const orderTestFlow = new OrderTestFlow(
+        page,
+        StandardComputerComponent,
+        undefined,
+        standardComputerDataList,
+        testInfo
+    )
+
+    await orderTestFlow.buildComputerDetailListAndAddToCart();
+    await orderTestFlow.navigateToShoppingCartPage();
+    await orderTestFlow.verifyShoppingCart();
+    await orderTestFlow.checkoutWithoutTOSAndVerifyWarningPopup();
+    await orderTestFlow.selectTOSandCheckoutAsGuest();
+    await orderTestFlow.inputBillingAddress();
+    await orderTestFlow.inputShippingAddress();
+    await orderTestFlow.selectShippingMethod();
+    await orderTestFlow.selectCheckMoneyOrderPaymentMethod();
+    await orderTestFlow.confirmOrder();
+    await orderTestFlow.checkoutCompleted();
+    await orderTestFlow.verifyOrderDetailsPaymentMethod(paymentMethods.check);
+});
+

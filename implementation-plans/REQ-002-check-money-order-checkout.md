@@ -1,6 +1,6 @@
 # Implementation Plan: Complete Checkout Using Check / Money Order
 
-Status: Approved
+Status: Implemented
 Requirement: requirements/REQ-002-check-money-order-checkout.md
 
 ## Objective
@@ -132,6 +132,24 @@ Review: `implementation-review/REQ-002-check-money-order-checkout.plan.json` —
 - F12 Rejected: same contract. `OrderCompletedData.json` holds the expected title and link text for AC4.
 - H1 Done: replaced the three CSS `Locator` getters with `withHealing()` methods: `PaymentInformationComponent.waitForPaymentInfo()` (`l => l.waitFor()`) and `getCardNumberInputCount()` (`l => l.count()`), `ConfirmOrderComponent.waitForConfirmStep()` (`l => l.waitFor()`). The flow step now awaits the waits and asserts `expect(await getCardNumberInputCount()).toBe(0)`. Updated Objective, Traceability AC2, Changes by Layer (TestFlow + Component), Reuse and Risks (vacuous-count risk, `actionTimeout` bound, action instead of assertion healing). The F1 intent (explicit order-review check) is kept via `waitForConfirmStep()`.
 - H2 Done: replaced the AC2 absence check (`getCardNumberInputCount()` = 0, vacuous when `#CardNumber` is renamed because `count()` never throws) with a positive check: `PaymentInformationComponent.paymentInstruction(text)` (`getByRole("paragraph").filter({ hasText })`) asserted `toBeVisible()` with the instruction text from the new `test-data/sit/checkout/PaymentInformationData.json` (registered as `paymentInformation`). Dropped `paymentInfoSel`, `waitForPaymentInfo()` and `getCardNumberInputCount()`; Continue and `waitForConfirmStep()` unchanged. Updated Objective, Traceability AC2, Scenario step 7, Reuse, Changes by Layer (TestFlow, Component, Test Data), Out of Scope, Risks, Verification and Relevant Files.
+
+## Implementation Notes
+
+Deviations:
+- None
+
+Gates: last run, after the final change (no fix rounds were needed).
+- `yarn tsc --noEmit` — passed, 0 errors.
+- `yarn harness:check-arch` — passed, 4 files scanned (the two components, the flow, the spec; `test-data/` is outside its scanned folders), 0 baselined violations.
+- `yarn harness:check-scope implementation-plans/REQ-002-check-money-order-checkout.md` — passed, 6 changed files, all in Relevant Files.
+- `yarn playwright test --list --config=playwright.config.web.js` — passed, `@Smoke | Test Check Money Order Checkout` listed (65 tests in 14 files), so `PaymentInformationData.json` loads through `TestDataProvider`.
+
+Tests: `yarn harness:run-tests` (Desktop Chromium, self-healing disabled), 6 passed, 0 failed, 2.3 min — `harness-results/tests/2026-11-15T09-27-44-073Z.json`.
+- `tests/web/Day25/TestStandardComponent.spec.ts` — `@Smoke | Test Credit Card Checkout` passed (22.8 s), `@Smoke | Test Cash On Delivery Checkout` passed (22.2 s), `@Smoke | Test Check Money Order Checkout` passed (23.5 s).
+- `tests/web/Day25/TestCheapComponent.spec.ts` — `@Regression | Test Cheap Component` passed (22.2 s) (uses the changed `selectTOSandCheckoutAsGuest()`).
+- `tests/web/Day25/TestRandomCheapComponent.spec.ts` — `@Regression | Test Random Cheap Component` passed (24.0 s) (same).
+- `tests/web/Day25/TestRandomStandardComponent.spec.ts` — `@Regression | Test Random Standard Component` passed (22.8 s) (same).
+- Not run: `tests/real-android/TestStandardComponent.spec.ts` also calls `selectTOSandCheckoutAsGuest()`, but needs `playwright.config.android.js` and a real device, which `harness:run-tests` does not cover.
 
 ## Relevant Files
 
