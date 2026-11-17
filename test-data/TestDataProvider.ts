@@ -5,6 +5,7 @@ import sitRandomCheapComputer from "./sit/RandomCheapComputer.json" with { type:
 import sitRandomStandardComputer from "./sit/RandomStandardComputer.json" with { type: "json" };
 import sitRegister from "./sit/RegisterData.json" with { type: "json" };
 import sitStandardComputer from "./sit/StandardComputer.json" with { type: "json" };
+import sitShoppingCart from "./sit/cart/ShoppingCartData.json" with { type: "json" };
 import sitBillingAddress from "./sit/checkout/BillingAddressData.json" with { type: "json" };
 import sitOrderCompleted from "./sit/checkout/OrderCompletedData.json" with { type: "json" };
 import sitPaymentInformation from "./sit/checkout/PaymentInformationData.json" with { type: "json" };
@@ -18,6 +19,7 @@ const sitData = {
     randomStandardComputer: sitRandomStandardComputer,
     register: sitRegister,
     standardComputer: sitStandardComputer,
+    shoppingCart: sitShoppingCart,
     billingAddress: sitBillingAddress,
     shippingMethod: sitShippingMethod,
     termsOfServiceWarning: sitTermsOfServiceWarning,

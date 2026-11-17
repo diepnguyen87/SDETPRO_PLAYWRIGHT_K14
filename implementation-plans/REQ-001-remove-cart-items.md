@@ -1,6 +1,6 @@
 # Implementation Plan: Remove One or Multiple Items from the Shopping Cart
 
-Status: Approved
+Status: Accepted
 Requirement: requirements/REQ-001-remove-cart-items.md
 
 ## Objective
@@ -143,6 +143,32 @@ OpenAI review: `implementation-review/REQ-001-remove-cart-items.plan.md` (APPROV
 - F3 Accepted: AC1 captures `beforeCount` from `cartItemRowCompList()` before removal and asserts `toHaveCount(beforeCount - 1)`.
 - F4 Accepted: Verification step 2 now says `TestDataProvider` must load with the new `shoppingCart` key (no TypeScript or runtime load error).
 - H1 Done: `ShoppingCartPage.cartItemRows(): Locator` is replaced by `getCartItemRowCount(): Promise<number>` (`ensureLoaded()`, then `withHealing(CartItemRowComponent.selectorValue, l => l.count())`). Every row-count assertion (AC1, AC3, AC6, E1, E2, E3, `removeCartItemsAndVerify`, `verifyEmptyShoppingCart`) now uses `expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(n)`; Risks updated. `updateCartBtn()` stays a getter because it is a `getByRole` locator.
+
+## Implementation Notes
+
+Deviations:
+- D1: `submitUpdateCartWithFailedRequest()` waits for the main frame's `framenavigated` event (the commit of the browser error page) together with `requestfailed` and the click. In run 1, `requestfailed` fired before Chromium committed `chrome-error://chromewebdata/`, so `goBack()` raced with the frame swap and failed with `Protocol error (Page.getNavigationHistory): Not attached to an active page` (`harness-results/tests/2026-11-17T08-37-32-004Z.json`).
+- D2: `submitUpdateCartWithFailedRequest()` does not call `ensureLoaded()` after `goBack()`. The form POSTs to `/cart` from `/cart`, a same-URL navigation, so the error page replaces the `/cart` history entry. `goBack()` therefore lands on the page before the cart (`/build-your-own-computer` in the spec), and waiting for `/cart` timed out after 30 s in run 2 (`harness-results/tests/2026-11-17T08-40-32-478Z.json`; error-context snapshot showed the build page). `reload()` was not used because it would re-send the POST without the route and really remove the rows. The flow then reopens the cart from the header, as planned, and `getCartItemRowCount()` waits for `/cart`. A comment on the method explains this.
+- D3: `removeCartItemsWithFailedUpdateAndVerify()` also polls `isRemoveSelected()` to `false` for the selected rows after reopening the cart, using the same signal as E1. This confirms the unchanged checks read a freshly loaded cart, not the page from before the failure.
+- D4: `verifyEmptyShoppingCart()` polls `getCartItemRowCount()` to `0` before it reads the empty-cart message, so the message is read after the postback reload. The plan listed the message check first.
+
+Gates: (last run, after the final fix)
+- `yarn tsc --noEmit` → 0 errors.
+- `yarn harness:check-arch` → PASSED (5 files, 0 baselined violations).
+- `yarn harness:check-scope implementation-plans/REQ-001-remove-cart-items.md` → PASSED (7 changed files, all in Relevant Files).
+- `yarn playwright test --list --config=playwright.config.web.js` → 70 tests in 14 files; the 5 new tests are listed and `TestDataProvider` loads with `shoppingCart`.
+
+Tests: `yarn harness:run-tests tests/web/Day25/TestRemoveCartItems.spec.ts tests/web/Day25/TestStandardComponent.spec.ts tests/web/Day25/TestComponentWithLogin.spec.ts` (Desktop Chromium, self-healing disabled). Final run: 10 passed, 0 failed (2.6 min), `harness-results/tests/2026-11-17T08-44-13-122Z.json`:
+- `TestRemoveCartItems.spec.ts`: `Remove single item from cart` passed (7.7s), `Remove one of two items from cart` passed (8.6s), `Remove multiple items from cart` passed (12.1s), `Keep items when Update is not clicked, then remove all` passed (9.3s), `Cart stays unchanged when the update request fails` passed (10.3s).
+- `TestStandardComponent.spec.ts`: `Test Credit Card Checkout` passed (21.7s), `Test Cash On Delivery Checkout` passed (21.0s), `Test Check Money Order Checkout` passed (21.5s).
+- `TestComponentWithLogin.spec.ts`: `Test Standard Component With Login` passed (19.4s), `Test Cheap Component With Login` passed (19.1s).
+- Earlier runs: run 1 (`2026-11-17T08-37-32-004Z.json`) had 9 passed, 1 failed (E3, see D1). Run 2 (`2026-11-17T08-40-32-478Z.json`) had 9 passed, 1 failed (E3, see D2).
+
+## Code Review Resolution
+
+OpenAI code review: `implementation-review/REQ-001-remove-cart-items.code.md` (APPROVE_WITH_CHANGES, 1 required fix).
+
+- C1 Rejected: `ShoppingCartPage.cartItemRowCompList()` is existing code (added in `93dddfb`, last touched in `5515f36`), and this change does not modify it (`git diff HEAD -- models/pages/ShoppingCartPage.ts` shows no change to the method). The approved plan names it under Reuse and lists "Refactoring `cartItemRowCompList()`" under Out of Scope. Its `.all()` behaviour is also listed under Risks, together with the mitigation: `ensureLoaded()` runs first, and `expect.poll(getCartItemRowCount)` runs before rows are read again. The approved plan is binding, so the refactor is not made here. `yarn harness:check-arch` does not flag `.all()` (no R1 violation and no baseline entry). The suggested `count()` + `nth(i)` rewrite would also affect the existing callers `removeAllItems()` / `clearShoppingCart()` and `verifyShoppingCart()`. If the human wants it, it belongs in a separate requirement or plan.
 
 ## Relevant Files
 

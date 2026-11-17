@@ -1,0 +1,31 @@
+# Code Review: implementation-plans/REQ-001-remove-cart-items.md
+
+- Verdict: **APPROVE_WITH_CHANGES**
+- Model: gpt-5.3-codex
+- Diff base: HEAD + working tree
+- Findings: REQUIRED_FIX 1, RECOMMENDED 0, VERIFICATION 0
+
+## Summary
+
+The implementation largely matches the approved plan and provides strong coverage for AC1–AC9 and E1–E3 with concrete assertions in flow methods. Layering and fixture/tag/data usage are consistent, and test evidence is complete with all cited specs passing. However, one architecture/rules violation remains in a changed page object method where a CSS locator interaction bypasses `withHealing()`.
+
+## Findings
+
+### C1 [HIGH] REQUIRED_FIX
+
+- File: `models/pages/ShoppingCartPage.ts`
+- Problem: `cartItemRowCompList()` uses `this.page.locator(CartItemRowComponent.selectorValue).all()` directly (CSS locator read outside `withHealing()`), which violates the project rule that all CSS/XPath reads/interactions in pages/components must go through `withHealing()` (R1). This method is actively used by new flow assertions, so the change depends on non-compliant behavior.
+- Action: Refactor `cartItemRowCompList()` to avoid direct CSS locator reads. Add/keep a `withHealing`-based row-count/read API and build row components from indices (e.g., count via `getCartItemRowCount()` then create `new CartItemRowComponent(... locator(selector).nth(i) ...)`), or otherwise ensure the CSS read path itself is wrapped by `withHealing()` per framework rules.
+
+## Assumptions
+
+- `harness:check-arch` passing indicates this specific R1 pattern may be currently undetected by the gate; review is based on written rules, not only gate detection.
+- No additional changed files beyond those provided are required to satisfy the approved plan.
+
+## Validation Checklist
+
+- Run: `yarn tsc --noEmit`
+- Run: `yarn harness:check-arch`
+- Run: `yarn harness:check-scope implementation-plans/REQ-001-remove-cart-items.md`
+- Run: `yarn harness:run-tests tests/web/Day25/TestRemoveCartItems.spec.ts --grep "@Regression | Remove"`
+- Optional regression spot-check: `yarn harness:run-tests tests/web/Day25/TestStandardComponent.spec.ts tests/web/Day25/TestComponentWithLogin.spec.ts`

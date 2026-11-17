@@ -8,9 +8,47 @@ export default class ShoppingCartPage extends BasePage {
     private readonly tosWarningMessageSel = "#terms-of-service-warning-box"
     private readonly tosWarningCloseBtnName = "close"
     private readonly updateCartBtnName = "Update shopping cart"
+    private readonly emptyCartMessageSel = ".order-summary-content"
+    private readonly updateCartRequestUrl = "**/cart"
 
     constructor(page: Page, testInfo: TestInfo) {
         super(page, testInfo)
+    }
+
+    public async getCartItemRowCount(): Promise<number> {
+        await this.ensureLoaded()
+        return await this.withHealing(CartItemRowComponent.selectorValue, l => l.count())
+    }
+
+    public updateCartBtn(): Locator {
+        return this.page.getByRole("button", { name: this.updateCartBtnName })
+    }
+
+    public async clickOnUpdateCartBtn(): Promise<void> {
+        await this.ensureLoaded()
+        await this.updateCartBtn().click()
+    }
+
+    public async getEmptyCartMessage(): Promise<string> {
+        await this.ensureLoaded()
+        return (await this.withHealing(this.emptyCartMessageSel, l => l.innerText())).trim()
+    }
+
+    // Aborts the next cart update POST to simulate a failed removal, then leaves the browser error page.
+    // The POST targets the current URL, so the error page replaces the /cart history entry and goBack()
+    // lands on the page visited before the cart: reopen the cart from the header afterwards.
+    public async submitUpdateCartWithFailedRequest(): Promise<void> {
+        await this.ensureLoaded()
+        await this.page.route(this.updateCartRequestUrl,
+            route => route.request().method() === "POST" ? route.abort("failed") : route.fallback(),
+            { times: 1 })
+        await Promise.all([
+            this.page.waitForEvent("requestfailed", request => request.method() === "POST"),
+            this.page.waitForEvent("framenavigated", frame => frame === this.page.mainFrame()),
+            this.updateCartBtn().click()
+        ])
+        await this.page.unroute(this.updateCartRequestUrl)
+        await this.page.goBack()
     }
 
     public async cartItemRowCompList(): Promise<CartItemRowComponent[]> {
@@ -40,6 +78,6 @@ export default class ShoppingCartPage extends BasePage {
         for (const row of rows) {
             await row.selectRemove()
         }
-        await this.page.getByRole("button", { name: this.updateCartBtnName }).click()
+        await this.clickOnUpdateCartBtn()
     }
 }

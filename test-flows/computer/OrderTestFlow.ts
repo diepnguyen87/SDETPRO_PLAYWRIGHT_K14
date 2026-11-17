@@ -22,10 +22,13 @@ const shippingMethodData = testData.shippingMethod;
 const termsOfServiceWarningData = testData.termsOfServiceWarning;
 const orderCompletedData = testData.orderCompleted;
 const paymentInformationData = testData.paymentInformation;
+const shoppingCartData = testData.shoppingCart;
 import { CreditCard, CreditCardType, cardType } from "../../type/DataType.js";
 import { getAdditionalPriceByRegex } from "../../utils/RegexHelper.js";
 import BaseFlow from "../BaseFlow.js";
 import LoggerManager from "../../utils/LoggerManager.js";
+
+type CartItemSnapshot = { name: string; attributes: string; unitPrice: number; quantity: number; subTotal: number }
 
 export default class OrderTestFlow extends BaseFlow {
     private rawTotalPrice: number = 0;
@@ -152,6 +155,116 @@ export default class OrderTestFlow extends BaseFlow {
         let total = priceCategories["Total:"]
         expect(subTotal + shipping + tax).toEqual(total)
         expect(subTotal).toEqual(this.rawTotalPrice)
+    }
+
+    public async removeCartItemsAndVerify(rowIndexes: number[]): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        const beforeRows = await shoppingCartPage.cartItemRowCompList()
+        const beforeSnapshots = await this.snapshotCartItems(beforeRows)
+        const removedSnapshots = beforeSnapshots.filter((_, index) => rowIndexes.includes(index))
+        const remainingSnapshots = beforeSnapshots.filter((_, index) => !rowIndexes.includes(index))
+
+        for (const rowIndex of rowIndexes) {
+            await beforeRows[rowIndex].selectRemove()
+        }
+        await shoppingCartPage.clickOnUpdateCartBtn()
+        await expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(beforeRows.length - rowIndexes.length)
+
+        if (remainingSnapshots.length === 0) {
+            await this.verifyEmptyShoppingCart()
+            return
+        }
+
+        const afterRows = await shoppingCartPage.cartItemRowCompList()
+        const afterSnapshots = await this.snapshotCartItems(afterRows)
+        expect(afterSnapshots).toEqual(remainingSnapshots)
+
+        const afterAttributes = afterSnapshots.map(snapshot => snapshot.attributes)
+        for (const removedSnapshot of removedSnapshots) {
+            expect(afterAttributes).not.toContain(removedSnapshot.attributes)
+        }
+
+        for (const afterRow of afterRows) {
+            expect(await afterRow.hasRemoveButton()).toBe(false)
+        }
+
+        const remainingQuantity = remainingSnapshots.reduce((sum, snapshot) => sum + snapshot.quantity, 0)
+        await expect.poll(() => shoppingCartPage.headerComp().getCartQty()).toBe(remainingQuantity)
+
+        const priceCategories: any = await shoppingCartPage.totalComp().priceCategories()
+        const subTotal = priceCategories["Sub-Total:"]
+        const shipping = priceCategories["Shipping:"]
+        const tax = priceCategories["Tax:"]
+        const total = priceCategories["Total:"]
+        const remainingSubTotal = remainingSnapshots.reduce((sum, snapshot) => sum + snapshot.subTotal, 0)
+        expect(subTotal).toBeCloseTo(remainingSubTotal, 2)
+        expect(subTotal + shipping + tax).toBeCloseTo(total, 2)
+    }
+
+    public async selectRemoveWithoutUpdateAndVerify(rowIndexes: number[]): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        const beforeRows = await shoppingCartPage.cartItemRowCompList()
+        const beforeSnapshots = await this.snapshotCartItems(beforeRows)
+        const beforeCartQty = await shoppingCartPage.headerComp().getCartQty()
+
+        for (const rowIndex of rowIndexes) {
+            await beforeRows[rowIndex].selectRemove()
+        }
+        await this.navigateToShoppingCartPage()
+
+        for (const rowIndex of rowIndexes) {
+            await expect.poll(() => beforeRows[rowIndex].isRemoveSelected()).toBe(false)
+        }
+        await expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(beforeRows.length)
+        const afterSnapshots = await this.snapshotCartItems(await shoppingCartPage.cartItemRowCompList())
+        expect(afterSnapshots).toEqual(beforeSnapshots)
+        await expect.poll(() => shoppingCartPage.headerComp().getCartQty()).toBe(beforeCartQty)
+    }
+
+    public async verifyEmptyShoppingCart(): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        await expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(0)
+        expect(await shoppingCartPage.getEmptyCartMessage()).toEqual(shoppingCartData.emptyCartMessage)
+        await expect(shoppingCartPage.updateCartBtn()).toBeHidden()
+        await expect.poll(() => shoppingCartPage.headerComp().getShoppingCartLinkText()).toEqual(shoppingCartData.emptyCartHeaderText)
+    }
+
+    public async removeCartItemsWithFailedUpdateAndVerify(rowIndexes: number[]): Promise<void> {
+        const shoppingCartPage: ShoppingCartPage = new ShoppingCartPage(this.page, this.testInfo)
+        const beforeRows = await shoppingCartPage.cartItemRowCompList()
+        const beforeSnapshots = await this.snapshotCartItems(beforeRows)
+        const beforeCartQty = await shoppingCartPage.headerComp().getCartQty()
+        const beforeSubTotal = (await shoppingCartPage.totalComp().priceCategories())["Sub-Total:"]
+
+        for (const rowIndex of rowIndexes) {
+            await beforeRows[rowIndex].selectRemove()
+        }
+        await shoppingCartPage.submitUpdateCartWithFailedRequest()
+        await this.navigateToShoppingCartPage()
+
+        for (const rowIndex of rowIndexes) {
+            await expect.poll(() => beforeRows[rowIndex].isRemoveSelected()).toBe(false)
+        }
+        await expect.poll(() => shoppingCartPage.getCartItemRowCount()).toBe(beforeRows.length)
+        const afterSnapshots = await this.snapshotCartItems(await shoppingCartPage.cartItemRowCompList())
+        expect(afterSnapshots).toEqual(beforeSnapshots)
+        await expect.poll(() => shoppingCartPage.headerComp().getCartQty()).toBe(beforeCartQty)
+        const afterSubTotal = (await shoppingCartPage.totalComp().priceCategories())["Sub-Total:"]
+        expect(afterSubTotal).toBeCloseTo(beforeSubTotal, 2)
+    }
+
+    private async snapshotCartItems(rows: CartItemRowComponent[]): Promise<CartItemSnapshot[]> {
+        const snapshots: CartItemSnapshot[] = []
+        for (const row of rows) {
+            snapshots.push({
+                name: await row.getProductName(),
+                attributes: await row.getAttributes(),
+                unitPrice: await row.getProductUnitPrice(),
+                quantity: await row.getQuantity(),
+                subTotal: await row.getProductSubTotal(),
+            })
+        }
+        return snapshots
     }
 
     public async checkoutWithoutTOSAndVerifyWarningPopup(): Promise<void> {

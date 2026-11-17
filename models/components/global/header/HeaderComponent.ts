@@ -23,6 +23,10 @@ export default class HeaderComponent extends Component {
         await this.withHealing(this.shoppingCartLinkSel, l => l.click())
     }
 
+    public async getShoppingCartLinkText(): Promise<string> {
+        return (await this.withHealing(this.shoppingCartLinkSel, l => l.innerText())).replace(/\s+/g, " ").trim()
+    }
+
     public async getLoginAccount(): Promise<string | null> {
         return await this.withHealing(this.accountLinkSel, l => l.textContent());
     }
