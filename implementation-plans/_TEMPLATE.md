@@ -4,9 +4,10 @@ Status: Draft
 Requirement: requirements/REQ-<nnn>-<slug>.md
 
 <!--
-Status lifecycle (only the human sets Approved, Changes Requested and Accepted):
+Status lifecycle (only the human sets Approved, Changes Requested, Code Changes Requested and Accepted):
 Draft → Plan Reviewed → Awaiting Human Review → Approved → Implemented → Code Reviewed
-→ Awaiting Human Code Review → Accepted        (Changes Requested: sent back by the human)
+→ Awaiting Human Code Review → Accepted
+(Changes Requested: plan sent back by the human; Code Changes Requested: code sent back by the human)
 Validate with: yarn harness:check-plan implementation-plans/<topic>.md
 -->
 
@@ -63,6 +64,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 ## Implementation Notes
 
 <Filled by /implement-plan: Deviations (- D<n>: ...), Gates, Tests (spec, result, harness-results/tests/<timestamp>.json), and Blocked: when it had to stop.>
+
+## Human Code Review Notes
+
+<Optional, written by the human before setting Status: Code Changes Requested — one `- HC<n>: ...` per requested code change. Each is answered in Code Review Resolution as `- HC<n> Done: ...` or `- HC<n> Declined: ...`.>
 
 ## Code Review Resolution
 

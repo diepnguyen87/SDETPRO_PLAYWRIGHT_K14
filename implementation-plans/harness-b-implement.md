@@ -65,7 +65,7 @@ Change (self-healing pipeline, approved by the human 2026-11-14):
   or `--base <rev>|<from>..<to>`) + changed files + cited test results; findings `C<n>` in
   `implementation-review/<plan>.code.json|md`; `plan-check` requires `## Code Review Resolution` to answer every `C<n>`.
   `review.ts` does not set `Code Reviewed`; the B4 runner does.
-- **B4 `/revise-code` + runner:** answers every `C<n>`, re-runs the gates, sets `Awaiting Human Code Review`; `yarn agent:implement`
+- **B4 `/revise-code` + runner (done, `harness-b4-revise-code-runner.md`):** answers every `C<n>`, re-runs the gates, sets `Awaiting Human Code Review`; `yarn agent:implement`
   (with `--revise` for `Code Changes Requested` + `## Human Code Review Notes`), `yarn agent:accept`; run logs in
   `harness-results/agent-implement/`.
 

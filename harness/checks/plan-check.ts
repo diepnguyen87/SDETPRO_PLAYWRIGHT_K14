@@ -12,6 +12,7 @@ export const STATUSES = [
     "Implemented",
     "Code Reviewed",
     "Awaiting Human Code Review",
+    "Code Changes Requested",
     "Accepted",
 ] as const;
 
@@ -195,6 +196,14 @@ export function checkPlan(filePath: string): Issue[] | null {
         const resolution = doc.sections.get("Code Review Resolution") ?? "";
         const unresolved = findingIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Accepted|Rejected)\\b`, "m").test(resolution));
         if (unresolved.length > 0) add(`Code Review Resolution must answer each finding of ${relative(codeReviewJson)} as "- C<n> Accepted|Rejected: ...": missing ${unresolved.join(", ")}`);
+    }
+
+    // Every human code review note must be answered once the code is handed back to the human
+    if (statusIndex >= CODE_REVIEW_RESOLVED_FROM && status !== "Code Changes Requested") {
+        const noteIds = idsOf(doc.sections.get("Human Code Review Notes") ?? "", /^\s*-\s*(HC\d+):/gm);
+        const resolution = doc.sections.get("Code Review Resolution") ?? "";
+        const unresolvedNotes = noteIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Done|Declined)\\b`, "m").test(resolution));
+        if (unresolvedNotes.length > 0) add(`Code Review Resolution must answer each human code note as "- HC<n> Done|Declined: ...": missing ${unresolvedNotes.join(", ")}`);
     }
 
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {

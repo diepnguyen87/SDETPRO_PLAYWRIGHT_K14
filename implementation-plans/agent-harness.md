@@ -55,7 +55,7 @@ the plan's specs. Code stays uncommitted until the human sets `Accepted`.
 - **B3 `ai/review.ts --mode code` (done):** plan + requirement + rules + diff (`HEAD` + working tree, or `--base`) +
   changed files + cited test results; findings `C<n>` in `implementation-review/<plan>.code.json|md`; `plan-check`
   requires `## Code Review Resolution` from `Awaiting Human Code Review` on. Does not edit the plan.
-- **B4 `/revise-code` + runner:** the runner sets `Code Reviewed` after `ai:review --mode code` succeeds;
+- **B4 `/revise-code` + runner (done):** the runner sets `Code Reviewed` after `ai:review --mode code` succeeds;
   `/revise-code` answers every `C<n>` in `## Code Review Resolution`, re-runs the gates, sets
   `Awaiting Human Code Review`; `yarn agent:implement` (`--revise` for `Code Changes Requested`), `yarn agent:accept`
   (requires `Accepted`, re-runs the gates, commits on `main`, no push).

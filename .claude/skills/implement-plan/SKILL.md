@@ -45,7 +45,8 @@ Run and fix until all pass:
 
 ## 5. Tests
 Run the specs from the plan's *Verification* plus existing specs that use the code you changed, **only** through
-`yarn harness:run-tests <spec...> [--grep <title>]` (self-healing is disabled there, so failures are real).
+`yarn harness:run-tests <spec...> [--grep <title>]` (self-healing is disabled there, so failures are real) — **one call per
+round with all specs in it**: the runner allows at most 4 calls (first run + 3 fix rounds).
 
 If a test fails, investigate in the `/debug-failure` order — `artifacts/{browser}/{title}/` (screenshot, `dom.html`,
 `metadata.json`), `logs/`, test data, the component action, the real page (MCP), configuration — fix the cause and rerun.
