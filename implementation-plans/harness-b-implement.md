@@ -61,8 +61,10 @@ Change (self-healing pipeline, approved by the human 2026-11-14):
   `--config=playwright.config.web.js`, `--project="Desktop Chromium"`; writes per-test status, error, artifact and
   log paths to `harness-results/tests/<timestamp>.json` (reused as gate results in B3) and prints a short summary.
   One fixed command, so a single `Bash(yarn harness:run-tests:*)` permission covers it and the flag cannot be omitted.
-- **B3 `ai/review.ts --mode code`:** plan + requirement + rules + `git diff HEAD` + changed files + gate results; findings `C<n>` in
+- **B3 `ai/review.ts --mode code` (done, `harness-b3-code-review.md`):** plan + requirement + rules + diff (`HEAD` + working tree,
+  or `--base <rev>|<from>..<to>`) + changed files + cited test results; findings `C<n>` in
   `implementation-review/<plan>.code.json|md`; `plan-check` requires `## Code Review Resolution` to answer every `C<n>`.
+  `review.ts` does not set `Code Reviewed`; the B4 runner does.
 - **B4 `/revise-code` + runner:** answers every `C<n>`, re-runs the gates, sets `Awaiting Human Code Review`; `yarn agent:implement`
   (with `--revise` for `Code Changes Requested` + `## Human Code Review Notes`), `yarn agent:accept`; run logs in
   `harness-results/agent-implement/`.

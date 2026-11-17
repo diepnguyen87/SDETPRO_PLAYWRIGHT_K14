@@ -20,6 +20,8 @@ const REVIEW_RESOLVED_FROM = STATUSES.indexOf("Awaiting Human Review");
 // From this status on, every open question must have been answered by the human
 const QUESTIONS_ANSWERED_FROM = STATUSES.indexOf("Approved");
 const IMPLEMENTED_FROM = STATUSES.indexOf("Implemented");
+// From this status on, the OpenAI code review findings must have been answered
+const CODE_REVIEW_RESOLVED_FROM = STATUSES.indexOf("Awaiting Human Code Review");
 
 const REQUIRED_SECTIONS = [
     "Objective",
@@ -184,6 +186,15 @@ export function checkPlan(filePath: string): Issue[] | null {
         const notes = doc.sections.get("Implementation Notes") ?? "";
         if (!hasContent(notes)) add(`Status "${status}" requires a filled "Implementation Notes" section`);
         else if (!/Tests:/i.test(notes)) add(`Implementation Notes must include a "Tests:" entry with the test results`);
+    }
+
+    // Every OpenAI code review finding (yarn ai:review --mode code output) must be answered by id
+    const codeReviewJson = path.join(PROJECT_ROOT, "implementation-review", `${path.basename(filePath, ".md")}.code.json`);
+    if (statusIndex >= CODE_REVIEW_RESOLVED_FROM && fs.existsSync(codeReviewJson)) {
+        const findingIds: string[] = (JSON.parse(fs.readFileSync(codeReviewJson, "utf8")).findings ?? []).map((finding: { id: string }) => finding.id);
+        const resolution = doc.sections.get("Code Review Resolution") ?? "";
+        const unresolved = findingIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Accepted|Rejected)\\b`, "m").test(resolution));
+        if (unresolved.length > 0) add(`Code Review Resolution must answer each finding of ${relative(codeReviewJson)} as "- C<n> Accepted|Rejected: ...": missing ${unresolved.join(", ")}`);
     }
 
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {

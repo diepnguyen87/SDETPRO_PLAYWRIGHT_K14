@@ -13,7 +13,7 @@ to be answered in `## Code Review Resolution`. B4 (`/revise-code` + runner) cons
 
 | Topic | Decision |
 |---|---|
-| Diff source | `git diff HEAD` + untracked (not ignored) files by default — the same set as `check-scope` / `check-arch`. `--base <rev>` diffs against another commit instead (for re-reviewing committed work, e.g. REQ-002 in Verification) |
+| Diff source | `git diff HEAD` + untracked (not ignored) files by default — the same set as `check-scope` / `check-arch`. `--base <rev>` diffs another commit against the working tree; `--base <from>..<to>` diffs two commits (no untracked files, contents read at `<to>`) — for re-reviewing committed work, e.g. REQ-002 in Verification |
 | Excluded from the diff | The plan itself (sent whole, including Implementation Notes) and `implementation-review/` |
 | Gate results | Not re-run by `review.ts` (tests take minutes). It reads the `harness-results/tests/<timestamp>.json` cited in the plan's `Implementation Notes` → `Tests:` entry; no cited or readable file → error. Gate text (tsc, arch, scope, `--list`) already lives in Implementation Notes |
 | Status precondition | `--mode code` requires `Status: Implemented`; empty diff → error ("nothing to review") |
@@ -95,6 +95,25 @@ to be answered in `## Code Review Resolution`. B4 (`/revise-code` + runner) cons
 6. plan-check: a scratch copy of the REQ-002 plan set to `Awaiting Human Code Review` fails while a `C<n>` is unanswered and
    passes once every id has an `Accepted|Rejected` line.
 7. `yarn harness:check-plan` on all existing plans still passes.
+
+## Implementation Notes
+
+Deviations:
+- D1: `--base` also accepts `<from>..<to>`. With `--base 147c3c0~1` alone, the REQ-002 review would also have included the
+  B3 plan commit and the uncommitted B3 code; the range limits it to the REQ-002 commit. Verification steps 4–5 use
+  `--base 147c3c0~1..147c3c0`.
+
+Gates and checks (2026-11-17):
+- `yarn tsc --noEmit` — passed.
+- Plan mode: `--dry-run` output for REQ-002 identical to before the change (scratch diff).
+- Negatives, all rejected with a clear message: `--mode foo`, `--base` in plan mode, `--base` without value, `--base nope`,
+  `--base HEAD..HEAD` ("Nothing to review"), REQ-001 (`Awaiting Human Review`), a plan copy without a cited result file.
+- Code dry-run `--base 147c3c0~1..147c3c0`: 6 CHANGED FILE + DIFF, 13 UNCHANGED SOURCE, CLAUDE.md + self-healing rules,
+  `harness-results/tests/2026-11-15T09-27-44-073Z.json`; 110 162 chars.
+- Real run (1 OpenAI call, `gpt-5.3-codex`): APPROVE, 0 findings → `implementation-review/REQ-002-check-money-order-checkout.code.json|md`.
+- plan-check with a temporary fake `.code.json` (C1, C2) on a scratch copy at `Awaiting Human Code Review`: fails with C1+C2 missing,
+  fails with C2 missing, passes with both answered; at `Code Reviewed` not required yet. Fake file removed.
+- `yarn harness:check-plan` passes for REQ-001 and REQ-002; the other plans are skipped as before.
 
 ## Relevant Files
 

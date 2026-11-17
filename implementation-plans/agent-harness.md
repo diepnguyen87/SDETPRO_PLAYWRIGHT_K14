@@ -52,9 +52,11 @@ the plan's specs. Code stays uncommitted until the human sets `Accepted`.
 - **B2 `/implement-plan` (done):** implements an `Approved` plan, runs the gates and its specs only through
   `yarn harness:run-tests` (`SELF_HEALING_DISABLED=true`, results in `harness-results/tests/`), at most 3 fix rounds,
   `## Implementation Notes`, sets `Implemented`.
-- **B3 `ai/review.ts --mode code`:** plan + requirement + rules + `git diff HEAD` + gate results; findings `C<n>` in
-  `implementation-review/<plan>.code.json|md`; sets `Code Reviewed`.
-- **B4 `/revise-code` + runner:** answers every `C<n>` in `## Code Review Resolution`, re-runs the gates, sets
+- **B3 `ai/review.ts --mode code` (done):** plan + requirement + rules + diff (`HEAD` + working tree, or `--base`) +
+  changed files + cited test results; findings `C<n>` in `implementation-review/<plan>.code.json|md`; `plan-check`
+  requires `## Code Review Resolution` from `Awaiting Human Code Review` on. Does not edit the plan.
+- **B4 `/revise-code` + runner:** the runner sets `Code Reviewed` after `ai:review --mode code` succeeds;
+  `/revise-code` answers every `C<n>` in `## Code Review Resolution`, re-runs the gates, sets
   `Awaiting Human Code Review`; `yarn agent:implement` (`--revise` for `Code Changes Requested`), `yarn agent:accept`
   (requires `Accepted`, re-runs the gates, commits on `main`, no push).
 

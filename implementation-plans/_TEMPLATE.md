@@ -64,6 +64,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 
 <Filled by /implement-plan: Deviations (- D<n>: ...), Gates, Tests (spec, result, harness-results/tests/<timestamp>.json), and Blocked: when it had to stop.>
 
+## Code Review Resolution
+
+<Filled after the OpenAI code review (yarn ai:review --mode code): one line per finding — - C<n> Accepted (what changed) or - C<n> Rejected (why).>
+
 ## Relevant Files
 
 - <existing/file/path.ts>
