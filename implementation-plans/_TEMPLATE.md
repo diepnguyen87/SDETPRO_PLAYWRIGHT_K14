@@ -73,6 +73,10 @@ Every AC<n> and E<n> of the requirement must have a row. Use `Not automated: <re
 
 <Filled after the OpenAI code review (yarn ai:review --mode code): one line per finding — - C<n> Accepted (what changed) or - C<n> Rejected (why).>
 
+## Commit Message
+
+<Filled by /revise-code before Awaiting Human Code Review; the human may edit it. One ```text block, committed verbatim by yarn agent:accept (it adds Co-Authored-By): subject `Implement REQ-<nnn>: <short title>` (at most 72 characters), blank line, `- ` bullets on what changed and why, one line with the code review verdict and the test result.>
+
 ## Relevant Files
 
 - <existing/file/path.ts>

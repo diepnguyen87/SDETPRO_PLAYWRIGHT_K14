@@ -81,6 +81,9 @@ Headless, never asks. Same `allowed-tools` as `/implement-plan`.
 
 ## 5. `harness/agent/accept.ts` (new) — `yarn agent:accept`
 
+> Commit message superseded by `implementation-plans/harness-commit-message.md` (2026-11-18): the message is the plan's
+> `## Commit Message` block, no longer generated.
+
 `check-plan` → status `Accepted` → gates → specs of the last cited result re-run with `harness:run-tests` (must pass) →
 `git add -- <changed files> <plan> implementation-review/<plan>.*` → `git commit` on `main` →
 print the commit hash. Message:

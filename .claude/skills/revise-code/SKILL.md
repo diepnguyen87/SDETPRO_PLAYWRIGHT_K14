@@ -65,9 +65,29 @@ file and its verdict, then one line per id:
 - `- C<n> Accepted: <what changed in the code>` or `- C<n> Rejected: <why, with evidence>`
 - `- HC<n> Done: <what changed>` or `- HC<n> Declined: <why>`
 
+Write `## Commit Message` (before *Relevant Files*), or update it keeping any edits the human made: one fenced
+```` ```text ```` block that `yarn agent:accept` commits verbatim (it adds the `Co-Authored-By` line itself — do not write it).
+Subject `Implement REQ-<nnn>: <short title>`, at most 72 characters; blank line; `- ` bullets, wrapped at about 72 characters,
+saying what changed and why, taken from the actual diff (not the plan prose); last line the code review verdict and the test
+result. Keep it short, e.g.:
+
+````
+```text
+Implement REQ-002: Check / Money Order guest checkout test
+
+- OrderTestFlow.selectCheckMoneyOrderPaymentMethod(): asserts the
+  Check / Money Order instruction, continues and waits for review.
+- PaymentInformationComponent.paymentInstruction(), role-based;
+  ConfirmOrderComponent.waitForConfirmStep() through withHealing().
+- Instruction text in test-data/sit/checkout/PaymentInformationData.json.
+
+OpenAI code review: APPROVE, 0 findings. 6 Day25 tests passed.
+```
+````
+
 All gates and tests pass → set `Status: Awaiting Human Code Review` and run `yarn harness:check-plan <plan>`, fixing the plan until it passes.
 Still failing after 3 rounds → keep the status, add `Blocked:` to Implementation Notes. Never commit and never revert files.
 
 ## 8. Report
-Counts of Accepted / Rejected findings (or Done / Declined notes), the files changed, gate and test results, and anything the human
+Counts of Accepted / Rejected findings (or Done / Declined notes), the commit message, the files changed, gate and test results, and anything the human
 should look at closely.

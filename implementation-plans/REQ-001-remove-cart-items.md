@@ -170,6 +170,24 @@ OpenAI code review: `implementation-review/REQ-001-remove-cart-items.code.md` (A
 
 - C1 Rejected: `ShoppingCartPage.cartItemRowCompList()` is existing code (added in `93dddfb`, last touched in `5515f36`), and this change does not modify it (`git diff HEAD -- models/pages/ShoppingCartPage.ts` shows no change to the method). The approved plan names it under Reuse and lists "Refactoring `cartItemRowCompList()`" under Out of Scope. Its `.all()` behaviour is also listed under Risks, together with the mitigation: `ensureLoaded()` runs first, and `expect.poll(getCartItemRowCount)` runs before rows are read again. The approved plan is binding, so the refactor is not made here. `yarn harness:check-arch` does not flag `.all()` (no R1 violation and no baseline entry). The suggested `count()` + `nth(i)` rewrite would also affect the existing callers `removeAllItems()` / `clearShoppingCart()` and `verifyShoppingCart()`. If the human wants it, it belongs in a separate requirement or plan.
 
+## Commit Message
+
+```text
+Implement REQ-001: Remove One or Multiple Items from the Shopping Cart
+
+Requirement: requirements/REQ-001-remove-cart-items.md
+
+Changes:
+- Spec: tests/web/Day25/TestRemoveCartItems.spec.ts (new)
+- TestFlow: test-flows/computer/OrderTestFlow.ts — removeCartItemsAndVerify(), selectRemoveWithoutUpdateAndVerify(), verifyEmptyShoppingCart(), removeCartItemsWithFailedUpdateAndVerify()
+- Page Object: models/pages/ShoppingCartPage.ts — getCartItemRowCount(), updateCartBtn(), clickOnUpdateCartBtn(), getEmptyCartMessage(), submitUpdateCartWithFailedRequest()
+- Component: models/components/cart/CartItemRowComponent.ts — getProductName(), getAttributes(), isRemoveSelected(), hasRemoveButton(); models/components/global/header/HeaderComponent.ts — getShoppingCartLinkText()
+- Test Data: test-data/TestDataProvider.ts; test-data/sit/cart/ShoppingCartData.json (new)
+
+Plan review: APPROVE_WITH_CHANGES, 4 finding(s). Code review: APPROVE_WITH_CHANGES, 1 finding(s).
+Tests: 10/10 passed (harness-results/tests/2026-11-17T09-52-29-786Z.json, self-healing disabled).
+```
+
 ## Relevant Files
 
 - requirements/REQ-001-remove-cart-items.md

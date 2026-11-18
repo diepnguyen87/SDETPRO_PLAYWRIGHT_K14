@@ -48,6 +48,25 @@ const NEW_FILE_RULES: Array<{ kind: RegExp; location: RegExp; expected: string }
 
 type RelevantFile = { path: string; isNew: boolean };
 
+const COMMIT_SUBJECT_MAX = 72;
+
+// The ```text block under "## Commit Message", committed verbatim by yarn agent:accept (trailer added there)
+export function commitMessageBlock(section: string | undefined): string | null {
+    const block = /^```text[ \t]*\n([\s\S]*?)^```[ \t]*$/m.exec(section ?? "")?.[1].trim();
+    return block ? block : null;
+}
+
+function commitMessageIssues(section: string | undefined): string[] {
+    if (section === undefined) return [`Missing section "Commit Message"`];
+    const message = commitMessageBlock(section);
+    if (message === null) return [`Commit Message must contain a non-empty \`\`\`text block`];
+    const issues: string[] = [];
+    const subject = message.split("\n")[0].trim();
+    if (subject.length > COMMIT_SUBJECT_MAX) issues.push(`Commit Message subject is ${subject.length} characters; at most ${COMMIT_SUBJECT_MAX}`);
+    if (/^Co-Authored-By:/im.test(message)) issues.push(`Commit Message must not contain Co-Authored-By; yarn agent:accept adds it`);
+    return issues;
+}
+
 function parseRelevantFiles(body: string): RelevantFile[] {
     return body
         .split("\n")
@@ -204,6 +223,11 @@ export function checkPlan(filePath: string): Issue[] | null {
         const resolution = doc.sections.get("Code Review Resolution") ?? "";
         const unresolvedNotes = noteIds.filter(id => !new RegExp(`^\\s*-\\s*${id}\\s+(Done|Declined)\\b`, "m").test(resolution));
         if (unresolvedNotes.length > 0) add(`Code Review Resolution must answer each human code note as "- HC<n> Done|Declined: ...": missing ${unresolvedNotes.join(", ")}`);
+    }
+
+    // The commit message the human reviews and yarn agent:accept commits
+    if (statusIndex >= CODE_REVIEW_RESOLVED_FROM && status !== "Code Changes Requested") {
+        for (const issue of commitMessageIssues(doc.sections.get("Commit Message"))) add(issue);
     }
 
     if (statusIndex >= QUESTIONS_ANSWERED_FROM) {

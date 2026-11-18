@@ -172,6 +172,25 @@ Tests: `yarn harness:run-tests` (Desktop Chromium, self-healing disabled), befor
 
 OpenAI code review: `implementation-review/REQ-003-arch-check-locator-list-read.code.md` — verdict `APPROVE`, no findings (`C<n>`); no code change.
 
+## Commit Message
+
+```text
+Implement REQ-003: arch-check R1 catches locator list reads
+
+- R1 also flags .all() and 10 other DOM-touching Locator methods
+  (elementHandles, dispatchEvent, ariaSnapshot, ...) on a CSS/XPath
+  locator outside withHealing().
+- harness:test fixtures accept an exact count (// expect: R1=14);
+  new list-read fixtures.
+- ShoppingCartPage, ProductGrid, TopMenu, MenuItem and
+  ComputerEssential read element lists through withHealing(); lists
+  that must not be empty wait for the first element, so a broken
+  selector reaches healing.
+- Day19 / Day20 R1 entries added to the baseline.
+
+OpenAI code review: APPROVE, 0 findings. 16 Day22–25 tests passed.
+```
+
 ## Relevant Files
 
 - harness/checks/arch-check.ts

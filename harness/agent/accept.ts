@@ -1,8 +1,10 @@
-// Harness runner for the end of stage 6: commits an Accepted plan's change on main (no push).
+// Harness runner for the end of stage 6: commits an Accepted plan's change on main (no push),
+// with the plan's "## Commit Message" as the message.
 //   yarn agent:accept implementation-plans/<plan>.md   (Status: Accepted, set by the human)
 import fs from "node:fs";
 import path from "node:path";
-import { PROJECT_ROOT } from "../checks/markdown.js";
+import { PROJECT_ROOT, readMarkdown } from "../checks/markdown.js";
+import { commitMessageBlock } from "../checks/plan-check.js";
 import {
     REVIEW_DIR,
     Runner,
@@ -20,68 +22,17 @@ const BRANCH = "main";
 const TEST_DIR = "tests/web";
 const CO_AUTHOR = "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>";
 
-// Commit message layers, in the order of the plan's Changes by Layer
-const LAYERS: Array<{ name: string; folder: RegExp }> = [
-    { name: "Spec", folder: /^tests\// },
-    { name: "TestFlow", folder: /^test-flows\// },
-    { name: "Page Object", folder: /^models\/pages\// },
-    { name: "Component", folder: /^models\/components\// },
-    { name: "Test Data", folder: /^test-data\// },
-    { name: "Config", folder: /^config\// },
-];
-
 async function git(args: string[]): Promise<string> {
     const result = await runCommand("git", args);
     if (result.code !== 0) throw new StageFailure(`git ${args.join(" ")} failed: ${(result.stderr || result.stdout).trim()}`);
     return result.stdout;
 }
 
-function reviewSummary(plan: string, kind: "plan" | "code"): string {
-    const file = path.join(PROJECT_ROOT, REVIEW_DIR, `${path.basename(plan, ".md")}.${kind}.json`);
-    if (!fs.existsSync(file)) return "not run";
-    const review = JSON.parse(fs.readFileSync(file, "utf8"));
-    return `${review.verdict}, ${review.findings.length} finding(s)`;
-}
-
-// Public methods declared on added lines of the staged diff of one file
-async function addedPublicMethods(file: string): Promise<string[]> {
-    const diff = await git(["diff", "--cached", "-U0", "--", file]);
-    const names = [...diff.matchAll(/^\+(?!\+\+)\s*public\s+(?:static\s+)?(?:async\s+)?(\w+)\s*[(<]/gm)].map(match => `${match[1]}()`);
-    return [...new Set(names)];
-}
-
-async function changesByLayer(files: string[]): Promise<string[]> {
-    const added = new Set((await git(["diff", "--cached", "--name-status", "--diff-filter=A"])).split("\n").map(line => line.split("\t")[1]).filter(Boolean));
-    const groups = new Map<string, string[]>();
-    for (const file of files) {
-        const layer = LAYERS.find(candidate => candidate.folder.test(file))?.name ?? "Other";
-        const methods = await addedPublicMethods(file);
-        const entry = `${file}${added.has(file) ? " (new)" : ""}${methods.length > 0 ? ` — ${methods.join(", ")}` : ""}`;
-        groups.set(layer, [...(groups.get(layer) ?? []), entry]);
-    }
-    return [...LAYERS.map(layer => layer.name), "Other"]
-        .filter(layer => groups.has(layer))
-        .map(layer => `- ${layer}: ${groups.get(layer)!.join("; ")}`);
-}
-
-async function commitMessage(plan: string, codeFiles: string[], testFile: string, tests: TestResultSummary): Promise<string> {
-    const content = fs.readFileSync(path.join(PROJECT_ROOT, plan), "utf8");
-    const title = /^#\s+(?:Implementation Plan:\s*)?(.+)$/m.exec(content)?.[1].trim() ?? path.basename(plan, ".md");
-    const requirement = /^Requirement:\s*(\S+)/m.exec(content)?.[1];
-    const reqId = /^(REQ-\d+)/.exec(path.basename(plan))?.[1];
-
-    return [
-        `Implement ${reqId ? `${reqId}: ` : ""}${title}`,
-        "",
-        ...(requirement ? [`Requirement: ${requirement}`, ""] : []),
-        "Changes:",
-        ...(await changesByLayer(codeFiles)),
-        "",
-        `Plan review: ${reviewSummary(plan, "plan")}. Code review: ${reviewSummary(plan, "code")}.`,
-        `Tests: ${tests.passed}/${tests.tests.length} passed (${testFile}, self-healing disabled).`,
-        "",
-        CO_AUTHOR,
-    ].join("\n");
+// The plan's "## Commit Message" block (checked by check-plan), plus the trailer
+function commitMessage(plan: string): string {
+    const message = commitMessageBlock(readMarkdown(path.join(PROJECT_ROOT, plan)).sections.get("Commit Message"));
+    if (message === null) throw new StageFailure(`${plan} has no "## Commit Message" \`\`\`text block`);
+    return `${message}\n\n${CO_AUTHOR}`;
 }
 
 async function accept(plan: string): Promise<void> {
@@ -95,7 +46,6 @@ async function accept(plan: string): Promise<void> {
         });
         await runner.gates(plan);
 
-        let fresh = { file: "", summary: {} as TestResultSummary };
         await runner.stage("re-run the specs of the last cited test result", async () => {
             const cited = lastCitedTestResult(plan);
             const specs = [...new Set(cited.summary.tests.map(test => path.join(TEST_DIR, test.file)))].sort();
@@ -104,9 +54,9 @@ async function accept(plan: string): Promise<void> {
             await runCommand("yarn", ["harness:run-tests", ...specs]);
             const file = resultFilesSince(before).pop();
             if (!file) throw new StageFailure("harness:run-tests wrote no result file");
-            fresh = { file, summary: JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, file), "utf8")) };
+            const summary: TestResultSummary = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, file), "utf8"));
             runner.log.testResults = [file];
-            return { detail: assertTestsPassed(file, fresh.summary) };
+            return { detail: assertTestsPassed(file, summary) };
         });
 
         await runner.stage(`commit on ${BRANCH}`, async () => {
@@ -117,8 +67,7 @@ async function accept(plan: string): Promise<void> {
             const changed = (scope.changed as string[]).filter(file => !file.startsWith(`${REVIEW_DIR}/`) || file.startsWith(ownReview));
             if (changed.length === 0) throw new StageFailure("Nothing to commit");
             await git(["add", "--", ...changed]);
-            const codeFiles = changed.filter(file => file !== plan && !file.startsWith(`${REVIEW_DIR}/`));
-            await git(["commit", "-m", await commitMessage(plan, codeFiles, fresh.file, fresh.summary)]);
+            await git(["commit", "-m", commitMessage(plan)]);
             runner.log.commit = (await git(["rev-parse", "--short", "HEAD"])).trim();
             return { detail: `${runner.log.commit} — ${changed.length} file(s), not pushed` };
         });
