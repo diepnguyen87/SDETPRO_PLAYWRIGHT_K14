@@ -1,6 +1,6 @@
 # Implementation Plan: Agent Test Runs Fail on test.only
 
-Status: Approved
+Status: Accepted
 Requirement: requirements/REQ-004-run-tests-forbid-only.md
 
 ## Objective
@@ -115,11 +115,50 @@ Review: `implementation-review/REQ-004-run-tests-forbid-only.plan.md` — verdic
 
 ## Implementation Notes
 
+Implemented by Claude in an interactive session (Q1), not through `/implement-plan`.
+
+Deviations:
+- None
+
+Pre-edit check (Verification step 1): with `--forbid-only` on `tests/web/Day19.spec.ts` Playwright exits 1 and its JSON report has no suites and one `errors` entry `Error: item focused with '.only' is not allowed due to the '--forbid-only' CLI flag: "Day19.spec.ts Link Text - Filtering"`, so `globalErrors` is filled from the report (Q2: no stderr capture; the fallback message only covers a run with no report).
+
+Gates: last run, after the final change.
+- `yarn tsc --noEmit` — passed, 0 errors.
+- `yarn harness:check-arch` — passed (no scanned file changed); `yarn harness:test` — passed.
+- `yarn playwright test --list --config=playwright.config.web.js` — passed, 70 tests in 14 files.
+- `yarn harness:check-scope implementation-plans/REQ-004-run-tests-forbid-only.md` — passed, 4 changed files.
+
+Checks:
+- AC3 / AC4: `yarn harness:run-tests tests/web/Day19.spec.ts` — exit 1, console `✗ Error: item focused with '.only' is not allowed due to the '--forbid-only' CLI flag: "Day19.spec.ts Link Text - Filtering"`; `harness-results/tests/2026-11-18T09-08-55-064Z.json`: `exitCode` 1, `passed` 0, `failed` 0, no non-skipped test, `command` with `--forbid-only`, the error in `globalErrors`.
+- E1: Day19 + `tests/web/Day25/TestStandardComponent.spec.ts` — same error, no Day25 test executed (`harness-results/tests/2026-11-18T09-08-56-394Z.json`).
+- E2: `... TestStandardComponent.spec.ts --forbid-only` — exit 2, `Unsupported option --forbid-only: config, project, forbid-only and self-healing are fixed for agent runs`, no result file written.
+- AC5: `assertTestsPassed()` on the AC3 file — `rejected: ...: exit 1, 0 passed, 0 failed`.
+- AC6: `CLAUDE.md` (`harness:run-tests` line), `/implement-plan` step 5 and `/revise-code` step 6.2 state the rule.
+
+Tests: `yarn harness:run-tests tests/web/Day25/TestStandardComponent.spec.ts tests/web/Day25/TestCheapComponent.spec.ts` (AC1, AC2), Desktop Chromium, self-healing disabled. Before `harness-results/tests/2026-11-18T09-06-41-432Z.json`: 4 passed, exit 0, no `--forbid-only`. After `harness-results/tests/2026-11-18T09-09-11-154Z.json`: 4 passed, exit 0, same tests and statuses, `command` with `--forbid-only`.
+
 ## Human Code Review Notes
 
 ## Code Review Resolution
 
+OpenAI code review not run: `yarn ai:review --mode code` failed with `429 You have no credits remaining` (2026-11-18). The human decided to skip it for this change (one harness file, all ACs and error cases checked above); no `implementation-review/REQ-004-run-tests-forbid-only.code.json`.
+
 ## Commit Message
+
+```text
+Implement REQ-004: agent test runs fail on test.only
+
+- harness:run-tests always passes --forbid-only, so a spec with
+  test.only / describe.only fails the run instead of silently
+  skipping the other specs and reporting success.
+- The Playwright error is kept in globalErrors and printed as one
+  "✗" line; a failed run without a report gets a fallback reason.
+- CLAUDE.md, /implement-plan and /revise-code: remove the .only (or
+  report it), never split the run around it.
+
+OpenAI code review skipped (no API credits), by the human's decision.
+Day19 forbid-only and Day25 runs checked; 4 Day25 tests passed.
+```
 
 ## Relevant Files
 

@@ -50,7 +50,7 @@ If any code changed:
 1. Run and fix until all pass: `yarn tsc --noEmit`, `yarn harness:check-arch`, `yarn harness:check-scope <plan>`,
    `yarn playwright test --list --config=playwright.config.web.js`.
 2. Run the specs from the plan's *Verification* plus existing specs that use the changed code, **only** through
-   `yarn harness:run-tests <spec...>` — **one call per round with all specs in it**.
+   `yarn harness:run-tests <spec...>` — **one call per round with all specs in it**. A spec with `test.only` / `describe.only` fails the whole run (`--forbid-only`, error in `globalErrors`): remove the `.only` if the spec is in Relevant Files, otherwise record `Blocked:`; never split the run to work around it.
 3. On failure debug in the `/debug-failure` order, fix and rerun: at most **3 rounds** in total (the runner counts the
    `harness:run-tests` calls). Never bypass `withHealing()`, change an expected value to match wrong behaviour, add `waitForTimeout`
    or skip a test.

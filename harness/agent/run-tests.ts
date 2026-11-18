@@ -1,6 +1,7 @@
 // Agent test runner: the only way harness agents run specs.
 //   yarn harness:run-tests <spec...> [--grep <title>]
 // Always disables self-healing (SELF_HEALING_DISABLED=true) so failures surface instead of being patched,
+// forbids focused tests (--forbid-only) so a test.only cannot silently skip the other specs of the run,
 // uses the web config and the Desktop Chromium project, and writes a machine-readable result.
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -37,7 +38,7 @@ function parseArgs(args: string[]): { specs: string[]; grep?: string } {
         if (args[index] === "--grep") {
             grep = args[++index];
         } else if (args[index].startsWith("--")) {
-            throw new Error(`Unsupported option ${args[index]}: config, project and self-healing are fixed for agent runs`);
+            throw new Error(`Unsupported option ${args[index]}: config, project, forbid-only and self-healing are fixed for agent runs`);
         } else {
             specs.push(args[index]);
         }
@@ -75,7 +76,7 @@ async function main(): Promise<void> {
     const rawReport = path.join(RESULTS_DIR, `${stamp}.playwright.json`);
     const resultFile = path.join(RESULTS_DIR, `${stamp}.json`);
 
-    const args = ["playwright", "test", ...specs, "--config=playwright.config.web.js", `--project=${PROJECT}`, "--reporter=list,json"];
+    const args = ["playwright", "test", ...specs, "--config=playwright.config.web.js", `--project=${PROJECT}`, "--forbid-only", "--reporter=list,json"];
     if (grep) args.push("--grep", grep);
 
     const code = await new Promise<number>((resolve, reject) => {
@@ -91,6 +92,9 @@ async function main(): Promise<void> {
     const report: JsonReport = fs.existsSync(rawReport) ? JSON.parse(fs.readFileSync(rawReport, "utf8")) : {};
     const tests: TestResult[] = [];
     for (const suite of report.suites ?? []) collect(suite, tests);
+    const globalErrors = (report.errors ?? []).map(error => error.message?.replace(/\u001b\[[0-9;]*m/g, "") ?? "");
+    // A failed run must always carry a reason in the result file
+    if (code !== 0 && globalErrors.length === 0 && tests.length === 0) globalErrors.push(`Playwright exited ${code} without a test report`);
 
     const summary = {
         startedAt,
@@ -100,13 +104,16 @@ async function main(): Promise<void> {
         passed: tests.filter(test => test.status === "passed" || test.status === "expected").length,
         failed: tests.filter(test => ["failed", "timedOut", "interrupted", "unexpected"].includes(test.status)).length,
         skipped: tests.filter(test => test.status === "skipped").length,
-        globalErrors: (report.errors ?? []).map(error => error.message?.replace(/\u001b\[[0-9;]*m/g, "") ?? ""),
+        globalErrors,
         tests,
     };
     fs.writeFileSync(resultFile, JSON.stringify(summary, null, 2) + "\n");
     fs.rmSync(rawReport, { force: true });
 
     console.log(`\nharness:run-tests — ${summary.passed} passed, ${summary.failed} failed, ${summary.skipped} skipped (self-healing disabled)`);
+    for (const error of globalErrors) {
+        console.log(`  ✗ ${error.split("\n").find(line => line.trim()) ?? error}`);
+    }
     for (const test of tests.filter(candidate => candidate.status !== "passed")) {
         console.log(`  ✗ ${test.title} [${test.status}] ${test.error?.split("\n")[0] ?? ""}`);
     }
