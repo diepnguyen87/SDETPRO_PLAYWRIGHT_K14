@@ -52,7 +52,10 @@ export default class ShoppingCartPage extends BasePage {
     }
 
     public async cartItemRowCompList(): Promise<CartItemRowComponent[]> {
-        const cartItemRowLocatorList: Locator[] = await this.page.locator(CartItemRowComponent.selectorValue).all()
+        const cartItemRowLocatorList: Locator[] = await this.withHealing(CartItemRowComponent.selectorValue, async l => {
+            await l.first().waitFor({ state: "attached" })
+            return l.all()
+        })
         return cartItemRowLocatorList.map(cartItemRowLocator => new CartItemRowComponent(this.page, cartItemRowLocator, this.testInfo))
     }
 
@@ -73,8 +76,8 @@ export default class ShoppingCartPage extends BasePage {
     }
 
     public async removeAllItems(): Promise<void> {
+        if (await this.getCartItemRowCount() === 0) return
         const rows = await this.cartItemRowCompList()
-        if (rows.length === 0) return
         for (const row of rows) {
             await row.selectRemove()
         }

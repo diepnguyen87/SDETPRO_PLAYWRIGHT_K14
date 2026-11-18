@@ -1,0 +1,7 @@
+// expect: R1, R4
+import { test } from "../fixtures/base.js";
+import { TAG } from "../../constant/Tag.js";
+test(`${TAG.regression} | Bad list read`, async ({ page }) => {
+    await page.goto("/")
+    await page.locator(".row").all()
+});

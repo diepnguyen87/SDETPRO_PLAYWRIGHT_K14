@@ -1,6 +1,6 @@
 # Implementation Plan: Architecture Check Catches Locator List Reads Outside withHealing()
 
-Status: Approved
+Status: Accepted
 Requirement: requirements/REQ-003-arch-check-locator-list-read.md
 
 ## Objective
@@ -147,9 +147,30 @@ OpenAI plan review: `implementation-review/REQ-003-arch-check-locator-list-read.
 
 ## Implementation Notes
 
+Implemented by Claude in an interactive session (Q3), not through `/implement-plan`.
+
+Deviations:
+- D1: The spec list from Verification steps 1 and 6 is run in two `harness:run-tests` calls. `tests/web/Day24/TestFooterFlow.spec.ts:7` uses `test.only` (baselined R8), so Playwright ran only its 15 tests and skipped the other four spec paths in the same call (first baseline run `harness-results/tests/2026-11-18T07-51-18-500Z.json`: 15 tests, all Day24). Day24 is run on its own; the other specs together. Day24 is not edited (exercise file, out of scope).
+
+Pre-edit search (Verification step 1): the 11 added names are called on locators in `models/`, `test-flows/`, `tests/web/` only in the five migrated methods, `tests/web/Day19.spec.ts:29` (`elementHandles`) and `tests/web/Day20.spec.ts:29` (`all`), as the plan expected. Before the edit `yarn harness:check-arch --all` passed (87 files, 130 baselined) and `yarn harness:test` passed.
+
+Gates: last run, after the final change.
+- `yarn tsc --noEmit` — passed, 0 errors.
+- `yarn harness:test` — passed, 13 fixtures: `BadListReadComponent` `R1=14`, `GoodListReadComponent` none, `BadListReadTestFlow` R1+R3, `BadListRead.spec` R1+R4, updated `GoodActionComponent` none, existing fixtures unchanged. With the header temporarily set to `R1=15` the fixture failed (`expected [R1=15], got [R1=14]`), header restored.
+- `yarn harness:check-arch` (changed files) — passed, 5 files, 0 baselined violations.
+- `yarn harness:check-arch --all` — exactly 2 new R1: `tests/web/Day19.spec.ts:29` `page.locator("//a").elementHandles()` and `tests/web/Day20.spec.ts:29` `page.locator("div#content div.figure").all()`, for the human `--update-baseline` (Q1).
+- `yarn harness:check-scope implementation-plans/REQ-003-arch-check-locator-list-read.md` — passed, 13 changed files.
+- `yarn playwright test --list --config=playwright.config.web.js` — passed, 70 tests in 14 files.
+
+Tests: `yarn harness:run-tests` (Desktop Chromium, self-healing disabled), before and after the change, compared test by test (file + title + status): identical, no failures or skips in either run.
+- `tests/web/Day24/TestFooterFlow.spec.ts` — before `harness-results/tests/2026-11-18T07-51-18-500Z.json`, after `harness-results/tests/2026-11-18T08-02-00-428Z.json`: 15 passed / 15 passed (`menuItemList()` / footer flow).
+- `tests/web/Day25` (6 files, incl. remove-cart flows, `clearShoppingCart()` → `removeAllItems()`, `unselectDefaultCheckbox()`), `tests/web/Day22/TestProductItemListComponent.spec.ts`, `tests/web/Day23/TestProductItemListComponent.spec.ts`, `tests/web/Day23/TestFooterFlow.spec.ts` — before `harness-results/tests/2026-11-18T07-53-08-066Z.json`, after `harness-results/tests/2026-11-18T07-57-52-668Z.json`: 16 passed / 16 passed.
+
 ## Human Code Review Notes
 
 ## Code Review Resolution
+
+OpenAI code review: `implementation-review/REQ-003-arch-check-locator-list-read.code.md` — verdict `APPROVE`, no findings (`C<n>`); no code change.
 
 ## Relevant Files
 

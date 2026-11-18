@@ -19,7 +19,10 @@ export default class ProductGridComponent extends Component {
     }
 
     async productItemComp(): Promise<ProductItemComponent[]> {
-        const productItemLocatorList = await this.componentLocator.locator(ProductItemComponent.selectorValue).all();
+        const productItemLocatorList = await this.withHealing(ProductItemComponent.selectorValue, async l => {
+            await l.first().waitFor({ state: "attached" })
+            return l.all()
+        });
         return productItemLocatorList.map(productItemLocator => new ProductItemComponent(this.page, productItemLocator, this.testInfo))
     }
 }

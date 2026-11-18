@@ -11,7 +11,10 @@ export default class TopMenuComponent extends Component {
     }
 
     public async menuItemList(): Promise<MenuItemComponent[]> {
-        let menuItemLocatorList = await this.componentLocator.locator(MenuItemComponent.selectorValue).all()
+        let menuItemLocatorList = await this.withHealing(MenuItemComponent.selectorValue, async l => {
+            await l.first().waitFor({ state: "attached" })
+            return l.all()
+        })
         return menuItemLocatorList.map(locator => {
             return new MenuItemComponent(this.page, locator, this.testInfo)
         })

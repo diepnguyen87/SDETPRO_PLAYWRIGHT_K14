@@ -1,0 +1,21 @@
+// expect: R1=14
+export default class BadListReadComponent extends Component {
+    private rowSel = ".row"
+    public async read(): Promise<void> {
+        await this.page.locator(this.rowSel).all()
+        await this.componentLocator.locator(this.rowSel).all()
+        const rowList = this.componentLocator.locator(this.rowSel)
+        await rowList.all()
+        await this.componentLocator.locator(this.rowSel).filter({ hasText: "x" }).all()
+        await this.componentLocator.locator(this.rowSel).elementHandle()
+        await this.componentLocator.locator(this.rowSel).elementHandles()
+        await this.componentLocator.locator(this.rowSel).evaluateHandle(el => el)
+        await this.componentLocator.locator(this.rowSel).waitForFunction(() => true)
+        await this.componentLocator.locator(this.rowSel).ariaSnapshot()
+        await this.componentLocator.locator(this.rowSel).ariaSnapshotJSON()
+        await this.componentLocator.locator(this.rowSel).dispatchEvent("click")
+        await this.componentLocator.locator(this.rowSel).drop()
+        await this.componentLocator.locator(this.rowSel).highlight()
+        await this.componentLocator.locator(this.rowSel).normalize()
+    }
+}

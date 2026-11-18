@@ -1,0 +1,7 @@
+// expect: R1, R3
+export default class BadListReadTestFlow extends BaseFlow {
+    private rowSel = ".row"
+    public async run(): Promise<void> {
+        await this.page.locator(this.rowSel).all()
+    }
+}

@@ -17,10 +17,9 @@ export default abstract class ComputerEssentialComponent extends BaseItemDetailC
     public abstract selectRAMByName(ramType: string): Promise<string>
 
     public async unselectDefaultCheckbox(): Promise<void> {
-        const allCheckboxElemList = await this.componentLocator.locator(this.allCheckboxSel).all();
-        for (let i = 0; i < allCheckboxElemList.length; i++) {
-            const isChecked = await allCheckboxElemList[i].evaluate(el => (el as HTMLInputElement).checked);
-            if (isChecked) {
+        const checkboxCount = await this.withHealing(this.allCheckboxSel, l => l.count());
+        for (let i = 0; i < checkboxCount; i++) {
+            if (await this.withHealing(this.allCheckboxSel, l => l.nth(i).isChecked())) {
                 await this.withHealing(this.allCheckboxSel, l => l.nth(i).click());
             }
         }

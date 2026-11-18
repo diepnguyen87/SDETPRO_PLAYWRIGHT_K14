@@ -11,7 +11,7 @@ const SCANNED_DIRS = ["models/", "test-flows/", "tests/web/"];
 const PAGES_REGISTRY = path.join(PROJECT_ROOT, "config", "pages.json");
 
 export const RULES = {
-    R1: "no-direct-css-action: act/read/assert on a CSS/XPath locator only through withHealing() (getByRole/getByLabel may act directly)",
+    R1: "no-direct-css-action: act/read/list (all())/assert on a CSS/XPath locator only through withHealing() (getByRole/getByLabel may act directly)",
     R2: "no-css-locator-getter: do not return a CSS/XPath Locator from a component or page; expose a wait/read method through withHealing()",
     R3: "flow-no-raw-page-api: flows call page objects only; no this.page.*() call (expect(this.page) assertions are allowed)",
     R4: "spec-raw-api: specs only call page.goto() on the page/browser/context/request fixtures",
@@ -27,14 +27,17 @@ export type RuleId = keyof typeof RULES;
 
 export type Violation = { rule: RuleId; file: string; line: number; snippet: string };
 
-// Calls on a locator that act, read or wait — they must go through withHealing() when the locator is CSS/XPath.
-// Locator-producing calls (locator, getBy*, first, nth, filter, all, ...) are not listed.
+// Calls on a locator that act, read, wait or resolve the matched elements (list reads such as all() included) —
+// they must go through withHealing() when the locator is CSS/XPath.
+// Locator-producing calls (locator, getBy*, first, nth, filter, ...) are not listed.
 const LOCATOR_ACTIONS = new Set([
     "click", "dblclick", "tap", "fill", "type", "press", "pressSequentially", "clear", "check", "uncheck", "setChecked",
     "selectOption", "selectText", "hover", "focus", "blur", "dragTo", "setInputFiles", "scrollIntoViewIfNeeded",
     "textContent", "innerText", "innerHTML", "inputValue", "getAttribute", "allInnerTexts", "allTextContents",
     "isVisible", "isHidden", "isChecked", "isEnabled", "isDisabled", "isEditable", "count", "waitFor", "boundingBox",
     "evaluate", "evaluateAll", "screenshot",
+    "all", "elementHandle", "elementHandles", "evaluateHandle", "waitForFunction", "ariaSnapshot", "ariaSnapshotJSON",
+    "dispatchEvent", "drop", "highlight", "normalize",
 ]);
 const CHAIN_PASSTHROUGH = new Set(["first", "last", "nth", "filter", "and", "or"]);
 const SEMANTIC_LOCATORS = new Set(["getByRole", "getByLabel"]);

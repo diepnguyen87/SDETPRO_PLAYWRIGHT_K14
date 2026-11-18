@@ -1,0 +1,23 @@
+// expect: none
+export default class GoodListReadComponent extends Component {
+    private rowSel = ".row"
+    private label = "Rows"
+    public async read(param: Locator): Promise<void> {
+        await this.withHealing(this.rowSel, l => l.all())
+        await this.withHealing(this.rowSel, async l => { await l.first().waitFor({ state: "attached" }); return l.all() })
+        await this.withHealing(this.rowSel, l => l.elementHandle())
+        await this.withHealing(this.rowSel, l => l.elementHandles())
+        await this.withHealing(this.rowSel, l => l.evaluateHandle(el => el))
+        await this.withHealing(this.rowSel, l => l.waitForFunction(() => true))
+        await this.withHealing(this.rowSel, l => l.ariaSnapshot())
+        await this.withHealing(this.rowSel, l => l.ariaSnapshotJSON())
+        await this.withHealing(this.rowSel, l => l.dispatchEvent("click"))
+        await this.withHealing(this.rowSel, l => l.drop())
+        await this.withHealing(this.rowSel, l => l.highlight())
+        await this.withHealing(this.rowSel, l => l.normalize())
+        await this.componentLocator.getByRole("listitem").all()
+        await this.componentLocator.getByLabel(this.label).all()
+        await param.all()
+        await this.rowList().all()
+    }
+}
