@@ -4,7 +4,7 @@ import FooterTestFlow from '../../../test-flows/global/FooterTestFlow.js'
 import { Urls } from '../../../url/Urls.js'
 
 pages.filter(pageObj => pageObj.directAccess !== false).forEach(pageObj => {
-    test.only(`Test Footer Flow on ${pageObj.pageName}`, async ({ page }, testInfo) => {
+    test(`Test Footer Flow on ${pageObj.pageName}`, async ({ page }, testInfo) => {
         await page.goto(`${Urls.baseURL.concat(pageObj.slug)}`);
         let footerTestFlow: FooterTestFlow = new FooterTestFlow(page, testInfo);
         await footerTestFlow.verifyFooterComp(pageObj.slug);
