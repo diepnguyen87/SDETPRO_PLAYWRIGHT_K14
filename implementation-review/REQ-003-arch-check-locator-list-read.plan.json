@@ -1,0 +1,63 @@
+{
+  "verdict": "APPROVE_WITH_CHANGES",
+  "summary": "The plan is largely aligned with the requirement and existing code, especially the migration targets and the R1 gap around `.all()`. However, it contains a few concrete inconsistencies with project rules and requirement traceability expectations that should be fixed before implementation. None of the issues require redesign, but they do require tightening the plan content to avoid scope/rule drift and to keep AC traceability accurate.",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "REQUIRED_FIX",
+      "severity": "HIGH",
+      "file": "implementation-plans/REQ-003-arch-check-locator-list-read.md",
+      "problem": "The plan’s Acceptance Criteria Traceability for AC5 says `yarn harness:check-arch --all` should show only Day20 (and possibly Day19) as new violations, while the planned `LOCATOR_ACTIONS` additions include methods (`elementHandle`, `elementHandles`, etc.) that are likely used outside those two files in the scanned tree. This makes the AC5 proof strategy potentially invalid and under-specified.",
+      "action": "Update the plan to make AC5 verification deterministic: either (a) explicitly constrain the added method set to those validated against repo-wide usage, or (b) add a required pre-check step enumerating current/new `R1` hits for each newly added method and adjust the AC5 statement from 'only Day20/Day19' to the requirement’s exact boundary (`models/` and `test-flows/` clean, with documented expected new non-model/non-flow entries).",
+      "requirementIds": [
+        "AC5"
+      ]
+    },
+    {
+      "id": "F2",
+      "type": "REQUIRED_FIX",
+      "severity": "MEDIUM",
+      "file": "implementation-plans/REQ-003-arch-check-locator-list-read.md",
+      "problem": "Relevant Files includes files planned as unchanged or explicitly out-of-scope for editing (`harness/checks/arch-baseline.json`, `harness/agent/run-tests.ts`, `models/components/Component.ts`, `tests/web/Day19.spec.ts`, `tests/web/Day20.spec.ts`). While reading context is allowed, the plan text also states some of these are not edited, creating avoidable scope ambiguity for implementation and review.",
+      "action": "Refine Relevant Files to include only files read or modified with clear intent. Keep contextual files if needed, but annotate them as read-only context in the plan body or remove them from Relevant Files to reduce scope ambiguity. Ensure no conflict between 'Out of Scope' and listed files.",
+      "requirementIds": []
+    },
+    {
+      "id": "F3",
+      "type": "RECOMMENDED",
+      "severity": "LOW",
+      "file": "implementation-plans/REQ-003-arch-check-locator-list-read.md",
+      "problem": "The method list added to `LOCATOR_ACTIONS` includes names that may not exist on the installed Playwright Locator API (`ariaSnapshotJSON`, `normalize`, `within`, `visible`, etc. are discussed). If non-existent names are listed as enforced behavior, traceability for AC3 can become misleading even if harmless technically.",
+      "action": "In the plan, explicitly separate: 'methods confirmed in installed Playwright version and added' vs 'considered but excluded'. Keep the AC3 fixtures aligned only to confirmed existing methods.",
+      "requirementIds": [
+        "AC3"
+      ]
+    },
+    {
+      "id": "F4",
+      "type": "VERIFICATION",
+      "severity": "MEDIUM",
+      "file": "models/pages/ShoppingCartPage.ts",
+      "problem": "The plan changes `cartItemRowCompList()` to fail fast via `waitFor(first attached)` and updates `removeAllItems()` pre-check logic. This should preserve existing behavior, but it may alter timing in cleanup and order flows under transient cart rendering.",
+      "action": "After implementation, verify Day25 and cart-related flows specifically for cleanup stability and no new flakiness by comparing harness result JSON before/after, including skipped/failed reasons.",
+      "requirementIds": [
+        "AC6",
+        "AC7",
+        "E2"
+      ]
+    }
+  ],
+  "assumptions": [
+    "No human-provided '→ A:' answers exist yet for Q1/Q2, so open questions are not yet binding decisions.",
+    "`LOCATOR_ACTIONS` expansion is intended to remain static-string based in the checker (no type-aware API introspection).",
+    "The plan’s proposed fixture-count extension in `run-fixtures.ts` is acceptable as harness tooling change within scope."
+  ],
+  "validationChecklist": [
+    "yarn harness:check-plan implementation-plans/REQ-003-arch-check-locator-list-read.md",
+    "yarn tsc --noEmit",
+    "yarn harness:test",
+    "yarn harness:check-arch --all",
+    "yarn harness:run-tests tests/web/Day25 tests/web/Day22/TestProductItemListComponent.spec.ts tests/web/Day23/TestProductItemListComponent.spec.ts tests/web/Day23/TestFooterFlow.spec.ts tests/web/Day24/TestFooterFlow.spec.ts",
+    "Confirm `harness-results/tests/*.json` before/after show equivalent outcomes for the listed specs (allowing documented skips)."
+  ]
+}
