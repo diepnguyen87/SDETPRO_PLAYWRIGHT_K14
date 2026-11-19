@@ -40,7 +40,7 @@ One detailed plan per sub-slice, approved before implementation (constraint in `
 
 - **C1 Run hygiene and logs (done, `harness-c1-clean-logs.md`):** `harness/agent/clean.ts` + `yarn harness:clean` (`artifacts/`, `logs/`, `test-results/`, `playwright-report/`, `allure-results/`, `allure-report/`; `--dry-run`);
   `utils/LoggerManager.ts` adds `winston.format.combine(timestamp(), json())`. `/debug-failure` §0 points to `harness:clean`.
-- **C2 Summary reporter:** `harness/reporters/summary-reporter.ts` registered in `playwright.config.web.js` next to `html` and
+- **C2 Summary reporter (done, `harness-c2-summary-reporter.md`):** `harness/reporters/summary-reporter.ts` registered in `playwright.config.web.js` next to `html` and
   `allure-playwright`. Writes `harness-results/summary.json` at `onEnd`: run (startedAt, finishedAt, env, git sha, dirty files at start,
   status), per test (title, file, line, project, status, durationMs, retry, error first lines, failed step title + location from
   `onStepEnd`, healing outcome + `ai-response.json` path, artifact folder `artifacts/{browser}/{title_}`, log `logs/{browser}.{name}.log`,

@@ -254,6 +254,8 @@ When a test fails, investigate in this order:
 
 Primary debugging inputs: `artifacts/` folder and `logs/` folder (Winston logs per browser/test, JSON lines with an ISO `timestamp`). Run `yarn harness:clean` before a run when older artifacts or logs could be mistaken for the current run.
 
+Every web run with the config reporters writes `harness-results/summary.json` (`harness/reporters/summary-reporter.ts`): per test the spec file, status, failed step, self-healing outcome (`HEALED` / `MANUAL` / `FAILED` / `DISABLED` / `SKIPPED` / `NONE`, derived from the `self-healed` annotation, the `AI Analysis` attachment and `HealingEngine` output) and the artifact, log, trace, video and screenshot paths, plus `sourceChanges` (files the run changed, i.e. healing patches and `.bak` files). It is not written by a healing rerun child, by `--list`, or by `yarn harness:run-tests` (which sets its own reporters). Start a debugging session from it when it belongs to the run under investigation.
+
 Do not assume the test implementation is wrong without completing this investigation.
 
 ---

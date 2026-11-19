@@ -46,7 +46,8 @@ export default defineConfig({
     ],
     reporter: [
         ['html'],
-        ['allure-playwright']
+        ['allure-playwright'],
+        ['./harness/reporters/summary-reporter.ts']
     ],
     retries: process.env.CI ? 1 : 0,
     use: {
