@@ -10,7 +10,7 @@ Input: test title and browser project (e.g. `Desktop Chromium`). Ask for them if
 Follow this order and stop at the first step that explains the failure. Report the root cause **before** changing any code.
 
 ## 0. Run outcome and freshness
-- **Stale inputs:** artifacts are overwritten per test but never cleared, and the log file is appended to. Compare `metadata.json` `timestamp` (and file mtimes) with the run under investigation; if they are older, they belong to a previous run. Rerun (step 5) before trusting them.
+- **Stale inputs:** artifacts are overwritten per test but never cleared, and the log file is appended to. Compare `metadata.json` `timestamp` (and file mtimes) with the run under investigation; if they are older, they belong to a previous run. Log lines carry an ISO `timestamp` to match them to the run. Run `yarn harness:clean` and rerun (step 5) before trusting stale inputs.
 - **Self-healed run:** the test can end as *passed* after healing. Signs: console `[HealingEngine] HEALED on attempt N | <old> → <new>` / `Self-healing succeeded`, a `self-healed` annotation in the report, a `<Component>.ts.bak` next to the component, and a source change in `git diff`. In that case there is no `test-results/*/error-context.md`; use `metadata.json` + `ai-response.json`, and report the patch (`git diff` of the component, or diff against the `.bak`). Leave the `.bak` until the patch has been reviewed.
 
 ## 1. Locator — artifacts

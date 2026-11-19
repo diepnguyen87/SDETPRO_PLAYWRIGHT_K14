@@ -176,6 +176,7 @@ The agentic pipeline (`implementation-plans/agent-harness.md`) chains stages thr
 - `yarn harness:check-arch [files...] [--all]` — the machine-checkable rules of this file (R1 no CSS/XPath action, read, list read (`.all()`) or `expect()` outside `withHealing()`; R2 no CSS/XPath `Locator` getter; R3 no `this.page.*()` in flows; R4 only `page.goto()` on fixtures in specs; R4b no page/component instances in specs; R5 no `waitForTimeout`; R6 specs import `test` from `tests/fixtures/base.ts`; R7 data only through `TestDataProvider`; R8 no `test.only`; R9 tags from `TAG`; R10 pages registered in `config/pages.json`). Default scope: `.ts` files changed vs `HEAD`. Pre-existing violations are recorded in `harness/checks/arch-baseline.json`; only new ones fail. Only a human runs `--update-baseline`.
 - `yarn harness:check-scope <plan>` — every file changed vs `HEAD` must be listed in the plan's Relevant Files (a `folder/` entry covers the folder), be the plan itself or be under `implementation-review/`.
 - `yarn harness:run-tests <spec...> [--grep <title>]` — the only way agents run specs: sets `SELF_HEALING_DISABLED=true`, `--forbid-only`, the web config and `Desktop Chromium`, and writes per-test results to `harness-results/tests/<timestamp>.json`. A spec with `test.only` / `describe.only` fails the whole run (the error is in `globalErrors` and on the console) — remove the `.only` (or report it when the file is out of scope), never split the run to work around it.
+- `yarn harness:clean [--dry-run]` — removes the generated run outputs `artifacts/`, `logs/`, `test-results/`, `playwright-report/`, `allure-results/`, `allure-report/` (skips a symlink or a folder tracked by git); never touches `harness-results/`, `.auth/`, `implementation-review/` or `*.bak` / `*.healing.lock` next to the sources. `--dry-run` lists what would be removed.
 - `yarn harness:test` — regression tests of the arch-check rules (`harness/checks/fixtures/*.fixture`, first line `// expect: R1, R5` or `// expect: none`; `R1=3` also requires exactly 3 R1 violations). Add a fixture when a rule changes.
 - The PostToolUse hook runs `arch-check` on each edited file after `tsc`. The PreToolUse hook `.claude/hooks/guard.mjs` denies reading or editing `.env*` / `.auth/` (also through Bash) and asks before editing self-healing pipeline files.
 
@@ -251,7 +252,7 @@ When a test fails, investigate in this order:
 5. Environment — check browser, config, and env vars
 6. Framework configuration — check `playwright.config.web.js` and `config/framework.config.ts`
 
-Primary debugging inputs: `artifacts/` folder and `logs/` folder (Winston logs per browser/test).
+Primary debugging inputs: `artifacts/` folder and `logs/` folder (Winston logs per browser/test, JSON lines with an ISO `timestamp`). Run `yarn harness:clean` before a run when older artifacts or logs could be mistaken for the current run.
 
 Do not assume the test implementation is wrong without completing this investigation.
 

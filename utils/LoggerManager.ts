@@ -11,6 +11,7 @@ export default class LoggerManager {
 
     private static createLogger(browser: string, testName: string) {
         return winston.createLogger({
+            format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
             transports: [
                 new winston.transports.File({
                     filename: `logs/${browser}.${testName}.log`

@@ -38,7 +38,7 @@ Self-fix stays the existing locator self-healing only (Decisions 2026-11-07). No
 
 One detailed plan per sub-slice, approved before implementation (constraint in `agent-harness.md`).
 
-- **C1 Run hygiene and logs:** `harness/agent/clean.ts` + `yarn harness:clean` (`artifacts/`, `logs/`, `test-results/`, `playwright-report/`, `allure-results/`, `allure-report/`; `--dry-run`);
+- **C1 Run hygiene and logs (done, `harness-c1-clean-logs.md`):** `harness/agent/clean.ts` + `yarn harness:clean` (`artifacts/`, `logs/`, `test-results/`, `playwright-report/`, `allure-results/`, `allure-report/`; `--dry-run`);
   `utils/LoggerManager.ts` adds `winston.format.combine(timestamp(), json())`. `/debug-failure` §0 points to `harness:clean`.
 - **C2 Summary reporter:** `harness/reporters/summary-reporter.ts` registered in `playwright.config.web.js` next to `html` and
   `allure-playwright`. Writes `harness-results/summary.json` at `onEnd`: run (startedAt, finishedAt, env, git sha, dirty files at start,
