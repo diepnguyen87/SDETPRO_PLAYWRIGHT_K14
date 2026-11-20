@@ -180,7 +180,9 @@ async function execute(input: Input): Promise<void> {
         });
 
         printTable(rows, healingPatches, notDebugged);
-        runner.finish(clean);
+        // The runner completed; the exit code carries the test outcome
+        runner.finish(true);
+        console.log(clean ? "RESULT: clean — every test passed without healing" : "RESULT: not clean — failed tests, healing or debug errors above (exit 1)");
         if (!clean) process.exitCode = 1;
     } catch {
         runner.finish(false);
