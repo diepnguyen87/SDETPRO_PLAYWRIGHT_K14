@@ -62,11 +62,12 @@ function firstLines(text: string | undefined, count = 5): string | undefined {
     return text ? stripAnsi(text).split("\n").slice(0, count).join("\n").trim() : undefined;
 }
 
-function stdoutText(result: TestResult): string {
-    return result.stdout.map(chunk => chunk.toString()).join("");
+// HealingEngine logs with console.log and console.error, so both streams are read
+function consoleText(result: TestResult): string {
+    return [...result.stdout, ...result.stderr].map(chunk => chunk.toString()).join("");
 }
 
-// Order: annotation from tests/fixtures/base.ts, then the AI Analysis attachment from HealingEngine, then its console lines
+// Order: annotation from tests/fixtures/base.ts, then the AI Analysis attachment from HealingEngine, then its console output
 export function healingOutcome(test: TestCase, result: TestResult): TestSummary["healing"] {
     if (test.annotations.some(annotation => annotation.type === "self-healed") || result.annotations?.some(annotation => annotation.type === "self-healed")) {
         return { outcome: "HEALED", reason: "self-healed annotation" };
@@ -85,10 +86,10 @@ export function healingOutcome(test: TestCase, result: TestResult): TestSummary[
         if (result.status !== "passed") return { outcome: "FAILED", reason: `${analysis.name}: patchType ${patchType ?? "unknown"}, test ${result.status}`, aiResponse };
     }
 
-    const stdout = stdoutText(result);
-    if (/\[HealingEngine\] Skipping — self-healing disabled/.test(stdout)) return { outcome: "DISABLED", reason: "self-healing disabled for this run" };
-    if (/\[HealingEngine\] Source file locked by another worker/.test(stdout)) return { outcome: "SKIPPED", reason: "source file locked by another worker" };
-    if (/\[HealingEngine\] AI analysis failed/.test(stdout)) return { outcome: "FAILED", reason: "AI analysis failed" };
+    const output = consoleText(result);
+    if (/\[HealingEngine\] Skipping — self-healing disabled/.test(output)) return { outcome: "DISABLED", reason: "self-healing disabled for this run" };
+    if (/\[HealingEngine\] Source file locked by another worker/.test(output)) return { outcome: "SKIPPED", reason: "source file locked by another worker" };
+    if (/\[HealingEngine\] AI analysis failed/.test(output)) return { outcome: "FAILED", reason: "AI analysis failed" };
     return { outcome: "NONE" };
 }
 

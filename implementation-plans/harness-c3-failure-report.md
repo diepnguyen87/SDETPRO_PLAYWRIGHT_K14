@@ -99,6 +99,28 @@ In-memory cases (temporary files under `harness-results/failures/_check/`, remov
    `category` plausible, `git status` shows no tracked change → delete the temporary spec.
 5. `yarn harness:check-scope implementation-plans/harness-c3-failure-report.md`.
 
+## Implementation Notes
+
+Deviations:
+- D1: Skill input is `[--report <path>] [--project <browser project>] <test title>` instead of `<title> | <project>`: test titles already
+  contain ` | ` (`@Smoke | Test …`), so the separator was ambiguous. Project defaults to `Desktop Chromium`.
+- D2: Bug in C2 found by the real run: `HealingEngine` logs `AI analysis failed` with `console.error`, so it is in the test's stderr, not
+  stdout; the summary showed healing `NONE` for a test whose AI analysis failed. `summary-reporter.ts` now reads stdout and stderr, and its
+  check uses stderr for that case (`summary-reporter.check.ts` added to Relevant Files).
+- D3: The skill grants `Edit(harness-results/failures/**)`, not `Write(...)`: the first headless run was denied the write (`Write(path)`
+  is not a path rule; `Edit(path)` covers all file-writing tools, as `/implement-plan`'s `Edit(models/**)` does for new files).
+
+Checks (2026-11-20):
+- `yarn tsc --noEmit`, `yarn harness:check-arch`, `yarn harness:test` (arch fixtures, 15 reporter checks, 12 failure-report checks),
+  `yarn playwright test --list` — passed.
+- Real headless run (Q2): temporary untracked `tests/web/_tmp/TmpFailure.spec.ts` (opens `/`, calls `verifyEmptyShoppingCart()` without
+  opening the cart) run with the config reporters → `summary.json`: failed, failed step `Wait for navigation` at `models/pages/BasePage.ts:45`,
+  healing `FAILED` (`AI analysis failed`, no OpenAI credits). `claude -p "/debug-failure --report harness-results/failures/c3-check/… --project
+  Desktop Chromium @Regression | Tmp Failure Empty Cart On Home"` with the skill's `allowed-tools`: first run denied the write (D3, $0.59);
+  second run 10 turns, $0.28, 0 denials, report `PASSED` the checker — category `component`, confidence 95, steps 0–5, 6 evidence files,
+  proposed fix "call `navigateToShoppingCartPage()` before `verifyEmptyShoppingCart()`". No tracked file changed by Claude (`git status` list
+  identical before/after). Temporary spec deleted, `yarn harness:clean` run.
+
 ## Relevant Files
 
 - harness/checks/failure-report-check.ts (new)
@@ -106,6 +128,7 @@ In-memory cases (temporary files under `harness-results/failures/_check/`, remov
 - harness/checks/requirement-check.ts
 - harness/checks/markdown.ts
 - harness/reporters/summary-reporter.ts
+- harness/reporters/summary-reporter.check.ts
 - harness/agent/runner.ts
 - .claude/skills/debug-failure/SKILL.md
 - package.json

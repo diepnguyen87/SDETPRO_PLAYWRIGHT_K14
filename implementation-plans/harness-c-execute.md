@@ -45,7 +45,7 @@ One detailed plan per sub-slice, approved before implementation (constraint in `
   status), per test (title, file, line, project, status, durationMs, retry, error first lines, failed step title + location from
   `onStepEnd`, healing outcome + `ai-response.json` path, artifact folder `artifacts/{browser}/{title_}`, log `logs/{browser}.{name}.log`,
   trace/video/screenshot paths). Skips writing when `HEALING_RERUN=true`. Fixture-based unit check with a fake `TestCase`/`TestResult`.
-- **C3 `/debug-failure` JSON report:** the skill gains a headless mode with an output contract
+- **C3 `/debug-failure` JSON report (done, `harness-c3-failure-report.md`):** the skill gains a headless mode with an output contract
   `harness-results/failures/<run>/<test-slug>.json`: `test`, `project`, `failedStep`, `category`
   (`locator | data | component | app | environment | config`), `evidence[]` (`file`, `excerpt`), `healing` (outcome, patch file/diff),
   `rootCause`, `proposedFix`, `confidence`. `harness/checks/failure-report-check.ts` validates it. Interactive use unchanged (report in chat).

@@ -15,7 +15,7 @@ const OPTIONAL_SECTIONS = ["Actors", "Error Cases", "Test Data", "Notes"];
 const METADATA_FIELDS = ["ID", "Area", "Source", "Author"];
 const SOURCES = ["manual", "copilot"];
 
-const SECRET_PATTERNS: Array<[RegExp, string]> = [
+export const SECRET_PATTERNS: Array<[RegExp, string]> = [
     [/[\w.+-]+@[\w-]+\.[\w.-]+/, "an email address"],
     [/\b(?:\d[ -]?){13,19}\b/, "a card-like number"],
     [/\b(password|passwd|api[ _-]?key|secret|token)\s*[:=]\s*\S+/i, "a credential value"],

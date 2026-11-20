@@ -29,7 +29,7 @@ function fakeTest(annotations: Array<{ type: string }> = []): TestCase {
 }
 
 function fakeResult(overrides: Partial<TestResult> = {}): TestResult {
-    return { status: "failed", duration: 10, retry: 0, attachments: [], stdout: [], steps: [], annotations: [], ...overrides } as unknown as TestResult;
+    return { status: "failed", duration: 10, retry: 0, attachments: [], stdout: [], stderr: [], steps: [], annotations: [], ...overrides } as unknown as TestResult;
 }
 
 function aiResponse(patchType: string): string {
@@ -43,7 +43,7 @@ check("HEALED from the self-healed annotation", healingOutcome(fakeTest([{ type:
 check("MANUAL from the AI Analysis attachment", healingOutcome(fakeTest(), fakeResult({ attachments: [{ name: "AI Analysis — ACTION (attempt 1)", path: aiResponse("MANUAL"), contentType: "application/json" }] })).outcome, "MANUAL");
 check("FAILED from a LOCATOR analysis on a failed test", healingOutcome(fakeTest(), fakeResult({ attachments: [{ name: "AI Analysis — ACTION (attempt 1)", path: aiResponse("LOCATOR"), contentType: "application/json" }] })).outcome, "FAILED");
 check("DISABLED from HealingEngine stdout", healingOutcome(fakeTest(), fakeResult({ stdout: ["[HealingEngine] Skipping — self-healing disabled for this run.\n"] })).outcome, "DISABLED");
-check("FAILED when the AI analysis failed", healingOutcome(fakeTest(), fakeResult({ stdout: ["[HealingEngine] AI analysis failed on attempt 1: 429\n"] })).outcome, "FAILED");
+check("FAILED when the AI analysis failed (console.error → stderr)", healingOutcome(fakeTest(), fakeResult({ stderr: ["[HealingEngine] AI analysis failed on attempt 1: 429\n"] })).outcome, "FAILED");
 check("NONE without healing evidence", healingOutcome(fakeTest(), fakeResult()).outcome, "NONE");
 
 // Failed step: deepest step with an error
