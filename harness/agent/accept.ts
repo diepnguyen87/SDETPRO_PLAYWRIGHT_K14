@@ -11,7 +11,7 @@ import {
     StageFailure,
     TestResultSummary,
     assertTestsPassed,
-    lastCitedTestResult,
+    citedSpecFiles,
     resultFilesSince,
     runCommand,
     testResultFiles,
@@ -19,7 +19,6 @@ import {
 
 const RUN_LOG_DIR = path.join("harness-results", "agent-accept");
 const BRANCH = "main";
-const TEST_DIR = "tests/web";
 const CO_AUTHOR = "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>";
 
 async function git(args: string[]): Promise<string> {
@@ -47,9 +46,7 @@ async function accept(plan: string): Promise<void> {
         await runner.gates(plan);
 
         await runner.stage("re-run the specs of the last cited test result", async () => {
-            const cited = lastCitedTestResult(plan);
-            const specs = [...new Set(cited.summary.tests.map(test => path.join(TEST_DIR, test.file)))].sort();
-            if (specs.length === 0) throw new StageFailure(`${cited.file} lists no tests`);
+            const { specs } = citedSpecFiles(plan);
             const before = testResultFiles();
             await runCommand("yarn", ["harness:run-tests", ...specs]);
             const file = resultFilesSince(before).pop();

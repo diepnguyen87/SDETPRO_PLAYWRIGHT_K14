@@ -27,6 +27,7 @@
     "agent:plan": "tsx harness/agent/plan.ts",
     "agent:implement": "tsx harness/agent/implement.ts",
     "agent:accept": "tsx harness/agent/accept.ts",
+    "agent:execute": "tsx harness/agent/execute.ts",
     "mcp:playwright": "playwright-mcp"
   },
   "dependencies": {

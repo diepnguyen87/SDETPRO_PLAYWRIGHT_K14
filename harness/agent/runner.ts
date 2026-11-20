@@ -120,6 +120,14 @@ export function lastCitedTestResult(planPath: string): { file: string; summary: 
     return { file, summary: JSON.parse(fs.readFileSync(absolute, "utf8")) };
 }
 
+// Spec files of the plan's last cited test result (result files store paths relative to tests/web)
+export function citedSpecFiles(planPath: string): { file: string; specs: string[] } {
+    const cited = lastCitedTestResult(planPath);
+    const specs = [...new Set(cited.summary.tests.map(test => path.join("tests", "web", test.file)))].sort();
+    if (specs.length === 0) throw new StageFailure(`${cited.file} lists no tests`);
+    return { file: cited.file, specs };
+}
+
 export function assertTestsPassed(file: string, summary: TestResultSummary): string {
     if (summary.exitCode !== 0 || summary.failed > 0 || summary.passed === 0) {
         throw new StageFailure(`${file}: exit ${summary.exitCode}, ${summary.passed} passed, ${summary.failed} failed`);

@@ -60,7 +60,7 @@ the plan's specs. Code stays uncommitted until the human sets `Accepted`.
   `Awaiting Human Code Review`; `yarn agent:implement` (`--revise` for `Code Changes Requested`), `yarn agent:accept`
   (requires `Accepted`, re-runs the gates, commits on `main`, no push).
 
-## Slice C — Stage 7 (execute)
+## Slice C — Stage 7 (execute) (done, `harness-c-execute.md`)
 
 Summary reporter (`harness-results/summary.json`), `harness:clean`, Winston timestamps + step logs,
 `/debug-failure` JSON failure report, `yarn agent:execute <topic>`. Self-fix = locator self-healing only.

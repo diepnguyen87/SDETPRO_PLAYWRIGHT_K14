@@ -49,7 +49,7 @@ One detailed plan per sub-slice, approved before implementation (constraint in `
   `harness-results/failures/<run>/<test-slug>.json`: `test`, `project`, `failedStep`, `category`
   (`locator | data | component | app | environment | config`), `evidence[]` (`file`, `excerpt`), `healing` (outcome, patch file/diff),
   `rootCause`, `proposedFix`, `confidence`. `harness/checks/failure-report-check.ts` validates it. Interactive use unchanged (report in chat).
-- **C4 `yarn agent:execute`:** `harness/agent/execute.ts` on `runner.ts`. Stages: clean tree → `harness:clean` → `yarn playwright test
+- **C4 `yarn agent:execute` (done, `harness-c4-agent-execute.md`):** `harness/agent/execute.ts` on `runner.ts`. Stages: clean tree → `harness:clean` → `yarn playwright test
   <specs> --config=playwright.config.web.js --project="Desktop Chromium"` (healing on) → read `summary.json` → healing patches → for each
   failed test up to the cap: `claude -p "/debug-failure …"` (read-only tool list) + `failure-report-check` + "no tracked file changed by
   Claude" → `harness-results/execute/<run>.json` and a console table (test, status, healing, category, report). Exit 0 only when all passed
