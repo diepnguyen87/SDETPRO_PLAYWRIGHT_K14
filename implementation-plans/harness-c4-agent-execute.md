@@ -88,6 +88,27 @@ No behaviour change for `agent:accept`.
 7. `yarn agent:execute --suite smoke` → 6 tests (Login / Register need the SIT credentials from `.env.sit`); records the result; exit 0 if green.
 8. `yarn harness:check-scope implementation-plans/harness-c4-agent-execute.md`.
 
+## Implementation Notes
+
+Deviations:
+- D1: A run that completes all stages but is not clean finishes the runner log with `ok: true` and prints `DONE` plus
+  `RESULT: not clean … (exit 1)`; the first version printed `STOPPED`, which read like a runner failure (`7e8eb2f`). Exit code unchanged.
+
+Checks (2026-11-20):
+- `yarn tsc --noEmit`, `yarn harness:check-arch`, `yarn harness:test`, `check-scope` — passed.
+- Negatives: no input, plan + `--suite`, `--suite foo`, `--spec harness/agent/execute.ts`, `--spec` without file → exit 2 with the usage /
+  reason; REQ-002 (`Implemented`) → stops at "status is Accepted"; uncommitted tracked change → stops at "no modified tracked file".
+- `agent:accept` after the `citedSpecFiles()` move: scratch copy of REQ-004 on a temporary branch → `check-plan` ✓, `Accepted` ✓, stops at the
+  branch stage; `citedSpecFiles(REQ-004)` → `TestCheapComponent` + `TestStandardComponent`.
+- Selection: 7 fake tests (unexpected ×4 not healed, 1 healed, expected, flaky) → debug `a, d, e`, notDebugged `f`.
+- Green plan run: `yarn agent:execute implementation-plans/REQ-004-run-tests-forbid-only.md` → 4 passed, healing `NONE`, no patch, no Claude call,
+  exit 0; `harness-results/execute/2026-11-20T02-29-50-556Z.json` + `.summary.json`.
+- Failure path: temporary untracked `tests/web/_tmp/TmpFailure.spec.ts` → `yarn agent:execute --spec …` → failed, healing `FAILED` (no OpenAI
+  credits), one `/debug-failure` report (15 turns, $0.48) that passed the checker — `component`, confidence 95 — no tracked change, exit 1.
+  Spec deleted.
+- Suite: `yarn agent:execute --suite smoke` → 6 passed (incl. login / register with the SIT credentials), healing `NONE`, exit 0.
+- Pending (Q3): a real `HEALED` run with a healing patch, once OpenAI credits are available.
+
 ## Relevant Files
 
 - harness/agent/execute.ts (new)
