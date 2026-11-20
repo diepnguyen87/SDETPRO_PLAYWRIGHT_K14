@@ -107,7 +107,14 @@ Checks (2026-11-20):
   credits), one `/debug-failure` report (15 turns, $0.48) that passed the checker — `component`, confidence 95 — no tracked change, exit 1.
   Spec deleted.
 - Suite: `yarn agent:execute --suite smoke` → 6 passed (incl. login / register with the SIT credentials), healing `NONE`, exit 0.
-- Pending (Q3): a real `HEALED` run with a healing patch, once OpenAI credits are available.
+- Q3 (2026-11-20, credits added): temporary untracked `models/components/_tmp/TmpBrokenSearchComponent.ts` (selector
+  `input#small-search-terms-v2`) + spec → `yarn agent:execute --spec tests/web/_tmp/TmpHealing.spec.ts` → OpenAI patched the selector to
+  `input#small-searchterms` and the healing rerun passed: summary healing `HEALED`, `sourceChanges` = the component + its `.bak`, both diffed in
+  `healingPatches`, no `/debug-failure` call, exit 1. The harness reported everything correctly. **Finding (self-healing pipeline, not changed
+  here):** the healed parent test still ended `failed` at teardown — `browserContext.close: ENOENT … test-results/.playwright-artifacts-0/traces/….trace`.
+  The healing rerun (`ai/TestCommandBuilder.ts` → `yarn playwright test … --config=playwright.config.web.js`) uses the same output dir
+  `test-results/`, which Playwright empties at the start of every run, so the child deletes the parent's in-progress trace (`trace:
+  'retain-on-failure'` always records). Every healed test is affected. Needs its own requirement (pipeline file). Temporary files deleted.
 
 ## Relevant Files
 
