@@ -1,0 +1,27 @@
+# Code Review: implementation-plans/REQ-005-healing-rerun-output-dir.md
+
+- Verdict: **APPROVE**
+- Model: gpt-5.3-codex
+- Diff base: HEAD + working tree
+- Findings: REQUIRED_FIX 0, RECOMMENDED 0, VERIFICATION 0
+
+## Summary
+
+The change cleanly implements the approved plan and satisfies the requirement scope: the rerun command now uses a config-driven, unique output folder and the self-healing rule doc was updated accordingly. I found no architecture or self-healing rule violations in the modified code, and no hardcoded `test-results` path was introduced in `ai/TestCommandBuilder.ts` or `ai/HealingEngine.ts`. The cited harness test result is present and passing for the planned verification run with healing disabled.
+
+## Findings
+
+None.
+
+## Assumptions
+
+- Manual AC4/E1 healing-on evidence described in the plan's Implementation Notes was executed outside `harness:run-tests` as stated, since only the harness JSON result is provided here.
+- No additional uncommitted tracked source changes beyond the shown diff are part of this review scope.
+
+## Validation Checklist
+
+- yarn tsc --noEmit
+- yarn harness:check-arch ai/TestCommandBuilder.ts config/framework.config.ts
+- grep -n "test-results" ai/TestCommandBuilder.ts ai/HealingEngine.ts && false || true
+- yarn tsx -e 'import TestCommandBuilder from "./ai/TestCommandBuilder.ts"; import { frameworkConfig } from "./config/framework.config.ts"; const m={testName:"@Regression | Test Cheap Component",testFile:"x",browser:"Desktop Chromium",stackTrace:"",url:"",failedLocator:"",timestamp:""} as any; const out=(c:string)=>(/--output="([^"]+)"/.exec(c)?.[1]??""); const a=TestCommandBuilder.build(m), b=TestCommandBuilder.build(m); if(!out(a).startsWith(frameworkConfig.healingRerunOutputFolder+"/")) throw new Error("bad base"); if(out(a)===out(b)) throw new Error("not unique"); console.log("OK");'
+- yarn harness:run-tests tests/web/Day25/TestCheapComponent.spec.ts

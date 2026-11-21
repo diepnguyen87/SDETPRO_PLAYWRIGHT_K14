@@ -1,6 +1,6 @@
 # Implementation Plan: Healing Rerun Uses Its Own Output Folder
 
-Status: Approved
+Status: Accepted
 Requirement: requirements/REQ-005-healing-rerun-output-dir.md
 
 ## Objective
@@ -117,11 +117,50 @@ Review: `implementation-review/REQ-005-healing-rerun-output-dir.plan.md` — ver
 
 ## Implementation Notes
 
+Implemented in an interactive session (Q1). Changed: `config/framework.config.ts` (`healingRerunOutputFolder`), `ai/TestCommandBuilder.ts` (`--output="<base>/<randomUUID()>"` + one-line comment), `.claude/rules/self-healing.md` (step 4).
+
+Deviations:
+- D1: Verification step 4 imports `./ai/TestCommandBuilder.ts` / `./config/framework.config.ts` (and casts the metadata `as any`): with the `.js` specifiers from F2, `yarn tsx -e` fails with `Cannot find module './ai/TestCommandBuilder.js'` (eval runs as CJS, no `.js` → `.ts` mapping). Same check otherwise; it printed `OK`.
+- D2: AC4 broke `TotalComponent.checkoutBtnSel` (`#checkout` → `#checkout-btn`) instead of `BaseItemDetailComponent.addToCartSel`. With `addToCartSel` broken, the AI proposed the right value (`input[id^='add-to-cart-button']`, confidence 95) but the patch was rejected: `Old value not found in component source` — `ComponentFailureCollector` copies the source of the runtime class (`CheapComputerComponent`), while `addToCartSel` is declared in the parent `BaseItemDetailComponent`. Pre-existing limitation of the healing pipeline for inherited locators, not caused by this change (out of scope; worth its own requirement). The file was restored from git.
+- D3: E1 broke `TotalComponent.termOfServiceSel` (`#termsofservice-x`, healed in the parent) and `checkoutBtnSel` (`#checkout-broken`, fails in the child) instead of `addToCartSel` + `checkoutBtnSel`, for the same reason as D2. Both selectors are in a Relevant File.
+
+Gates (after the final change):
+- `yarn tsc --noEmit` — 0 errors.
+- `yarn harness:check-arch` — PASSED; `yarn harness:test` — passed.
+- `yarn harness:check-scope` — FAILED only on `implementation-plans/harness-d-evals.md`, an untracked file of the human that existed before this implementation (not touched); the changed files are all in Relevant Files.
+- `yarn playwright test --list --config=playwright.config.web.js` — 70 tests in 14 files.
+- AC3: `grep -n "test-results" ai/TestCommandBuilder.ts ai/HealingEngine.ts` — no match (exit 1); `grep -n "frameworkConfig.healingRerunOutputFolder" ai/TestCommandBuilder.ts` — line 16 (the `--output` line).
+- AC1 / AC2 / E2 (step 4, D1): `OK`; e.g. `… --config=playwright.config.web.js --output="test-results/healing-rerun/dbbe638c-e37b-498c-9787-0a6f44f45ad4"` and a second call with `…/1231dc33-3dec-42cf-be3f-80f08f9b990f`.
+- AC5: `.claude/rules/self-healing.md` step 4 shows `--output="<frameworkConfig.healingRerunOutputFolder>/<uuid>"` with the reason.
+
+Tests:
+- AC4 (healing on, D2): `yarn playwright test tests/web/Day25/TestCheapComponent.spec.ts --config=playwright.config.web.js --project="Desktop Chromium"` — exit 0, `1 passed (54.6s)`; `Rerunning test: … --output="test-results/healing-rerun/5eea7454-073f-4819-a2ef-213a5041db72"`, `Rerun passed.`, `[HealingEngine] HEALED on attempt 1 | #checkout-btn → #checkout`; no `ENOENT`; `harness-results/summary.json`: `passed`, healing `HEALED`; `test-results/healing-rerun/5eea7454-…/` present. The patch restored the original value; `.bak` deleted.
+- E1 (healing on, D3): same command — exit 1; child failed on `#checkout-broken` → `Rerun failed with exit code 1` → `[HealingEngine] Source restored from backup.` → `Max retries (1) exhausted.`; the parent failed with the original `#termsofservice-x` click timeout, no `ENOENT`; summary healing `FAILED`; `TotalComponent.ts` identical to its broken pre-run content. Restored from git, `.bak` deleted.
+- `yarn harness:run-tests tests/web/Day25/TestCheapComponent.spec.ts` — 1 passed (23.5s, healing off), `harness-results/tests/2026-11-21T03-14-57-464Z.json` (all component files equal to `HEAD` at the end).
+
 ## Human Code Review Notes
 
 ## Code Review Resolution
 
+Review: `implementation-review/REQ-005-healing-rerun-output-dir.code.md` — verdict `APPROVE` (0 findings). No code change.
+
 ## Commit Message
+
+```text
+Implement REQ-005: healing rerun uses its own output folder
+
+- TestCommandBuilder adds --output="<healingRerunOutputFolder>/<uuid>"
+  to the rerun command: the child Playwright run emptied the shared
+  test-results/ at start and deleted the parent's in-progress trace,
+  so every healed test failed at teardown with ENOENT.
+- frameworkConfig.healingRerunOutputFolder = test-results/healing-rerun
+  (still gitignored and removed by harness:clean).
+- .claude/rules/self-healing.md: rerun command with --output.
+
+OpenAI code review: APPROVE, 0 findings. Healed Day25 test passed
+(HEALED, no ENOENT); rerun-failure path FAILED with restore; 1 Day25
+test passed with healing off.
+```
 
 ## Relevant Files
 

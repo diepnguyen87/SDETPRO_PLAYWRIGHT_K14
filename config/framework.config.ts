@@ -11,5 +11,6 @@ export const frameworkConfig = {
     locatorPath_json: "locator.patch.json",
     maxHealingRetries: 1,
     healingTimeoutPerRetryMs: 60_000,
+    healingRerunOutputFolder: "test-results/healing-rerun",
     imageDetail: "high" as const
 };
