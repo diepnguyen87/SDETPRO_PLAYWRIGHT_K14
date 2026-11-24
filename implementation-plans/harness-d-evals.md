@@ -65,8 +65,11 @@ The four scenarios above. The fixture requirement: guest searches a product from
 ## Open Questions
 
 - Q1: Run scenarios in the main working tree (clean tracked tree gate + automatic restore) instead of an isolated git worktree? Plan: main tree.
+  → A: As planned (2026-11-24).
 - Q2: Scenario set as in the table (≈ $2.2 per `--all`)? Plan: these four; an `/implement-plan` scenario later if needed (≈ $2–4 each).
+  → A: As planned (2026-11-24).
 - Q3: `yarn harness:eval` without arguments only lists (cost guard), `--all` or ids run? Plan: yes.
+  → A: As planned (2026-11-24).
 
 ## Verification
 
