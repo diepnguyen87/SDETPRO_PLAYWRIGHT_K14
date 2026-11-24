@@ -81,6 +81,20 @@ The four scenarios above. The fixture requirement: guest searches a product from
 4. `yarn harness:eval --all` (≈ $2.2) → all four pass; `git status` clean afterwards; result file written.
 5. `yarn harness:check-scope implementation-plans/harness-d-evals.md`.
 
+## Verification Results (2026-11-24)
+
+- Step 1: `tsc`, `harness:check-arch`, `harness:test` pass; `harness:check-req` on the fixture — PASSED.
+- Step 2: no argument / `--list` → list only, exit 0; `nope` → exit 2; `--all extra` → exit 2; `--max-turns 0` → exit 2; modified tracked
+  files → "Commit or stash first", exit 1, no scenario run. Fixed before commit: `parseArgs` dropped the first argument when
+  `--max-turns` was absent; the clean-tree gate moved to the start of the run (it was reported as a failed restore).
+- Step 3: `yarn harness:eval debug-locator --max-turns 1` → Claude stopped early, assertions failed, `TotalComponent.ts` restored,
+  `git status` clean.
+- Step 4: `yarn harness:eval --all` → 4/4 passed, `git status` clean, `harness-results/evals/2026-11-24T01-22-45-671Z.json`:
+  `debug-data` 4/4 (8 turns, $0.36), `debug-locator` 5/5 (6 turns, $0.32), `add-test-data` 5/5 (8 turns, $0.25),
+  `write-plan` 4/4 (24 turns, $0.80) — $1.73 in total.
+- Step 5: `harness:check-scope` — PASSED (7 files).
+- Note: `claude -p` prints "no stdin data received in 3s" on stderr when spawned by the runner; harmless (same for `agent:plan`).
+
 ## Relevant Files
 
 - harness/evals/run.ts (new)
