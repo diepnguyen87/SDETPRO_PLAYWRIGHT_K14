@@ -1,0 +1,26 @@
+# Code Review: implementation-plans/REQ-006-heal-inherited-locators.md
+
+- Verdict: **APPROVE**
+- Model: gpt-5.3-codex
+- Diff base: HEAD + working tree
+- Findings: REQUIRED_FIX 0, RECOMMENDED 0, VERIFICATION 0
+
+## Summary
+
+The implementation matches the approved plan and satisfies the requirement scope: selector declaration resolution is now inheritance-aware via `SourceCodeCollector.findDeclaring`, the collector uses it, and the self-healing rules doc is updated accordingly. The change preserves existing architecture boundaries and keeps the self-healing lifecycle intact (including lock/backup/validator flow via `FailureContext.sourceFile`). Acceptance coverage is supported by the implementation notes and the provided passing harness test result for the cited spec with healing disabled. I found no concrete rule violations or required fixes in the submitted diff.
+
+## Findings
+
+None.
+
+## Assumptions
+
+- Implementation Notes accurately reflect execution of the one-off resolver verification script and the manual healing-on run for AC4, since only the harness run JSON is provided as machine-readable evidence.
+- No additional changed/untracked source files outside the provided diff are part of this code review scope.
+
+## Validation Checklist
+
+- yarn tsc --noEmit
+- yarn harness:check-arch ai/SourceCodeCollector.ts ai/collectors/ComponentFailureCollector.ts
+- yarn harness:run-tests tests/web/Day25/TestCheapComponent.spec.ts
+- (Manual AC4 spot-check) Temporarily break `BaseItemDetailComponent.addToCartSel`, run: yarn playwright test tests/web/Day25/TestCheapComponent.spec.ts --config=playwright.config.web.js --project="Desktop Chromium", then confirm healing outcome `HEALED` and patch/.bak target `models/components/BaseItemDetailComponent.ts`.

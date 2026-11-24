@@ -45,7 +45,13 @@ the `isAssertionError()` guard prevents double-routing.
 **`ai/collectors/ComponentFailureCollector.ts`**
 - Calls `FailedLocatorManager.set(selectorStr)` — records the failed locator (do not remove)
 - Creates artifact folder: `artifacts/{browser}/{test_title}/`
-- Copies component source file via `SourceCodeCollector.find(componentClassName)`
+- Copies the source file of the class that declares the failing selector via
+  `SourceCodeCollector.findDeclaring(componentClassName, selectorStr)`:
+  - starts at the runtime class's file and follows `extends <Name>` through `find()` (stops before `Component`)
+  - a class matches when one of its string property initializers equals the selector or, as a
+    `dynamic<Name>` template (each token a wildcard), matches it; the nearest class wins
+  - a class whose file is missing ends the walk; no match → the runtime class's file (as before)
+  - the file it returns is `FailureContext.sourceFile`, used by the validator, lock, backup and patch
 - Takes screenshot scoped to `componentLocator`
 - Reads DOM via `componentLocator.innerHTML()`
 - Writes `metadata.json`

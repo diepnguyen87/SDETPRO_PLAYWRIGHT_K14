@@ -1,6 +1,6 @@
 # Implementation Plan: Self-Healing Patches Locators Declared in a Parent Class
 
-Status: Approved
+Status: Accepted
 Requirement: requirements/REQ-006-heal-inherited-locators.md
 
 ## Objective
@@ -123,9 +123,50 @@ OpenAI plan review: `implementation-review/REQ-006-heal-inherited-locators.plan.
 
 ## Implementation Notes
 
+Implemented in an interactive session (Q1). Changed: `ai/SourceCodeCollector.ts` (`findDeclaring()` + private `matchesSelector()`), `ai/collectors/ComponentFailureCollector.ts` (`await SourceCodeCollector.findDeclaring(componentClassName, selectorStr)` + comment), `.claude/rules/self-healing.md` (Failure Context Collection bullet). `models/components/Component.ts` unchanged.
+
+Deviations:
+- D1: The one-off resolver script lives in the session scratchpad (`…/scratchpad/req-006-check.mts`) instead of `/tmp/req-006-check.mts` (session rule: temporary files go to the scratchpad). Still outside the repo; run with `yarn tsx <path>` from the project root; content as Scenario 1.
+- D2: `findDeclaring()` also ends the walk when a file has no class declaration with the expected name (`break`), same handling as a missing file; not spelled out in the plan, needed to avoid an endless or wrong walk.
+
+Gates (after the final change):
+- `yarn tsc --noEmit` — 0 errors.
+- `yarn harness:check-arch ai/SourceCodeCollector.ts ai/collectors/ComponentFailureCollector.ts` — PASSED; `yarn harness:test` — passed.
+- `yarn harness:check-scope implementation-plans/REQ-006-heal-inherited-locators.md` — PASSED (3 changed files).
+- `yarn playwright test --list --config=playwright.config.web.js` — 70 tests in 14 files.
+- Step 3: `findDeclaring` at `ai/collectors/ComponentFailureCollector.ts:46`; `SourceCodeCollector.find(` no match (exit 1); `git diff --quiet -- models/components/Component.ts` exit 0.
+- AC1–AC3, E1–E3 (step 4, D1): 16 cases `ok`, `OK`, exit 0 — AC1 ×4 → `BaseItemDetailComponent.ts`; AC2 ×3 (`optionLabelSel` with "Slow", `sectionOptionSel` with Processor/1, `allCheckboxSel`) → `ComputerEssentialComponent.ts`; AC3 ×4 → own files (`TotalComponent`, `BillingAddressComponent`, `StandardComputerComponent` `dynamicDropdownSel`, `ShoppingCartPage`); E1 → `CheapComputerComponent.ts`; E2 nearest child / parent-only parent; E3 orphan → own file, unknown class rejects with `Cannot find source file for component: Req006NoSuchComponent`. Probe files removed (`ls models/components/Req006Probe*` finds nothing).
+- AC5: `.claude/rules/self-healing.md` bullet names `SourceCodeCollector.findDeclaring(componentClassName, selectorStr)` with the walk, match, nearest-wins and fallback rules.
+
+Tests:
+- AC4 (healing on, OpenAI): `addToCartSel` → `"input[id^='add-to-cart-btn']"` (local); `yarn harness:clean`; command start 2026-11-23T02:46:50Z; `yarn playwright test tests/web/Day25/TestCheapComponent.spec.ts --config=playwright.config.web.js --project="Desktop Chromium"` — exit 0, `1 passed (54.1s)`; `[HealingEngine] HEALED on attempt 1 | input[id^='add-to-cart-btn'] → input.add-to-cart-button` (confidence 90); rerun child with its own `--output` passed. `harness-results/summary.json`: `run.startedAt` 2026-11-23T02:46:51.188Z, `run.dirtyAtStart` lists `models/components/BaseItemDetailComponent.ts`, test `passed`, healing `HEALED`. `BaseItemDetailComponent.ts.bak` existed and `BaseItemDetailComponent.ts` held `input.add-to-cart-button`; `CheapComputerComponent.ts` unchanged (`git diff --quiet` exit 0); `cmp` of `artifacts/Desktop Chromium/_Regression_Test_Cheap_Component/component.ts` with the `.bak` exit 0. Afterwards restored from git and `.bak` deleted.
+- `yarn harness:run-tests tests/web/Day25/TestCheapComponent.spec.ts` — 1 passed (healing off), `harness-results/tests/2026-11-23T02-46-16-417Z.json` (all component files equal to `HEAD` at the end).
+
 ## Human Code Review Notes
 
 ## Code Review Resolution
+
+Review: `implementation-review/REQ-006-heal-inherited-locators.code.md` — verdict `APPROVE` (0 findings). No code change.
+
+## Commit Message
+
+```text
+Implement REQ-006: heal locators declared in a parent class
+
+- SourceCodeCollector.findDeclaring(): walks the inheritance chain from
+  the runtime class via `extends` (TypeScript parser, loaded lazily)
+  and returns the file of the nearest class whose string field equals
+  the failing selector or matches it as a dynamic<Name> template;
+  falls back to the runtime class's file.
+- ComponentFailureCollector uses it, so component.ts, the validator,
+  lock, backup and patch target the declaring file. Before, a parent
+  class locator always failed with "Old value not found".
+- .claude/rules/self-healing.md: source file resolution.
+
+OpenAI code review: APPROVE, 0 findings. Resolver checks 16/16 OK;
+broken BaseItemDetailComponent.addToCartSel healed (HEALED, passed);
+1 Day25 test passed with healing off.
+```
 
 ## Relevant Files
 

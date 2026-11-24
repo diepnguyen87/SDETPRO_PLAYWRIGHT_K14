@@ -42,8 +42,8 @@ export default class ComponentFailureCollector {
         );
         fs.mkdirSync(folder, { recursive: true });
 
-        // Locate and copy the component source file
-        const sourceFile = SourceCodeCollector.find(componentClassName);
+        // Locate and copy the source file of the class that declares the failing selector
+        const sourceFile = await SourceCodeCollector.findDeclaring(componentClassName, selectorStr);
         fs.copyFileSync(sourceFile, path.join(folder, frameworkConfig.componentName));
 
         // Screenshot scoped to the component locator
