@@ -1,6 +1,6 @@
 # Implementation Plan: Complete Checkout Using Check / Money Order
 
-Status: Implemented
+Status: Accepted
 Requirement: requirements/REQ-002-check-money-order-checkout.md
 
 ## Objective
@@ -150,6 +150,31 @@ Tests: `yarn harness:run-tests` (Desktop Chromium, self-healing disabled), 6 pas
 - `tests/web/Day25/TestRandomCheapComponent.spec.ts` — `@Regression | Test Random Cheap Component` passed (24.0 s) (same).
 - `tests/web/Day25/TestRandomStandardComponent.spec.ts` — `@Regression | Test Random Standard Component` passed (22.8 s) (same).
 - Not run: `tests/real-android/TestStandardComponent.spec.ts` also calls `selectTOSandCheckoutAsGuest()`, but needs `playwright.config.android.js` and a real device, which `harness:run-tests` does not cover.
+
+## Code Review Resolution
+
+Review: `implementation-review/REQ-002-check-money-order-checkout.code.md` — verdict `APPROVE` (0 findings). No code change.
+
+Closed on 2026-11-24: implemented and committed in `147c3c0` (before `/revise-code` and `agent:accept` existed, harness B4), so the
+plan stayed `Implemented`. Re-check on current `main`: `yarn harness:run-tests` on the same four Day25 specs — 6 passed, 0 failed
+(`harness-results/tests/2026-11-24T02-15-14-906Z.json`). Status set to `Accepted` without `agent:accept` (nothing left to commit).
+
+## Commit Message
+
+```text
+Add the Check / Money Order guest checkout test (REQ-002)
+
+- OrderTestFlow.selectCheckMoneyOrderPaymentMethod(): asserts the Check /
+  Money Order instruction on the payment information step, continues and
+  waits for order review.
+- selectTOSandCheckoutAsGuest() asserts the /onepagecheckout URL.
+- PaymentInformationComponent.paymentInstruction(), role-based;
+  ConfirmOrderComponent.waitForConfirmStep() through withHealing().
+- Instruction text in test-data/sit/checkout/PaymentInformationData.json,
+  registered as paymentInformation.
+
+Implemented with /implement-plan; gates and 6 Day25 checkout tests passed.
+```
 
 ## Relevant Files
 
