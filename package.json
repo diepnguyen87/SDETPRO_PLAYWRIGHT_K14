@@ -24,6 +24,7 @@
     "harness:test": "tsx harness/checks/run-fixtures.ts && tsx harness/reporters/summary-reporter.check.ts && tsx harness/checks/failure-report-check.check.ts",
     "harness:run-tests": "tsx harness/agent/run-tests.ts",
     "harness:clean": "tsx harness/agent/clean.ts",
+    "harness:eval": "tsx harness/evals/run.ts",
     "agent:plan": "tsx harness/agent/plan.ts",
     "agent:implement": "tsx harness/agent/implement.ts",
     "agent:accept": "tsx harness/agent/accept.ts",

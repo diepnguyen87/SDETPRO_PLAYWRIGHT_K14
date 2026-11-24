@@ -65,7 +65,7 @@ the plan's specs. Code stays uncommitted until the human sets `Accepted`.
 Summary reporter (`harness-results/summary.json`), `harness:clean`, Winston timestamps + step logs,
 `/debug-failure` JSON failure report, `yarn agent:execute <topic>`. Self-fix = locator self-healing only.
 
-## Slice D — Evals
+## Slice D — Evals (done, `harness-d-evals.md`)
 
 `harness/evals/` scenarios (skill-trial B1/B2, add-test-data, sample requirement → plan), `yarn harness:eval`.
 

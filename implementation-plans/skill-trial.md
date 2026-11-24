@@ -27,6 +27,8 @@ that consumes the new data. `test-data/uat/checkout/OrderCompletedData.json` is 
 
 ## Part B — `/debug-failure` on a deliberately broken test
 
+Superseded by the repeatable evals `yarn harness:eval debug-data debug-locator` (`harness/evals/scenarios.ts`, harness Slice D).
+
 ### Preparation (every scenario)
 Delete stale inputs so the skill cannot read an older run:
 - `artifacts/Desktop Chromium/_Smoke_Test_Standard_Component/`
