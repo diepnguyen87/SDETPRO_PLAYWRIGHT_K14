@@ -19,3 +19,4 @@ artifacts
 .claude/settings.local.json
 .yarn/install-state.gz
 .pnp.*
+.qdrant-data

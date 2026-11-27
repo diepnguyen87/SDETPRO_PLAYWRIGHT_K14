@@ -27,3 +27,4 @@ artifacts
 !.yarn/sdks
 !.yarn/versions
 harness-results
+.qdrant-data

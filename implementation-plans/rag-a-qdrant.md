@@ -132,3 +132,24 @@ RAG is a standalone CLI like `ai/review/review.ts`: it is never wired into `Heal
 - .claude/rules/github-actions.md
 - knowledge-base/requirements/
 - config/pages.json
+
+## Verification Results (2026-11-27)
+
+- Step 1: `@qdrant/js-client-rest@1.20.0` added (with `undici`, `@qdrant/openapi-typescript-fetch`); `tsc`, `harness:check-arch`,
+  `harness:test` pass; `--list` → 70 tests in 14 files.
+- Step 2: `docker compose config --services` → `playwright`; with `--profile rag` → `playwright`, `qdrant`. The obsolete `version: "3.9"`
+  line was removed from `docker-compose.yml` (human request; Compose v2 ignores it and warned on every call, no workflow uses Compose).
+  Server image `qdrant/qdrant:v1.20.2` (latest 1.20 tag, Q1).
+- Step 3: Qdrant stopped → start hint, exit 1; `rag:search ""` / `--type foo` / `rag:ingest --bad` → usage, exit 2.
+- Step 4: first ingest → 75 files added, 322 chunks (66 requirement, 116 component, 65 page, 60 flow, 14 spec, 1 page-registry; longest
+  2 591 chars); second run → 75 unchanged, 0 embedded; one requirement changed → only that file `updated` (11 chunks), restored → `updated` again.
+- Step 5:
+  - "pay by check or money order at checkout" → top 5 all REQ-002 sections; with `--type component` → `PaymentMethodComponent.selectCheckMoneyOrder`
+    first, `--type flow` → `OrderTestFlow.selectCheckMoneyOrderPaymentMethod` first.
+  - "remove items from the shopping cart" → top 5 all REQ-001 sections (11 of top 12 are requirements); `--type page` →
+    `ShoppingCartPage.removeAllItems`, `--type flow` → the `OrderTestFlow` remove methods, `--type spec` → the three `TestRemoveCartItems` tests.
+  - `--type spec "credit card checkout"` → only spec chunks, `Test Credit Card Checkout` first — passed.
+  - Finding: in an unfiltered search, natural-language requirement sections outrank code chunks (each section also carries the requirement
+    title), so the "REQ + component/flow in one top 5" expectation is not met. Per-type retrieval finds the right code every time, so phase B
+    retrieves per type (requirements, specs, flows / pages / components) instead of one mixed query.
+- Step 6: the ingest list holds no file under `.env*`, `.auth/`, `test-data/`, `ai/`, `harness/`, Day19–24, and no `_TEMPLATE.md`.

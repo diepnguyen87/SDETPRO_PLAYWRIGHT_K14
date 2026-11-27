@@ -145,6 +145,17 @@ Standalone CLI, **not** part of self-healing — never wire it into `HealingEngi
 
 ---
 
+## RAG (`ai/rag/`)
+
+Standalone CLI, **not** part of self-healing or the harness runners. Design: `implementation-plans/rag-a-qdrant.md`.
+
+- Start Qdrant with `docker compose --profile rag up -d qdrant` (not started by `docker compose up` or CI).
+- `yarn rag:ingest [--recreate]` indexes changed files only; `yarn rag:search "<query>" [--top <n>] [--type <type>]` checks retrieval.
+- Sources are the allowlist in `ai/rag/DocumentLoader.ts` only (`knowledge-base/`, Day25 specs, Pages, Components, TestFlows, `config/pages.json`); never `.env*`, `.auth/` or `test-data/`.
+- Keys from `.env`: `QDRANT_URL`, `OPEN_EMBEDDING_MODEL`, `OPEN_API_KEY`. OpenAI calls go through `ai/shared/aiClient.ts`.
+
+---
+
 ## Code Modification
 
 Without approval, do not: delete/rename tests, Pages or Components; change dependency versions; add npm dependencies; rewrite or refactor surrounding code. Don't add comments, docstrings or types to code you didn't change.
