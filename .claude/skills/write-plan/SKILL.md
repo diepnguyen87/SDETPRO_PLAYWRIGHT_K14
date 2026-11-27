@@ -1,12 +1,12 @@
 ---
 name: write-plan
-description: Turn a requirement in requirements/REQ-<nnn>-<slug>.md into an implementation plan in implementation-plans/ following the plan template, without editing code. Use when asked to analyse a requirement or write/propose an implementation plan for it.
+description: Turn a requirement in knowledge-base/requirements/REQ-<nnn>-<slug>.md into an implementation plan in implementation-plans/ following the plan template, without editing code. Use when asked to analyse a requirement or write/propose an implementation plan for it.
 allowed-tools: Read, Grep, Glob, Edit(implementation-plans/**), Bash(yarn harness:check-req *), Bash(yarn harness:check-plan *), Bash(git log:*), mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_close
 ---
 
 # Write an Implementation Plan from a Requirement
 
-Input: a requirement path, e.g. `requirements/REQ-001-remove-cart-items.md`.
+Input: a requirement path, e.g. `knowledge-base/requirements/REQ-001-remove-cart-items.md`.
 Output: `implementation-plans/REQ-<nnn>-<slug>.md` (same base name as the requirement), `Status: Draft`.
 
 This skill may run headless (`claude -p`). **Never stop to ask the user.** Record anything you cannot decide from the requirement or the code as an Open Question.
@@ -38,7 +38,7 @@ Only with the Playwright MCP, only `browser_navigate` + `browser_snapshot` on pa
 
 ## 6. Write the plan
 Copy `implementation-plans/_TEMPLATE.md` to `implementation-plans/REQ-<nnn>-<slug>.md` and fill it:
-- `Status: Draft`, `Requirement: requirements/REQ-<nnn>-<slug>.md`.
+- `Status: Draft`, `Requirement: knowledge-base/requirements/REQ-<nnn>-<slug>.md`.
 - One Traceability row per `AC<n>` / `E<n>`.
 - *Reuse* lists what is used unchanged; *Changes by Layer* lists every new or changed class/method with its file.
 - *Verification* gives the exact commands (typecheck, `--list`, the specs to run, project).

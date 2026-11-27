@@ -7,7 +7,7 @@
 - Author: Claude
 
 ## Goal
-Eval fixture for `yarn harness:eval write-plan` (copied to `requirements/` for the scenario and deleted afterwards; never implemented). A guest uses the search box in the header to find a product by name and sees the matching products on the search results page, so they can open a product without browsing the categories.
+Eval fixture for `yarn harness:eval write-plan` (copied to `knowledge-base/requirements/` for the scenario and deleted afterwards; never implemented). A guest uses the search box in the header to find a product by name and sees the matching products on the search results page, so they can open a product without browsing the categories.
 
 ## Scope
 ### In Scope

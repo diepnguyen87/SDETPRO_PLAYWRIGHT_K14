@@ -163,7 +163,7 @@ async function newDataFiles(context: ScenarioContext): Promise<string[]> {
 }
 
 const REQUIREMENT_FIXTURE = "harness/evals/fixtures/REQ-900-eval-product-search.md";
-const REQUIREMENT = "requirements/REQ-900-eval-product-search.md";
+const REQUIREMENT = "knowledge-base/requirements/REQ-900-eval-product-search.md";
 const PLAN = "implementation-plans/REQ-900-eval-product-search.md";
 
 export const SCENARIOS: Scenario[] = [

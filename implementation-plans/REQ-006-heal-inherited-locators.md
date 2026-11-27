@@ -1,7 +1,7 @@
 # Implementation Plan: Self-Healing Patches Locators Declared in a Parent Class
 
 Status: Accepted
-Requirement: requirements/REQ-006-heal-inherited-locators.md
+Requirement: knowledge-base/requirements/REQ-006-heal-inherited-locators.md
 
 ## Objective
 
@@ -170,7 +170,7 @@ broken BaseItemDetailComponent.addToCartSel healed (HEALED, passed);
 
 ## Relevant Files
 
-- requirements/REQ-006-heal-inherited-locators.md
+- knowledge-base/requirements/REQ-006-heal-inherited-locators.md
 - ai/SourceCodeCollector.ts
 - ai/collectors/ComponentFailureCollector.ts
 - .claude/rules/self-healing.md

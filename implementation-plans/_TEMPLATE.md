@@ -1,7 +1,7 @@
 # Implementation Plan: <Title>
 
 Status: Draft
-Requirement: requirements/REQ-<nnn>-<slug>.md
+Requirement: knowledge-base/requirements/REQ-<nnn>-<slug>.md
 
 <!--
 Status lifecycle (only the human sets Approved, Changes Requested, Code Changes Requested and Accepted):

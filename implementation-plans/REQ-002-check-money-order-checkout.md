@@ -1,7 +1,7 @@
 # Implementation Plan: Complete Checkout Using Check / Money Order
 
 Status: Accepted
-Requirement: requirements/REQ-002-check-money-order-checkout.md
+Requirement: knowledge-base/requirements/REQ-002-check-money-order-checkout.md
 
 ## Objective
 
@@ -178,7 +178,7 @@ Implemented with /implement-plan; gates and 6 Day25 checkout tests passed.
 
 ## Relevant Files
 
-- requirements/REQ-002-check-money-order-checkout.md
+- knowledge-base/requirements/REQ-002-check-money-order-checkout.md
 - tests/web/Day25/TestStandardComponent.spec.ts
 - tests/fixtures/base.ts
 - constant/PaymentMethod.ts

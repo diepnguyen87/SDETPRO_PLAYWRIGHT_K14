@@ -1,7 +1,7 @@
 # Implementation Plan: Architecture Check Catches Locator List Reads Outside withHealing()
 
 Status: Accepted
-Requirement: requirements/REQ-003-arch-check-locator-list-read.md
+Requirement: knowledge-base/requirements/REQ-003-arch-check-locator-list-read.md
 
 ## Objective
 

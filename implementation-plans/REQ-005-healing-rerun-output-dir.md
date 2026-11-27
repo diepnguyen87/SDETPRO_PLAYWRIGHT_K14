@@ -1,7 +1,7 @@
 # Implementation Plan: Healing Rerun Uses Its Own Output Folder
 
 Status: Accepted
-Requirement: requirements/REQ-005-healing-rerun-output-dir.md
+Requirement: knowledge-base/requirements/REQ-005-healing-rerun-output-dir.md
 
 ## Objective
 
@@ -164,7 +164,7 @@ test passed with healing off.
 
 ## Relevant Files
 
-- requirements/REQ-005-healing-rerun-output-dir.md
+- knowledge-base/requirements/REQ-005-healing-rerun-output-dir.md
 - ai/TestCommandBuilder.ts
 - config/framework.config.ts
 - .claude/rules/self-healing.md

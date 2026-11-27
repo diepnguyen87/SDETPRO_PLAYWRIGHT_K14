@@ -1,5 +1,5 @@
 // Harness runner for pipeline stages 1–3: requirement → plan → OpenAI review → revision → human review.
-//   yarn agent:plan requirements/REQ-<nnn>-<slug>.md
+//   yarn agent:plan knowledge-base/requirements/REQ-<nnn>-<slug>.md
 //   yarn agent:plan --revise implementation-plans/REQ-<nnn>-<slug>.md   (after Status: Changes Requested)
 import fs from "node:fs";
 import path from "node:path";
@@ -81,7 +81,7 @@ const args = process.argv.slice(2);
 const target = args.find(arg => !arg.startsWith("--"));
 
 if (!target || !fs.existsSync(path.resolve(PROJECT_ROOT, target))) {
-    console.error("Usage: yarn agent:plan requirements/REQ-<nnn>-<slug>.md | --revise implementation-plans/REQ-<nnn>-<slug>.md");
+    console.error("Usage: yarn agent:plan knowledge-base/requirements/REQ-<nnn>-<slug>.md | --revise implementation-plans/REQ-<nnn>-<slug>.md");
     process.exitCode = 2;
 } else if (args.includes("--revise")) {
     void reviseRun(path.relative(PROJECT_ROOT, path.resolve(PROJECT_ROOT, target)));

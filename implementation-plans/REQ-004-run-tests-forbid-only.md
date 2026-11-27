@@ -1,7 +1,7 @@
 # Implementation Plan: Agent Test Runs Fail on test.only
 
 Status: Accepted
-Requirement: requirements/REQ-004-run-tests-forbid-only.md
+Requirement: knowledge-base/requirements/REQ-004-run-tests-forbid-only.md
 
 ## Objective
 

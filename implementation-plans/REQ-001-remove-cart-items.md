@@ -1,7 +1,7 @@
 # Implementation Plan: Remove One or Multiple Items from the Shopping Cart
 
 Status: Accepted
-Requirement: requirements/REQ-001-remove-cart-items.md
+Requirement: knowledge-base/requirements/REQ-001-remove-cart-items.md
 
 ## Objective
 
@@ -190,7 +190,7 @@ Tests: 10/10 passed (harness-results/tests/2026-11-17T09-52-29-786Z.json, self-h
 
 ## Relevant Files
 
-- requirements/REQ-001-remove-cart-items.md
+- knowledge-base/requirements/REQ-001-remove-cart-items.md
 - tests/web/Day25/TestStandardComponent.spec.ts
 - tests/web/Day25/TestComponentWithLogin.spec.ts
 - tests/web/Day25/TestRemoveCartItems.spec.ts (new)

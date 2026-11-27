@@ -102,7 +102,7 @@ Design: `implementation-plans/agent-harness.md`.
 
 ### Contracts
 
-- **Requirement:** `requirements/REQ-<nnn>-<slug>.md` per `_TEMPLATE.md`; criteria `- [ ] AC<n>: ...`, errors `- E<n>: ...`, no secrets. Check: `yarn harness:check-req <file>`.
+- **Requirement:** `knowledge-base/requirements/REQ-<nnn>-<slug>.md` per `_TEMPLATE.md`; criteria `- [ ] AC<n>: ...`, errors `- E<n>: ...`, no secrets. Check: `yarn harness:check-req <file>`.
 - **Plan:** per `implementation-plans/_TEMPLATE.md` — `Status:` + `Requirement:` lines, a traceability row per `AC<n>`/`E<n>` (or `Not automated: <reason>`), `## Review Resolution`, `## Relevant Files` (new files marked `(new)`). Check: `yarn harness:check-plan <file>` (plans without `Status:`/`Requirement:` are skipped).
 
 ### Status lifecycle

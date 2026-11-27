@@ -126,7 +126,7 @@ export function checkPlan(filePath: string): Issue[] | null {
     const requirementPath = requirementLine ? path.resolve(PROJECT_ROOT, requirementLine[1]) : "";
     let requirementIds: string[] = [];
     if (!requirementLine) {
-        add(`Missing "Requirement: requirements/REQ-<nnn>-<slug>.md" line under the title`);
+        add(`Missing "Requirement: knowledge-base/requirements/REQ-<nnn>-<slug>.md" line under the title`);
     } else if (!fs.existsSync(requirementPath)) {
         add(`Requirement file not found: ${requirementLine[1]}`);
     } else {
