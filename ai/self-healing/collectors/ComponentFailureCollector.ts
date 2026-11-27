@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
 import { Locator, Page, TestInfo } from "@playwright/test";
-import { FailedLocatorManager } from "../../models/pages/FailedLocatorManager.js";
+import { FailedLocatorManager } from "../../../models/pages/FailedLocatorManager.js";
 import SourceCodeCollector from "../SourceCodeCollector.js";
-import { frameworkConfig } from "../../config/framework.config.js";
-import { FailureContext } from "../../models/ai/FailureContext.js";
+import { frameworkConfig } from "../../../config/framework.config.js";
+import { FailureContext } from "../../../models/ai/FailureContext.js";
 import { Metadata } from "../Metadata.js";
 
 export interface ComponentCollectorParams {

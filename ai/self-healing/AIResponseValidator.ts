@@ -1,5 +1,5 @@
 import path from "path";
-import { FailureAnalysis, PatchType } from "../models/ai/AIAnalysis.js";
+import { FailureAnalysis, PatchType } from "../../models/ai/AIAnalysis.js";
 import fs from 'fs';
 
 export default class AIResponseValidator {

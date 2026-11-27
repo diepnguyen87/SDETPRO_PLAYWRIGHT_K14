@@ -1,6 +1,7 @@
 ---
 paths:
-  - "ai/**"
+  - "ai/self-healing/**"
+  - "ai/shared/**"
   - "models/ai/**"
   - "models/components/Component.ts"
   - "models/pages/BasePage.ts"
@@ -42,7 +43,7 @@ the `isAssertionError()` guard prevents double-routing.
 
 ### Failure Context Collection
 
-**`ai/collectors/ComponentFailureCollector.ts`**
+**`ai/self-healing/collectors/ComponentFailureCollector.ts`**
 - Calls `FailedLocatorManager.set(selectorStr)` — records the failed locator (do not remove)
 - Creates artifact folder: `artifacts/{browser}/{test_title}/`
 - Copies the source file of the class that declares the failing selector via
@@ -57,7 +58,7 @@ the `isAssertionError()` guard prevents double-routing.
 - Writes `metadata.json`
 - Returns `FailureContext` with `failureSource: "ACTION"`
 
-**`ai/collectors/AssertionFailureCollector.ts`**
+**`ai/self-healing/collectors/AssertionFailureCollector.ts`**
 - Takes full-page screenshot (`page.screenshot({ fullPage: true })`)
 - Reads full DOM via `page.content()`
 - Uses `StackTraceParser` to find the source class from the error stack trace.
@@ -71,7 +72,7 @@ the `isAssertionError()` guard prevents double-routing.
 
 ### HealingEngine Lifecycle
 
-`HealingEngine.handle(context, testInfo)` in `ai/HealingEngine.ts` owns the full healing
+`HealingEngine.handle(context, testInfo)` in `ai/self-healing/HealingEngine.ts` owns the full healing
 workflow. Neither `Component.ts` nor `base.ts` contains any healing logic beyond calling
 this method.
 
@@ -183,7 +184,7 @@ retryCount:           number
   to `Component.ts`, `base.ts`, or any other class.
 - `AIResponseValidator` gates on `patchConfidence ≥ 80` — do not lower this threshold.
 - Do not change `OPEN_ANALYSIS_MODEL` in `.env` (currently `gpt-5-mini`) or the system prompt in
-  `ai/prompts/FailureAnalysisPrompt.ts` without explicit instruction.
+  `ai/self-healing/prompts/FailureAnalysisPrompt.ts` without explicit instruction.
 - All artifact folder and file names must come from `config/framework.config.ts` — never
   hardcode paths.
 - Artifact collection happens **before** any healing attempt — do not reorder this sequence.

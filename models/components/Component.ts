@@ -1,7 +1,7 @@
 import { Locator, Page, TestInfo } from "@playwright/test";
-import SelfHealingSuccess from "../../ai/SelfHealingSuccess.js";
-import HealingEngine from "../../ai/HealingEngine.js";
-import ComponentFailureCollector from "../../ai/collectors/ComponentFailureCollector.js";
+import SelfHealingSuccess from "../../ai/self-healing/SelfHealingSuccess.js";
+import HealingEngine from "../../ai/self-healing/HealingEngine.js";
+import ComponentFailureCollector from "../../ai/self-healing/collectors/ComponentFailureCollector.js";
 
 export type ComponentConstructor<T extends Component> = new (component: Locator) => T
 export default class Component {

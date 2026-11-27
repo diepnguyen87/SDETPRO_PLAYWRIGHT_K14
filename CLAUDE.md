@@ -92,7 +92,7 @@ Every test asserts a meaningful outcome with web-first assertions. No action-onl
 
 ## AI Self-Healing — Critical
 
-Core of the framework — do not remove, bypass or restructure it. All CSS/XPath goes through `withHealing()`. Before touching `ai/`, `models/ai/`, `tests/fixtures/`, `Component.ts`, `BasePage.ts`, `FailedLocatorManager.ts` or `config/framework.config.ts`, read `.claude/rules/self-healing.md`.
+Core of the framework — do not remove, bypass or restructure it. All CSS/XPath goes through `withHealing()`. Before touching `ai/self-healing/`, `ai/shared/`, `models/ai/`, `tests/fixtures/`, `Component.ts`, `BasePage.ts`, `FailedLocatorManager.ts` or `config/framework.config.ts`, read `.claude/rules/self-healing.md`.
 
 ---
 
@@ -135,11 +135,11 @@ Gates = `tsc`, `check-arch`, `check-scope`, `--list`, last cited test passed. Lo
 
 Hooks: PostToolUse runs `tsc` + `arch-check` on each edited `.ts`. PreToolUse (`.claude/hooks/guard.mjs`) blocks `.env*` / `.auth/` access and asks before editing self-healing files.
 
-### AI Review (`ai/review.ts`)
+### AI Review (`ai/review/review.ts`)
 
 Standalone CLI, **not** part of self-healing — never wire it into `HealingEngine`, `Component` or fixtures. Model/key from `.env` (`OPEN_REVIEW_MODEL`, `OPEN_API_KEY`).
 
-- **Plan mode:** `yarn ai:review implementation-plans/<topic>.md [--dry-run]`. Sends the plan, `CLAUDE.md`, matching `.claude/rules/` file, the requirement and Relevant Files. Human `→ A:` answers to Open Questions are binding. Output `implementation-review/<plan>.plan.json|md`: `verdict` + findings `F<n>` (schema `ai/ReviewSchema.ts`); answer each as `- F<n> Accepted|Rejected: ...` in Review Resolution.
+- **Plan mode:** `yarn ai:review implementation-plans/<topic>.md [--dry-run]`. Sends the plan, `CLAUDE.md`, matching `.claude/rules/` file, the requirement and Relevant Files. Human `→ A:` answers to Open Questions are binding. Output `implementation-review/<plan>.plan.json|md`: `verdict` + findings `F<n>` (schema `ai/review/ReviewSchema.ts`); answer each as `- F<n> Accepted|Rejected: ...` in Review Resolution.
 - **Code mode:** `yarn ai:review <plan> --mode code [--base <rev>|<from>..<to>]` on a `Status: Implemented` plan. Sends the diff, changed files and the cited test result (fails on empty diff / missing result). Findings `C<n>` → `implementation-review/<plan>.code.json|md`; answer in `## Code Review Resolution`.
 - It never edits the plan or its `Status:` — the runners do.
 

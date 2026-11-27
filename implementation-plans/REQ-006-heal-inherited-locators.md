@@ -171,12 +171,12 @@ broken BaseItemDetailComponent.addToCartSel healed (HEALED, passed);
 ## Relevant Files
 
 - knowledge-base/requirements/REQ-006-heal-inherited-locators.md
-- ai/SourceCodeCollector.ts
-- ai/collectors/ComponentFailureCollector.ts
+- ai/self-healing/SourceCodeCollector.ts
+- ai/self-healing/collectors/ComponentFailureCollector.ts
 - .claude/rules/self-healing.md
 - models/components/Component.ts
-- ai/AIResponseValidator.ts
-- ai/HealingEngine.ts
+- ai/self-healing/AIResponseValidator.ts
+- ai/self-healing/HealingEngine.ts
 - models/ai/FailureContext.ts
 - models/components/BaseItemDetailComponent.ts
 - models/components/computer/ComputerEssentialComponent.ts

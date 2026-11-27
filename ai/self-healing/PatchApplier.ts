@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { frameworkConfig } from "../config/framework.config.js";
-import { LocatorPatch } from "../models/ai/LocatorPatch.js";
-import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
+import { frameworkConfig } from "../../config/framework.config.js";
+import { LocatorPatch } from "../../models/ai/LocatorPatch.js";
+import { FailureAnalysis } from "../../models/ai/AIAnalysis.js";
 
 export default class PatchApplier {
 

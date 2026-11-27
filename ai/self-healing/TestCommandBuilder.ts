@@ -1,7 +1,7 @@
 import path from "path";
 import { randomUUID } from "node:crypto";
 import { Metadata } from "./Metadata.js";
-import { frameworkConfig } from "../config/framework.config.js";
+import { frameworkConfig } from "../../config/framework.config.js";
 
 export default class TestCommandBuilder {
 

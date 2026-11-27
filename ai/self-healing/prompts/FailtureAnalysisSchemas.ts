@@ -1,4 +1,4 @@
-import { FailureAnalysis, PatchType, RootCauseType } from "../../models/ai/AIAnalysis.js";
+import { FailureAnalysis, PatchType, RootCauseType } from "../../../models/ai/AIAnalysis.js";
 
 /**
  * Output shape shown to the AI, derived from FailureAnalysis.

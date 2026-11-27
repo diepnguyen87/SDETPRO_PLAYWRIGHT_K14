@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import { Page, TestInfo } from "@playwright/test";
 import StackTraceParser from "../StackTraceParser.js";
-import { frameworkConfig } from "../../config/framework.config.js";
-import { FailureContext } from "../../models/ai/FailureContext.js";
+import { frameworkConfig } from "../../../config/framework.config.js";
+import { FailureContext } from "../../../models/ai/FailureContext.js";
 import { Metadata } from "../Metadata.js";
 
 export default class AssertionFailureCollector {

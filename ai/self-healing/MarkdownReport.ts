@@ -1,4 +1,4 @@
-import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
+import { FailureAnalysis } from "../../models/ai/AIAnalysis.js";
 
 export default class MarkdownReport {
 

@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
 import { TestInfo } from "@playwright/test";
-import { FailureContext } from "../models/ai/FailureContext.js";
-import { HealingResult } from "../models/ai/HealingResult.js";
-import { FailureAnalysis, PatchType } from "../models/ai/AIAnalysis.js";
+import { FailureContext } from "../../models/ai/FailureContext.js";
+import { HealingResult } from "../../models/ai/HealingResult.js";
+import { FailureAnalysis, PatchType } from "../../models/ai/AIAnalysis.js";
 import FailureAnalyzer from "./FailureAnalyzer.js";
 import AIResponseValidator from "./AIResponseValidator.js";
 import BackupManager from "./BackupManager.js";
@@ -12,7 +12,7 @@ import PatchVerifier from "./PatchVerifier.js";
 import TestCommandBuilder from "./TestCommandBuilder.js";
 import TestRerunner from "./TestRerunner.js";
 import HealingLock from "./HealingLock.js";
-import { frameworkConfig } from "../config/framework.config.js";
+import { frameworkConfig } from "../../config/framework.config.js";
 import { Metadata } from "./Metadata.js";
 
 export default class HealingEngine {

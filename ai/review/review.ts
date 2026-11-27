@@ -37,7 +37,7 @@ const TEST_RESULTS_REFERENCE = /harness-results\/tests\/[\w.-]+\.json/g;
 const RULE_FILES: Array<{ file: string; scope: RegExp }> = [
     {
         file: ".claude/rules/self-healing.md",
-        scope: /^(ai\/|models\/ai\/|tests\/fixtures\/|models\/components\/Component\.ts$|models\/pages\/BasePage\.ts$|models\/pages\/FailedLocatorManager\.ts$|config\/framework\.config\.ts$)/,
+        scope: /^(ai\/self-healing\/|ai\/shared\/|models\/ai\/|tests\/fixtures\/|models\/components\/Component\.ts$|models\/pages\/BasePage\.ts$|models\/pages\/FailedLocatorManager\.ts$|config\/framework\.config\.ts$)/,
     },
     {
         file: ".claude/rules/github-actions.md",

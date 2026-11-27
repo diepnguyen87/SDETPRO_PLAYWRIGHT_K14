@@ -1,4 +1,4 @@
-// Structured output of the standalone plan and code reviews (ai/review.ts). Not part of the self-healing pipeline.
+// Structured output of the standalone plan and code reviews (ai/review/review.ts). Not part of the self-healing pipeline.
 
 export const VERDICTS = ["APPROVE", "APPROVE_WITH_CHANGES", "REJECT"] as const;
 export const FINDING_TYPES = ["REQUIRED_FIX", "RECOMMENDED", "VERIFICATION"] as const;

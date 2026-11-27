@@ -1,9 +1,9 @@
 import "dotenv/config";
 import fs from "fs";
 import path from "path";
-import { client } from "./aiClient.js";
-import { frameworkConfig } from "../config/framework.config.js";
-import { FailureAnalysis } from "../models/ai/AIAnalysis.js";
+import { client } from "../shared/aiClient.js";
+import { frameworkConfig } from "../../config/framework.config.js";
+import { FailureAnalysis } from "../../models/ai/AIAnalysis.js";
 import { Metadata } from "./Metadata.js";
 import { buildPrompt } from "./promptBuilder.js";
 import { FAILURE_ANALYSIS_PROMPT as FAILURE_ANALYSIS_PROMPT } from "./prompts/FailureAnalysisPrompt.js";

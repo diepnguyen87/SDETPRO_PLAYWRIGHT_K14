@@ -12,7 +12,7 @@ const projectDir = process.env.CLAUDE_PROJECT_DIR ?? input.cwd ?? process.cwd();
 const SECRET_PATH = /(^|\/)(\.env(\.[\w-]+)?|\.auth)(\/|$)/;
 // A shell word naming a .env file or the .auth folder (process.env / dotenv do not match)
 const SECRET_IN_COMMAND = /(^|[\s'"=<>|;&(/])(\.env(\.[\w-]+)?|\.auth)(?=$|[\s'"/;&|)<>])/;
-const PIPELINE_PATH = /^(ai\/|models\/ai\/|tests\/fixtures\/|models\/components\/Component\.ts$|models\/pages\/BasePage\.ts$|models\/pages\/FailedLocatorManager\.ts$|config\/framework\.config\.ts$)/;
+const PIPELINE_PATH = /^(ai\/self-healing\/|ai\/shared\/|models\/ai\/|tests\/fixtures\/|models\/components\/Component\.ts$|models\/pages\/BasePage\.ts$|models\/pages\/FailedLocatorManager\.ts$|config\/framework\.config\.ts$)/;
 
 function decide(decision, reason) {
     process.stdout.write(JSON.stringify({

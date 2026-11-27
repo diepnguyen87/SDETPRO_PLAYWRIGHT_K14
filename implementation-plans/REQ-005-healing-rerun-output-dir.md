@@ -165,12 +165,12 @@ test passed with healing off.
 ## Relevant Files
 
 - knowledge-base/requirements/REQ-005-healing-rerun-output-dir.md
-- ai/TestCommandBuilder.ts
+- ai/self-healing/TestCommandBuilder.ts
 - config/framework.config.ts
 - .claude/rules/self-healing.md
-- ai/HealingEngine.ts
-- ai/TestRerunner.ts
-- ai/Metadata.ts
+- ai/self-healing/HealingEngine.ts
+- ai/self-healing/TestRerunner.ts
+- ai/self-healing/Metadata.ts
 - models/components/BaseItemDetailComponent.ts
 - models/components/cart/TotalComponent.ts
 - tests/web/Day25/TestCheapComponent.spec.ts

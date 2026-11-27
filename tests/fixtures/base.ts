@@ -1,7 +1,7 @@
 import { APIRequestContext, test as base, Browser, BrowserContext, expect, Page, TestInfo } from '@playwright/test';
-import SelfHealingSuccess from '../../ai/SelfHealingSuccess.js';
-import AssertionFailureCollector from '../../ai/collectors/AssertionFailureCollector.js';
-import HealingEngine from '../../ai/HealingEngine.js';
+import SelfHealingSuccess from '../../ai/self-healing/SelfHealingSuccess.js';
+import AssertionFailureCollector from '../../ai/self-healing/collectors/AssertionFailureCollector.js';
+import HealingEngine from '../../ai/self-healing/HealingEngine.js';
 import { HealingResult } from '../../models/ai/HealingResult.js';
 import LoginTestFlow from '../../test-flows/LoginTestFlow.js';
 import { frameworkConfig } from '../../config/framework.config.js';
